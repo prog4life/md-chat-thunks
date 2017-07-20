@@ -1,70 +1,110 @@
-var http = require('http');
-var path = require('path');
-var parser = require('body-parser');
-var websocket = require('ws');
-var messenger = require('./messenger');
-var express = require('express');
-var app = express();
+const http = require('http');
+const path = require('path');
+const url = require('url');
+const parser = require('body-parser');
+const websocket = require('ws');
+const messenger = require('./messenger');
+const express = require('express');
+const app = express();
 
-var server = http.createServer(app);  // optional
+const server = http.createServer(app);  // optional
 // If not pass app at prior line, then do:
 // server.on('request', app);
 
 var chat = messenger.createChat();
 
-// app.use(parser.json());  // or:
-var jsonParser = parser.json();
+// app.use(parser.json()); // or:
+const jsonParser = parser.json();
 
-var wss = new websocket.Server({
-  server: server,
-  perMessageDeflate: false  // compression extension disabled
+const wss = new websocket.Server({
+  // TODO: try to use on diferent port while express server up and running
+  port: 8008,
+  // clientTracking: true,
+  verifyClient: (info, done) => {
+    // info.req is client request object
+    // console.log('info obj from verifyClient: ', info);
+    // "express-session" was used in example
+    // sessionParser(info.req, {}, () => { // parsing session from client
+    // We can reject the connection by returning false to done(). For example,
+    // reject here if user is unknown.
+    done(true); // done(info.req.session.userId);
+  },
+  // server, // set this or port, look above
+  perMessageDeflate: false // compression extension disabled (default)
 });
-console.log('chat.length: %s', Object.keys(chat).length);
 
-wss.on('connection', function connection(ws) {
+// console.log('chat.length: %s', Object.keys(chat).length);
 
-  // TODO: check wss.clients and broadcasting
+wss.on('connection', function connection(ws, req) {
+  // Can use location.query.access_token to authenticate or share sessions
+  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
+  // It seems it's available only in a newer version
+  // const location = url.parse(req.url, true);
+
   // answer: wss.clients is a {Set} that stores all conected clients(added only 
-  // if clientTracking is truthy)
-  // console.log('Socket connection established, wss.clients: %o', wss.clients);
-  console.log('Socket wss.clientTracking: ' + wss.clientTracking);
+  // if clientTracking is truу (default?))
+
+  // TODO: check broadcasting
 
   ws.on('message', function incoming(message) {
-
     console.log('Socket message received: %s', message);
 
     // TODO: Sanity check the incoming data maybe within chat methods   !!!
     // Where to check data, in controller or in model
+  //   var parsed = null;
 
-    var parsed = null;
-    console.log('parsed: ' + parsed);
+  //   console.log('parsed: ' + parsed);
+
+  //   try {
+  //     parsed = JSON.parse(message);
+  //   } catch (e) {
+  //     console.log('in ws.on-message parsing JSON "message" error: ' + e);
+  //   }
+
+  //   // TODO add socket to store right after assigning id, without additional request - looks like done
+  //   if (!parsed.clientId) {
+  //     parsed.clientId = chat.assignSocketId(ws);
+  //   }
+  //   if (chat.addSocket(ws, parsed)) {
+  //     chat.sendSocket(message);
+  //   }
+    let parsed = null;
 
     try {
       parsed = JSON.parse(message);
     } catch (e) {
-      console.log('in ws.on-message parsing JSON "message" error: ' + e);
+      console.error(e);
     }
+    console.log('parsed: ', parsed);
 
-    // TODO add socket to store right after assigning id, without additional request - looks like done
-    if (!parsed.clientId) {
-      parsed.clientId = chat.assignSocketId(ws);
-    }
-    if (chat.addSocket(ws, parsed)) {
-      chat.sendSocket(message);
+    if (parsed.id) {
+      wss.clients.forEach((client) => {
+        if (ws === client) {
+          console.log('index of matched item ', wss.clients.indexOf(ws));
+          return;
+        }
+        client.send(message);
+      });
+    } else {
+      ws.send(JSON.stringify({id: Math.random().toString().slice(2)}));
     }
   });
 
-  ws.on('error', function sockerr(error) {  // TODO: remove instances from sockets ?
+  ws.on('error', function sockerr(error) {
+    // TODO: remove instances from sockets ?
+    let brokenWS = wss.clients.indexOf(ws);
+
+    wss.clients.splice(brokenWS, 1);
     console.error('in-wss cb socket error: ' + error);
   });
 
-  ws.on('close', function () {         // TODO: remove instances from sockets
+  ws.on('close', function closeWebocket() { 
+    // TODO: remove instances from clients array, might be removed already
     console.log('close on ws');
   });
 });
 
-app.get('/favicon.ico', function (req, res) {
-  'use strict';
+app.get('/favicon.ico', (req, res) => {
   console.log('favicon req handler');
   res.set('Content-Type', 'image/x-icon').sendStatus(200).end();
 });
@@ -72,9 +112,7 @@ app.get('/favicon.ico', function (req, res) {
 
 // TODO: change to "/messages" or "/chat"
 // TODO: separate "isTyping" route
-app.post('/comet', jsonParser, function (req, res) {
-  'use strict';
-
+app.post('/comet', jsonParser, (req, res) => {
   // TODO: Sanity check the incoming data, maybe within chat methods          !!!
   //     Where to check data, in controller or in model ?
   var receivedData = {
@@ -117,8 +155,7 @@ app.post('/comet', jsonParser, function (req, res) {
 });
 
 // TODO: separate route to get id
-app.get('/subscribe', function (req, res) {
-  'use strict';
+app.get('/subscribe', (req, res) => {
   console.log('subscribe req handler was called with id: ' + req.query.id);
   console.log('in-subscribe handler req.query.id type: ' +
     typeof req.query.id);
@@ -135,8 +172,7 @@ app.get('/subscribe', function (req, res) {
   }
 });
 
-app.use(function (req, res, next) {
-  'use strict';
+app.use((req, res, next) => {
   // console.log('req.query length is: ' + Object.keys(req.query).length);
 
   if (Object.keys(req.query).length !== 0) {
@@ -146,17 +182,16 @@ app.use(function (req, res, next) {
     console.log('static file requested');
     next();
   }
+// move to the top
 }, express.static(path.join(__dirname, 'public')));
 
 app.all('*', function (req, res) {
-  'use strict';
   //res.redirect(302, '/redirect.html');
   res.redirect(302, '/');
   //res.render(view [, locals] [, callback]);                         Try this !!!
 });
 
 //app.get('/*', function(req, res) {
-//    'use strict';
 //
 //    res.send('Default request handler invoked');
 //});
@@ -164,7 +199,6 @@ app.all('*', function (req, res) {
 // Short form, without an explicit creation of http.Server object:
 
 //app.listen(0, function() {
-//    'use strict';
 //    console.log('Express Node.js server is listening at ' +
 //        server.address().port + ' port');
 //});
@@ -173,22 +207,18 @@ app.all('*', function (req, res) {
 //app.get('port');
 
 app.use(function (err, req, res, next) {
-  'use strict';
   // 4 args required to set error handling middleware, also next() or end res
   console.error(err.stack);
   next(err);
 });
 
 app.use(function (err, req, res, next) {
-  'use strict';
   // wss.close([callback]);
   res.status(500).end('Error occurred: ' + err);
 });
 
 // server.listen(8888, function() {
-server.listen(process.env.PORT || 8888,
-  process.env.IP || 'localhost', function () {
-    'use strict';
-    console.log('Express Node.js server is listening at ' +
-      server.address().port + ' port');
-  });
+server.listen(process.env.PORT || 8888, process.env.IP || 'localhost', () => {
+  console.log('Express Node.js server is listening at ' +
+    server.address().port + ' port');
+});

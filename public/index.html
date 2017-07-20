@@ -2,31 +2,25 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Long request and sockets minichat</title>
+    <title>Long request and websockets minichat</title>
     <style>
         .container {
             display: flex;
-            width: 40%;
+            width: 50%;
+            justify-content: flex-start;
+            flex-wrap: wrap; 
         }
 
         .longpoll-wrapper {
-            width: 50%;
+            flex: initial;
+            min-width: 10rem;
         }
 
-        .socket-wrapper {
-            flex-grow: 1;
-        }
-/*
-        .long-input {
-            float: left;
-            width: 17%;
+        .websocket-wrapper {
+            flex: initial;
+            min-width: 10rem;
         }
 
-        .sockets-input {
-            margin-left: 18%;
-            width: 17%;
-        }
-*/
         #chat-area {
             list-style-type: circle;
             /*list-style-type: none;*/
@@ -36,7 +30,7 @@
 <body>
 
 <div class="container">
-    <div class="longpoll-wrapper">
+     <div class="longpoll-wrapper">
         <form id="long-polling">
         <!--<form id="long-polling" onsubmit="new LongPolling();">-->
         <!--<form id="long-polling" action="javascript:void(0);">-->
@@ -52,12 +46,12 @@
         </form>
     </div>
 
-    <div class="socket-wrapper">
-        <form id="socket">
+    <div class="websocket-wrapper">
+        <form id="websocket">
             <fieldset>
-            <legend>Socket</legend>
+            <legend>Websocket</legend>
             <label>
-                <input id="socket-message" name="socket-message" type="text">
+                <input id="websocket-message" name="websocket-message" type="text">
             </label>
             <input type="submit" value="Send">
             </fieldset>
@@ -75,8 +69,8 @@
 </div>
 
 <!-- <script src="long-polling.js"></script> -->
-<script src="socket.js"></script>
-<script src="is-typing.js"></script>
+<script src="websocket.js"></script>
+<!-- <script src="is-typing.js"></script> -->
 
 </body>
 </html>
