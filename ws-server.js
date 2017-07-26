@@ -1,5 +1,7 @@
 const websocket = require('ws');
 
+// TODO: apply uuid to set unique ids
+
 const startWebsocket = (server) => {
   const wss = new websocket.Server({
     // TODO: try to use on diferent port while express server up and running
@@ -60,31 +62,65 @@ const startWebsocket = (server) => {
       }
       console.log('parsed incomingData: ', incomingData);
 
-      if (!incomingData.id) {
-        // check if client already exist in list and have id
+      const {id, name, message: incomingMessage, type} = incomingData;
+      let newId = '';
+      let outgoing = null;
 
-        const id = Math.random().toString().slice(2);
+      switch (type) {
+        case 'GET_ID':
+          // TODO: check if client already exist in list and have id
+          // TODO: change to uuid
+          newId = Math.random().toString().slice(2);
 
-        incomingData.id = id;
+          ws.send(JSON.stringify({
+            id: newId,
+            type: 'SET_ID'
+          }));
+          break;
 
-        // variant 1: send back only new id, client will show message stored
-        // by himself (if present)
-        ws.send(JSON.stringify({ id }));
-
-        // variant 2: send back new id with message received from client
-        // (if any); client then will show them both
-        // ws.send(JSON.stringify(incomingData));
-        console.log('sent new id ', id);
-      }
-
-      if (incomingData.message) {
-        wss.clients.forEach((client) => {
-          if (ws === client) {
-            console.log('index of matched item ', wss.clients.indexOf(ws));
+        case 'MESSAGE':
+          // TODO: validate
+          if (typeof id !== 'string' || id === '') {
+            console.error('Crappy incoming id');
             return;
           }
-          client.send(JSON.stringify(incomingData));
-        });
+
+          if (typeof incomingMessage !== 'string' || incomingMessage === '') {
+            console.error('Crappy incoming message');
+            return;
+          }
+
+          if (typeof name !== 'string' || name === '') {
+            console.error('Crappy incoming name');
+            return;
+          }
+
+          outgoing = JSON.stringify({
+            id,
+            name,
+            message: incomingMessage,
+            type
+          });
+
+          wss.clients.forEach((client) => {
+            if (ws === client) {
+              console.log('index of matched item ', wss.clients.indexOf(ws));
+              return;
+            }
+            client.send(outgoing);
+          });
+          break;
+
+        case 'IS_TYPING':
+          break;
+        case 'JOIN_CHAT':
+          break;
+        case 'LEAVE_CHAT':
+          break;
+        case 'CHANGE_NAME':
+          break;
+        default:
+          console.error('Unknown websocket message type, default case');
       }
     });
 
@@ -106,4 +142,5 @@ const startWebsocket = (server) => {
   });
 };
 
+// TODO: export all functions separately with changed names for testing
 module.exports = startWebsocket;

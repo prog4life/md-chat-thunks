@@ -1,6 +1,7 @@
 const clientData = {
   websocket: null,
-  id: null,
+  id: '',
+  name: '',
   // TODO: consider using getters
   // get id() {
   //   return this.id;
@@ -15,6 +16,17 @@ const clientData = {
   }
 };
 
+// webSocket message data structure:
+const sentData = {
+  // "SET_ID"(from server), "MESSAGE", "LEAVE_CHAT", "CHANGE_NAME", "JOIN_CHAT"
+  type: 'GET_ID', // "IS_TYPING"
+  id: '2342525253', // assigned by uuid at server
+  name: 'Nickname',
+  message: 'Sent text',
+  // number of connected clients (users) converted to string, sent from server
+  participants: '55'
+};
+
 const websocketForm = document.querySelector('.websocket-wrapper > form');
 const websocketInput = websocketForm['websocket-message'];
 const chatArea = document.getElementById('chat-area');
@@ -26,18 +38,18 @@ setTimeout(startWs, 1000, websocketInput.value);
 // TODO: typing notification for WebSocket connection
 // TODO: do not sendback own message to myself, only show
 
-const sendMessage = (ws, id, message) => {
-  console.info('in-sendMessage event handler ws: %o', ws);
+const parseJSON = (json) => {
+  let parsed = null;
 
-  const dataToSend = JSON.stringify({
-    id,
-    message
-  });
-
-  ws.send(dataToSend);
+  try {
+    parsed = JSON.parse(json);
+  } catch (e) {
+    console.error('Failed to parse incoming data ', e);
+    return false;
+  }
+  return parsed;
 };
 
-// TODO: implement showing id
 const showMessage = (id, message) => {
   const newLi = document.createElement('li');
 
@@ -53,24 +65,69 @@ const handleWebSocketFormSubmit = (event) => {
     return;
   }
 
-  const ws = clientData.websocket;
-  const id = clientData.id;
+  const {websocket: ws, id, name} = clientData;
 
-  // TODO: check for CLOSED or CLOSING websocket state and reconnect if so
-  // like in situation with server reboot
-
-  if (ws && id) {
-    sendMessage(ws, id, message);
+  // restore connection on CLOSED or CLOSING ws readyState, like in situation
+  // when server was temporary down, and on OPENING, assuming it takes too long
+  if (ws && id && ws.readyState === 1) {
+    ws.send(JSON.stringify({
+      id,
+      name: Array.from(message).reverse().join(''), // TODO: change to real name later
+      message,
+      type: 'MESSAGE'
+    }));
     // view sent message
+    // TODO: replace id by name later
     showMessage(id, message);
   } else {
-    // TODO: show notification about connection setup to user
     startWs(message);
   }
   websocketInput.value = '';
 };
 
 websocketForm.addEventListener('submit', handleWebSocketFormSubmit);
+
+const checkIncomingData = (incomingData) => {
+  const parsedIncoming = parseJSON(incomingData);
+
+  const {id, name, message, type} = parsedIncoming;
+  let {participants} = parsedIncoming;
+
+  if (typeof id !== 'string' || id.length < 1 || id.length > 20) {
+    console.error('Got too long or empty or not string id from server');
+    return false;
+  }
+
+  if (typeof type !== 'string' || type === '') {
+    console.error('Got type that is empty string or not string');
+    return false;
+  }
+
+  if (type !== 'SET_ID' && type !== 'IS_TYPING') {
+    if (typeof name !== 'string' || name === '') {
+      console.error('Got name that is empty string or not string');
+      return false;
+    }
+
+    if (typeof message !== 'string' || message === '') {
+      console.error('Got message that is empty string or not string');
+      return false;
+    }
+    // TODO: consider sending participants as integer
+    if (typeof participants !== 'string' || participants === '') {
+      console.error('Got participants that is empty string or not string');
+      participants = null;
+    }
+  }
+
+  return {
+    id,
+    type,
+    name,
+    message,
+    participants
+  };
+};
 
 // TODO: check if websocket already exists; return "success" true or false or
 // clientData.get('websocket'); check if websocket exists at the beginning
@@ -86,50 +143,60 @@ function startWs(message) {
     console.log('websocket connection established with openEvent ', open);
     console.log('open connection with ws: %o and message: %s', ws, message);
 
-    // server must generate new id, process message (if present) with this id,
-    // and respond with new id
-    // TODO: consider replacing witn sendMessage(ws, null, message);
-    const dataToSend = {};
+    // server must generate new id, and respond with it
+    const dataToSend = {
+      type: 'GET_ID'
+    };
 
-    if (message.length > 1) {
-      dataToSend.message = message;
-    }
     ws.send(JSON.stringify(dataToSend));
 
     clientData.set('websocket', ws);
   });
 
-  ws.addEventListener('message', (incoming) => {
-    console.log('startWs onmessage incoming: ', incoming);
+  ws.addEventListener('message', (messageEvent) => {
+    console.log('startWs onmessage incoming: ', messageEvent);
 
-    const responseData = JSON.parse(incoming.data);
-    // TODO: check incomingId length and type
-    const incomingId = responseData.id;
-    // TODO: need to use toString() ???
-    const incomingMessage = responseData.message;
+    const incoming = checkIncomingData(messageEvent.data);
 
-    if (!incomingId && !clientData.id) {
-      // request new id again
-      // TODO: consider replacing witn sendMessage(ws, null, null);
-      ws.send(JSON.stringify({}));
-      return;
-
-    } else if (!incomingId) {
-      console.error('Received message without sender id');
+    if (!incoming) {
       return;
     }
 
-    if (incomingMessage) {
-      showMessage(incomingId, incomingMessage);
-      return;
-    }
+    const {id, type, name, message: incomingMessage, participants} = incoming;
 
-    clientData.id = incomingId;
+    switch (incoming.type) {
+      case 'SET_ID':
+        clientData.id = id;
 
-    if (message) {
-      // after getting new id from server, shows it with own message,
-      // passed to "startWs", not incoming message
-      showMessage(incomingId, message);
+        if (message && message.length > 1) {
+          ws.send(JSON.stringify({
+            id,
+            name: Array.from(message).reverse().join(''), // TODO: change to real name later
+            message,
+            type: 'MESSAGE'
+          }));
+        }
+        break;
+
+      case 'MESSAGE':
+        showMessage(id, incomingMessage); // TODO: replace id by name
+        break;
+
+      case 'IS_TYPING':
+        // showIsTyping(name);
+        break;
+
+      case 'JOIN_CHAT':
+        // showInfo(type, name);
+        break;
+      case 'LEAVE_CHAT':
+        // showInfo(type, name);
+        break;
+      case 'CHANGE_NAME':
+        // showInfo(type, name);
+        break;
+      default:
+        console.error('Unknown websocket message type, default case has fired');
     }
   });
 
@@ -140,7 +207,15 @@ function startWs(message) {
     if (close.wasClean) {
       console.log('websocket connection closed clean');
     } else {
-      console.log('websocket connection lost');
+      console.log('websocket connection lost, restoring...');
+      // startWs();
+      // let retryConnectId = setInterval(() => {
+      //   if (clientData.ws.readyState === 1) {
+      //     retryConnectId = null;
+      //     return;
+      //   }
+      //   startWs();
+      // }, 1000);
     }
     console.log('websocket closing code: ' + close.code + ', reason: ' +
       close.reason);
