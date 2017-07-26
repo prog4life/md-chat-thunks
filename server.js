@@ -1,114 +1,36 @@
 const http = require('http');
 const path = require('path');
-const url = require('url');
-const parser = require('body-parser');
-const websocket = require('ws');
-const messenger = require('./messenger');
+// const url = require('url');
+const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();
 
-const server = http.createServer(app);  // optional
-// If not pass app at prior line, then do:
-// server.on('request', app);
+const startWebsocket = require('./ws-server');
+const messenger = require('./messenger');
 
-var chat = messenger.createChat();
+// if not pass "app", can use alternative further: server.on('request', app);
+const server = http.createServer(app);
 
-// app.use(parser.json()); // or:
-const jsonParser = parser.json();
+const port = process.env.PORT || 8888;
+const ip = process.env.IP || 'localhost';
 
-const wss = new websocket.Server({
-  // TODO: try to use on diferent port while express server up and running
-  port: 8008,
-  // clientTracking: true,
-  verifyClient: (info, done) => {
-    // info.req is client request object
-    // console.log('info obj from verifyClient: ', info);
-    // "express-session" was used in example
-    // sessionParser(info.req, {}, () => { // parsing session from client
-    // We can reject the connection by returning false to done(). For example,
-    // reject here if user is unknown.
-    done(true); // done(info.req.session.userId);
-  },
-  // server, // set this or port, look above
-  perMessageDeflate: false // compression extension disabled (default)
-});
+startWebsocket(server);
 
-// console.log('chat.length: %s', Object.keys(chat).length);
+const chat = messenger.createChat();
 
-wss.on('connection', function connection(ws, req) {
-  // Can use location.query.access_token to authenticate or share sessions
-  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-  // It seems it's available only in a newer version
-  // const location = url.parse(req.url, true);
+// app.use(bodyParser.json()); // or:
+const jsonParser = bodyParser.json();
 
-  // answer: wss.clients is a {Set} that stores all conected clients(added only 
-  // if clientTracking is truу (default?))
+// app.set('view-engine', 'pug');
+app.use(express.static(path.join(__dirname, 'public')));
 
-  // TODO: check broadcasting
-
-  ws.on('message', function incoming(message) {
-    console.log('Socket message received: %s', message);
-
-    // TODO: Sanity check the incoming data maybe within chat methods   !!!
-    // Where to check data, in controller or in model
-  //   var parsed = null;
-
-  //   console.log('parsed: ' + parsed);
-
-  //   try {
-  //     parsed = JSON.parse(message);
-  //   } catch (e) {
-  //     console.log('in ws.on-message parsing JSON "message" error: ' + e);
-  //   }
-
-  //   // TODO add socket to store right after assigning id, without additional request - looks like done
-  //   if (!parsed.clientId) {
-  //     parsed.clientId = chat.assignSocketId(ws);
-  //   }
-  //   if (chat.addSocket(ws, parsed)) {
-  //     chat.sendSocket(message);
-  //   }
-    let parsed = null;
-
-    try {
-      parsed = JSON.parse(message);
-    } catch (e) {
-      console.error(e);
-    }
-    console.log('parsed: ', parsed);
-
-    if (parsed.id) {
-      wss.clients.forEach((client) => {
-        if (ws === client) {
-          console.log('index of matched item ', wss.clients.indexOf(ws));
-          return;
-        }
-        client.send(message);
-      });
-    } else {
-      ws.send(JSON.stringify({id: Math.random().toString().slice(2)}));
-    }
-  });
-
-  ws.on('error', function sockerr(error) {
-    // TODO: remove instances from sockets ?
-    let brokenWS = wss.clients.indexOf(ws);
-
-    wss.clients.splice(brokenWS, 1);
-    console.error('in-wss cb socket error: ' + error);
-  });
-
-  ws.on('close', function closeWebocket() { 
-    // TODO: remove instances from clients array, might be removed already
-    console.log('close on ws');
-  });
-});
-
+// alternative manner:
+// const favicon = require('serve-favicon');
+// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.get('/favicon.ico', (req, res) => {
-  console.log('favicon req handler');
-  res.set('Content-Type', 'image/x-icon').sendStatus(200).end();
+  res.set('Content-Type', 'image/x-icon');
+  res.status(200).end();
 });
-// alternative manner - app.favicon(...);
 
 // TODO: change to "/messages" or "/chat"
 // TODO: separate "isTyping" route
@@ -122,7 +44,7 @@ app.post('/comet', jsonParser, (req, res) => {
   };
 
   // for GET request with query string parameters:
-  //if (req.params.message) {
+  // if (req.params.message) {
   //    receivedData = {
   //        author: 'Bucky',
   //        message: req.params.message,
@@ -130,12 +52,12 @@ app.post('/comet', jsonParser, (req, res) => {
   //    };
 
   // Manual POST request body parsing:
-  //var receivedData = {}
-  //var body = [];
-  //var message = '';
-  //req.on('data', function(chunk) {
+  // var receivedData = {}
+  // var body = [];
+  // var message = '';
+  // req.on('data', function(chunk) {
   //    body[body.length] = chunk;
-  //}).on('end', function() {
+  // }).on('end', function() {
   //    body = Buffer.concat(body).toString();
   //    try {
   //        body = JSON.parse(body);
@@ -145,7 +67,7 @@ app.post('/comet', jsonParser, (req, res) => {
   //    receivedData.message = body.message;
   //    chat.send(receivedData);
   //    res.status(200).end('OK');
-  //});
+  // });
 
   console.log('"/comet" has been requested, received data: ' +
     JSON.stringify(receivedData));
@@ -173,52 +95,40 @@ app.get('/subscribe', (req, res) => {
 });
 
 app.use((req, res, next) => {
-  // console.log('req.query length is: ' + Object.keys(req.query).length);
+  const error = new Error('Not Found');
+  error.code = 404;
 
-  if (Object.keys(req.query).length !== 0) {
-    console.log('req.query length is not 0');
-    res.redirect('/');
-  } else {
-    console.log('static file requested');
-    next();
-  }
-// move to the top
-}, express.static(path.join(__dirname, 'public')));
-
-app.all('*', function (req, res) {
-  //res.redirect(302, '/redirect.html');
-  res.redirect(302, '/');
-  //res.render(view [, locals] [, callback]);                         Try this !!!
+  next(error);
 });
-
-//app.get('/*', function(req, res) {
-//
-//    res.send('Default request handler invoked');
-//});
 
 // Short form, without an explicit creation of http.Server object:
-
-//app.listen(0, function() {
+// app.listen(0, function() {
 //    console.log('Express Node.js server is listening at ' +
 //        server.address().port + ' port');
-//});
+// });
 
-//app.set('port', 8888);
-//app.get('port');
+// app.set('port', 8888);
+// app.get('port');
 
-app.use(function (err, req, res, next) {
-  // 4 args required to set error handling middleware, also next() or end res
-  console.error(err.stack);
-  next(err);
-});
-
-app.use(function (err, req, res, next) {
+app.use((error, req, res, next) => {
+  // 4 args required to set error handling middleware
+  console.error(error.message);
+  // next(error);
   // wss.close([callback]);
-  res.status(500).end('Error occurred: ' + err);
+  res.status(error.code || 500); // chain sendFile here OR:
+  res.sendFile(path.join(__dirname, './views/error.html')); // OR:
+  // only if template engine is enabled
+  // res.render('error', { error });
 });
 
-// server.listen(8888, function() {
-server.listen(process.env.PORT || 8888, process.env.IP || 'localhost', () => {
-  console.log('Express Node.js server is listening at ' +
-    server.address().port + ' port');
+app.set('port', port);
+app.set('ip', port);
+
+server.listen(port, ip);
+// same as passing callback as 3rd arg to server.listen() above:
+server.on('listening', () => {
+  // TODO: replace by app.get('port');
+  console.log('Up & running at ' + server.address().port + ' port');
 });
+
+server.on('error', (error) => console.error('Unable to start server ', error));

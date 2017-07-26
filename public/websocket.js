@@ -1,55 +1,158 @@
 const clientData = {
   websocket: null,
   id: null,
-  // TODO: replace by native getter, temporary used custom one
-  get(prop) {
-    return this[prop];
-  },
+  // TODO: consider using getters
+  // get id() {
+  //   return this.id;
+  // },
+  // get websocket() {
+  //   return this.websocket;
+  // },
   set(prop, value) {
-    prop = typeof prop === 'string' ? prop : prop.toString();
-    this[prop] = value;
+    const propName = typeof prop === 'string' ? prop : prop.toString();
+
+    this[propName] = value;
   }
 };
 
-var websocketForm = document.querySelector('.websocket-wrapper > form');
-var websocketInput = websocketForm['websocket-message'];
-let chatArea = document.getElementById('chat-area');
+const websocketForm = document.querySelector('.websocket-wrapper > form');
+const websocketInput = websocketForm['websocket-message'];
+const chatArea = document.getElementById('chat-area');
 
-setTimeout(setConnection, 1000, websocketInput.value);
+// let message = websocketInput.value;
+
+setTimeout(startWs, 1000, websocketInput.value);
 
 // TODO: typing notification for WebSocket connection
 // TODO: do not sendback own message to myself, only show
 
-websocketForm.addEventListener('submit', function (event) {
-  'use strict';
-  event.preventDefault();
-  var ws = clientData.get('websocket');
-  var id = clientData.get('id');
-  // display sending message
-  let newLi = document.createElement('li');
-  chatArea.appendChild(newLi).innerHTML = websocketInput.value;
+const sendMessage = (ws, id, message) => {
+  console.info('in-sendMessage event handler ws: %o', ws);
 
-  console.info('in-websocketForm event handler ws: %o', ws);
+  const dataToSend = JSON.stringify({
+    id,
+    message
+  });
+
+  ws.send(dataToSend);
+};
+
+// TODO: implement showing id
+const showMessage = (id, message) => {
+  const newLi = document.createElement('li');
+
+  chatArea.appendChild(newLi).innerHTML = id + ': ' + message;
+};
+
+const handleWebSocketFormSubmit = (event) => {
+  event.preventDefault();
+  const message = websocketInput.value;
+
+  if (message.length < 1) {
+    websocketInput.focus();
+    return;
+  }
+
+  const ws = clientData.websocket;
+  const id = clientData.id;
+
+  // TODO: check for CLOSED or CLOSING websocket state and reconnect if so
+  // like in situation with server reboot
 
   if (ws && id) {
-    sendData(ws, id, websocketInput.value);
-  } else if (ws) {
-    sendData(ws);
+    sendMessage(ws, id, message);
+    // view sent message
+    showMessage(id, message);
   } else {
-    setConnection(websocketInput.value);
+    // TODO: show notification about connection setup to user
+    startWs(message);
   }
   websocketInput.value = '';
-});
+};
 
-function sendData(ws, id, inputText) {
-  'use strict';
-  console.log('in-sendData websocket: %o, id: %s, data: %o', ws, id, inputText);
+websocketForm.addEventListener('submit', handleWebSocketFormSubmit);
 
-  ws.send(JSON.stringify({
-    id,
-    inputText
-  }));
+// TODO: check if websocket already exists; return "success" true or false or
+// clientData.get('websocket'); check if websocket exists at the beginning
+function startWs(message) {
+  // Note the protocol version: "wss", not "ws"                          !!!
+  // const ws = new WebSocket('wss://main-dev2get.c9users.io');
+  const ws = new WebSocket('ws://localhost:8888');
+
+  console.info('in-startWs message: %s', message);
+  console.info('in-startWs ws: %o', ws);
+
+  ws.addEventListener('open', (open) => {
+    console.log('websocket connection established with openEvent ', open);
+    console.log('open connection with ws: %o and message: %s', ws, message);
+
+    // server must generate new id, process message (if present) with this id,
+    // and respond with new id
+    // TODO: consider replacing witn sendMessage(ws, null, message);
+    const dataToSend = {};
+
+    if (message.length > 1) {
+      dataToSend.message = message;
+    }
+    ws.send(JSON.stringify(dataToSend));
+
+    clientData.set('websocket', ws);
+  });
+
+  ws.addEventListener('message', (incoming) => {
+    console.log('startWs onmessage incoming: ', incoming);
+
+    const responseData = JSON.parse(incoming.data);
+    // TODO: check incomingId length and type
+    const incomingId = responseData.id;
+    // TODO: need to use toString() ???
+    const incomingMessage = responseData.message;
+
+    if (!incomingId && !clientData.id) {
+      // request new id again
+      // TODO: consider replacing witn sendMessage(ws, null, null);
+      ws.send(JSON.stringify({}));
+      return;
+
+    } else if (!incomingId) {
+      console.error('Received message without sender id');
+      return;
+    }
+
+    if (incomingMessage) {
+      showMessage(incomingId, incomingMessage);
+      return;
+    }
+
+    clientData.id = incomingId;
+
+    if (message) {
+      // after getting new id from server, shows it with own message,
+      // passed to "startWs", not incoming message
+      showMessage(incomingId, message);
+    }
+  });
+
+  // will be called when the WebSocket connection's "readyState" changes to
+  // CLOSED. The listener receives a "CloseEvent" named "close"
+  // TODO: if was not clean - reconnect, wipe id
+  ws.addEventListener('close', (close) => {
+    if (close.wasClean) {
+      console.log('websocket connection closed clean');
+    } else {
+      console.log('websocket connection lost');
+    }
+    console.log('websocket closing code: ' + close.code + ', reason: ' +
+      close.reason);
+  });
+
+  // TODO: reconnect, wipe id
+  ws.addEventListener('error', (error) => {
+    console.error('websocket error occurred: ' + error.message);
+  });
 }
+
+// ----------------------------------------------------------------------------
 
 // count attempts to get id from server
 // let attempts = requestId.attempts;
@@ -60,107 +163,43 @@ function sendData(ws, id, inputText) {
 // } else {
 // // failed 2 times to get id from server, initialize new connection
 //   console.error('Unable to get id or message from server');
-//   let connAttempts = setConnection.attempts;
+//   let connAttempts = startWs.attempts;
 
 //   connAttempts = connAttempts ? connAttempts : 0;
 //   if (connAttempts < 1) {
-//     setConnection.attempts++;
-//     setConnection(inputText);
+//     startWs.attempts++;
+//     startWs(inputText);
 //   }
 // }
+// ----------------------------------------------------------------------------
+// OLD onmessage
+// ws.onmessage = function (event) {
+//   console.log('websocket incoming data received: %s', event.data);
 
-// TODO: rename to setWebsocket and return "success" true or false or
-// clientData.get('websocket'); check if websocket exists at the beginning
-function setConnection(inputText) {
-  'use strict';
-  var ws = clientData.get('websocket');
-  var id = clientData.get('id');
+//   if (id) {
+//     console.log('Get data from serv ', event.data);
+//   } else {
+//     clientData.set('id', event.data.id);
+//   }
 
-  // var ws = new WebSocket('ws://localhost:8888');
-  // Note the protocol version: "wss", not "ws"                          !!!
-  // var ws = new WebSocket('wss://main-dev2get.c9users.io');
-  ws = new WebSocket('ws://localhost:8008');
-  // var message = '';
-  console.info('in-start websocket inputText: %s', inputText);
-  console.info('in-start ws: %o', ws);
-  // TODO: check passed arg onopen
-  ws.onopen = function () {
-    console.log('websocket connection established');
+  // var incoming = handleIncoming(event.data);
 
-    clientData.set('websocket', ws);
+  // if (incoming.type === 'setId' && id) {
+  //   console.log('onmessage sendData, incoming type: %s', incoming.type);
 
-    console.info('in-start id: %s', id);
-
-    console.log('open connection with ws: %o and id: %s', ws, inputText);
-    // to get new id from server at new websocket connection
-    sendData(ws);
-  };
-
-  ws.onmessage = (incoming) => {
-    console.log('setConn onmessage incoming: ', incoming);
-    let responseData = JSON.parse(incoming.data);
-    let newId = responseData.id;
-    let message = responseData.inputText; // toString()
-
-    // get new client id from server object with empty message
-    if (newId && !message) {
-      clientData.set('id', newId);
-      // let inputText = websocketInput.value;
-
-      if (inputText) {
-        // after getting new id send input text if present
-        sendData(ws, newId, inputText);
-      }
-    // get another user's message with id from server
-    } else if (newId) {
-      console.log('Get message from server: ', message);
-      // display received message
-      chatArea.appendChild(document.createElement('li')).innerHTML = message;
-    }
-  };
-
-  // ws.onmessage = function (event) {
-  //   console.log('websocket incoming data received: %s', event.data);
-
-  //   if (id) {
-  //     console.log('Get data from serv ', event.data);
-  //   } else {
-  //     clientData.set('id', event.data.id);
-  //   }
-
-    // var incoming = handleIncoming(event.data);
-
-    // if (incoming.type === 'setId' && id) {
-    //   console.log('onmessage sendData, incoming type: %s', incoming.type);
-
-    //   clientData.set('websocket', ws);
-    // }
-    // maybe need to check somehow if long-polling.js is loaded
-    // showMessage(message);  // replaced to handleIncoming()
-  // };
-
-  ws.onclose = function (event) {                          // TODO: reconnect
-    if (event.wasClean) {
-      console.log('websocket connection closed clean');
-    } else {
-      console.log('websocket connection lost');
-    }
-    console.log('websocket closing code: ' + event.code + ', reason: ' +
-      event.reason);
-  };
-
-  ws.onerror = function (error) {                         // TODO: reconnect ?
-    console.error('websocket error occurred: ' + error.message);
-  };
-}
-
+  //   clientData.set('websocket', ws);
+  // }
+  // maybe need to check somehow if long-polling.js is loaded
+  // showMessage(message);  // replaced to handleIncoming()
+// };
+// ----------------------------------------------------------------------------
 // Need to test if this will work here:
 
-//ws.on('open', function open() {
+// ws.on('open', function open() {
 //    ws.send('something');
-//});
+// });
 //
-//ws.on('message', function(data, flags) {
+// ws.on('message', function(data, flags) {
 //    // flags.binary will be set if a binary data is received.
 //    // flags.masked will be set if the data was masked.
-//});
+// });
