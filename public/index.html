@@ -1,76 +1,12 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Long request and websockets minichat</title>
-    <style>
-        .container {
-            display: flex;
-            width: 50%;
-            justify-content: flex-start;
-            flex-wrap: wrap; 
-        }
-
-        .longpoll-wrapper {
-            flex: initial;
-            min-width: 10rem;
-        }
-
-        .websocket-wrapper {
-            flex: initial;
-            min-width: 10rem;
-        }
-
-        #chat-area {
-            list-style-type: circle;
-            /*list-style-type: none;*/
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-     <div class="longpoll-wrapper">
-        <form id="long-polling">
-        <!--<form id="long-polling" onsubmit="new LongPolling();">-->
-        <!--<form id="long-polling" action="javascript:void(0);">-->
-            <fieldset>
-                <legend>Long Polling</legend>
-                <label>
-                    <input id="longpoll-message" name="longpoll-message"
-                           type="text">
-                </label>
-                <input type="submit" value="Send">
-                <!--<input onclick="new LongPolling();" type="submit" value="Send">-->
-            </fieldset>
-        </form>
-    </div>
-
-    <div class="websocket-wrapper">
-        <form id="websocket">
-            <fieldset>
-            <legend>Websocket</legend>
-            <label>
-                <input id="websocket-message" name="websocket-message" type="text">
-            </label>
-            <input type="submit" value="Send">
-            </fieldset>
-        </form>
-    </div>
-</div>
-
-<div class="typing"></div>
-
-<div class="chat">
-    <ul id="chat-area">
-        <li>Test message 1</li>
-        <li>Test message 2</li>
-    </ul>
-</div>
-
-<!-- <script src="long-polling.js"></script> -->
-<script src="websocket.js"></script>
-<!-- <script src="is-typing.js"></script> -->
-
-</body>
+  <head>
+    <meta charset="utf-8">
+    <title>Longpoll and WebSocket Chat</title>
+    <link rel="stylesheet" type="text/css" href="styles/main.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="bundle.js"></script>
+  </body>
 </html>

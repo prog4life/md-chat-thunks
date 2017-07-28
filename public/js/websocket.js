@@ -88,6 +88,7 @@ const handleWebSocketFormSubmit = (event) => {
 websocketForm.addEventListener('submit', handleWebSocketFormSubmit);
 
 const checkIncomingData = (incomingData) => {
+  // TODO: check for parsing success
   const parsedIncoming = parseJSON(incomingData);
 
   const {id, name, message, type} = parsedIncoming;
@@ -164,7 +165,7 @@ function startWs(message) {
 
     const {id, type, name, message: incomingMessage, participants} = incoming;
 
-    switch (incoming.type) {
+    switch (type) {
       case 'SET_ID':
         clientData.id = id;
 

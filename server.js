@@ -11,7 +11,7 @@ const messenger = require('./messenger');
 // if not pass "app", can use alternative further: server.on('request', app);
 const server = http.createServer(app);
 
-const port = process.env.PORT || 8888;
+const port = process.env.PORT || 8787;
 const ip = process.env.IP || 'localhost';
 
 startWebsocket(server);
@@ -23,6 +23,7 @@ const jsonParser = bodyParser.json();
 
 // app.set('view-engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'src')));
 
 // alternative manner:
 // const favicon = require('serve-favicon');
