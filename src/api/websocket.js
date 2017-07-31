@@ -40,7 +40,7 @@ export const setOnMessageHandler = (ws, cb) => {
         cb(null, {
           message: {
             id,
-            notification: false,
+            isNotification: false,
             nickname: name,
             message: incomingMessage
           }
@@ -50,6 +50,9 @@ export const setOnMessageHandler = (ws, cb) => {
         break;
 
       case 'IS_TYPING':
+        cb(null, {
+          whoIsTyping: [name]
+        });
         // showIsTyping(name);
         break;
 
@@ -75,12 +78,12 @@ export const setOnMessageHandler = (ws, cb) => {
 //   messages: [
 //     {
 //       id: 'wa3rg4yxsf8se7fr943',
-//       notification: true, // or false
+//       isNotification: true, // or false
 //       nickame: 'some user*s nickname',
 //       message: 'some tex'
 //     }
 //   ],
-//   isWriting: ['username1', 'username2'],
+//   whoIsTyping: ['username'],
 //   participants: 43
 // }
 

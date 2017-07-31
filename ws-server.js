@@ -1,4 +1,5 @@
 const websocket = require('ws');
+const idis = require('short-id');
 
 // TODO: apply uuid to set unique ids
 
@@ -70,7 +71,8 @@ const startWebsocket = (server) => {
         case 'GET_ID':
           // TODO: check if client already exist in list and have id
           // TODO: change to uuid
-          newId = Math.random().toString().slice(2);
+          // newId = Math.random().toString().slice(2);
+          newId = idis.generate();
 
           ws.send(JSON.stringify({
             id: newId,
@@ -112,6 +114,24 @@ const startWebsocket = (server) => {
           break;
 
         case 'IS_TYPING':
+          if (typeof name !== 'string' || name === '') {
+            console.error('Crappy incoming name of one who is typing');
+            return;
+          }
+
+          outgoing = JSON.stringify({
+            id,
+            name,
+            type
+          });
+
+          wss.clients.forEach((client) => {
+            if (ws === client) {
+              console.log('index of matched item ', wss.clients.indexOf(ws));
+              return;
+            }
+            client.send(outgoing);
+          });
           break;
         case 'JOIN_CHAT':
           break;
@@ -135,7 +155,7 @@ const startWebsocket = (server) => {
     });
 
     // TODO: check close event presence
-    ws.on('close', function closeWebocket(closeEvent) {
+    ws.on('close', function closeWebSocket(closeEvent) {
       // TODO: remove instances from clients array; might be removed already
       console.log('in-wss close event ', closeEvent);
     });

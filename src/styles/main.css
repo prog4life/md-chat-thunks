@@ -6,25 +6,43 @@
 .chat-app {
   width: 30%;
   min-width: 400px;
-  font-family: "Verdana", sans-serif;
+  font-family: Verdana, sans-serif;
 }
 
 .chat-app h3 {
   text-align: center;
 }
 
-.chat-history, .chat-input {
+.chat-history, .chat-input, .chat-input .message-text {
   border: 1px solid rgba(228, 181, 181, .9);
 }
 
 .chat-history {
   min-height: 10rem;
   max-height: 20rem;
-  overflow-y: scroll;
+  overflow-y: auto;
+  overflow-x: visible;
+  overflow-wrap: break-word;
+  font-size: .9rem;
+}
+
+/*.typing-notif-hidden {
+  color: rgba(255, 255, 255, 1);
+  transition: color 1s ease;
+}*/
+
+.typing-notif {
+  min-height: 1.4rem;
+  font-size: .8rem;
+  margin: 0;
+  padding: 0 .4rem .2rem .4rem;
+  /*color: rgba(255, 255, 255, 0);*/
+  display: flex;
+  align-items: center;
 }
 
 .chat-input {
-  border-top: none;
+  /*border-top: none;*/
   display: flex;
   flex-flow: column;
 }
@@ -34,9 +52,16 @@
 }
 
 .chat-input .nickname {
-  /*width: 50%;*/
-  min-height: 2rem;
+  border: none;
+  min-height: 1.4rem;
   font-size: 1rem;
+  padding: .2rem .4rem;
+}
+
+.chat-input .message-text {
+  font-size: 1.2rem;
+  border-width: 1px 0;
+  padding: .2rem .4rem;
 }
 
 .chat-input .send-button {
@@ -52,6 +77,14 @@
   border: 1px solid #f19090;
 }
 
-.chat-input .message-text {
-  font-size: 1.2rem;
+.chat-message {
+  padding: .1rem .4rem;
+}
+
+.chat-message .author {
+  color: #f19090;
+}
+
+.chat-message .my-nick {
+  color: #bfbfbf;
 }
