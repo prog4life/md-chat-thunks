@@ -21,7 +21,16 @@ export default class App extends React.Component {
           message: 'Sample test user message'
         }
       ],
-      whoIsTyping: []
+      whoIsTyping: [],
+      isTypingAnimationOn: false,
+      animationConfig: {
+        placeholderText: 'No one is typing',
+        textToShow: '', // TODO: consider: `${whoIsTyping[0]} is typing`
+        repeats: 1,
+        duration: 1800,
+        steps: 100,
+        bidirectional: true
+      }
       // isTypingQueue: [
       //   {
       //     nickname: 'as obj',
@@ -29,6 +38,11 @@ export default class App extends React.Component {
       //   }
       // ]
     };
+
+    this.handleTypingAnimationSwitch =
+      this.handleTypingAnimationSwitch.bind(this);
+    this.handleTyping = this.handleTyping.bind(this);
+    this.sendMessage = this.sendMessage.bind(this);
   }
   componentDidMount() {
     startWs((websocket) => {
@@ -38,7 +52,7 @@ export default class App extends React.Component {
     });
   }
   componentDidUpdate(prevProps, prevState) {
-    console.log('New state', this.state);
+    // console.log('New state', this.state);
     // console.log('prevProps ', prevProps);
     // console.log('prevState ', prevState);
     if (this.state.websocket === prevState.websocket) {
@@ -47,10 +61,7 @@ export default class App extends React.Component {
     if (this.state.websocket && !this.state.websocket.onmessage) {
       setOnMessageHandler(this.state.websocket, (error, stateUpdates) => {
         this.setState({
-          // ...this.state,
           id: stateUpdates.id || this.state.id,
-          websocket: this.state.websocket,
-          nickname: this.state.nickname,
           messages: stateUpdates.message
             ? this.state.messages.concat(stateUpdates.message)
             : this.state.messages,
@@ -72,16 +83,13 @@ export default class App extends React.Component {
 
     // save new message to state
     this.setState({
-      id: this.state.id,
-      websocket: this.state.websocket,
-      nickname,
+      nickname, // TODO: check if nickname was changed, do not overwrite if yes
       messages: this.state.messages.concat({
         id: this.state.id,
         isNotification: false,
         nickname: 'Me',
         message
-      }),
-      whoIsTyping: this.state.whoIsTyping
+      })
       // participants: 43
     });
 
@@ -98,13 +106,9 @@ export default class App extends React.Component {
       // TODO: replace by id client from message
       <ChatMessage key={idis.generate()} {...message} />));
   }
-  handleShowTyping() {
+  handleTypingAnimationSwitch() {
     // remove one, whose typing notification was shown, after showing it
     this.setState({
-      id: this.state.id,
-      websocket: this.state.websocket,
-      nickname: this.state.nickname,
-      messages: this.state.messages,
       whoIsTyping: []
       // participants: 43
     });
@@ -123,13 +127,18 @@ export default class App extends React.Component {
     return (
       <div className="chat-app">
         <h3>Lil Chat</h3>
-        <ChatHistory messages={this.state.messages}>
+        <ChatHistory
+          messages={this.state.messages}>
           {this.renderMessageList()}
         </ChatHistory>
-        <TypingNotification whoIsTyping={this.state.whoIsTyping}
-          onShowing={this.handleShowTyping.bind(this)}/>
-        <ChatInput onTyping={this.handleTyping.bind(this)}
-          onSendMessage={this.sendMessage.bind(this)} />
+        <TypingNotification
+          whoIsTyping={this.state.whoIsTyping}
+          isTypingAnimationOn={this.state.isTypingAnimationOn}
+          animationConfig={this.state.animationConfig}
+          onAnimationSwitch={this.handleTypingAnimationSwitch} />
+        <ChatInput
+          onTyping={this.handleTyping}
+          onSendMessage={this.sendMessage} />
       </div>
     );
   }

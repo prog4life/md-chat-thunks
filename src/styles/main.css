@@ -1,6 +1,8 @@
 #app {
   display: flex;
   justify-content: center;
+
+  /* -moz-appearance: none; */
 }
 
 .chat-app {
@@ -13,8 +15,10 @@
   text-align: center;
 }
 
-.chat-history, .chat-input, .chat-input .message-text {
-  border: 1px solid rgba(228, 181, 181, .9);
+.chat-history,
+.chat-input,
+.chat-input .message-text {
+  border: 1px solid rgba(228, 181, 181, 0.9);
 }
 
 .chat-history {
@@ -23,26 +27,27 @@
   overflow-y: auto;
   overflow-x: visible;
   overflow-wrap: break-word;
-  font-size: .9rem;
+  font-size: 0.9rem;
 }
 
-/*.typing-notif-hidden {
+/* .typing-notif-hidden {
   color: rgba(255, 255, 255, 1);
   transition: color 1s ease;
-}*/
+} */
 
 .typing-notif {
   min-height: 1.4rem;
-  font-size: .8rem;
+  font-size: 0.8rem;
   margin: 0;
-  padding: 0 .4rem .2rem .4rem;
-  /*color: rgba(255, 255, 255, 0);*/
+  padding: 0.1rem 0.4rem 0.2rem;
+
+  /* color: rgba(255, 255, 255, 0); */
   display: flex;
   align-items: center;
 }
 
 .chat-input {
-  /*border-top: none;*/
+  /* border-top: none; */
   display: flex;
   flex-flow: column;
 }
@@ -51,17 +56,26 @@
   outline: none;
 }
 
+textarea,
+textarea:hover,
+textarea:focus,
+textarea:active {
+  border: none;
+  outline: none;
+  box-shadow: none; /* for sake FF */
+}
+
 .chat-input .nickname {
   border: none;
   min-height: 1.4rem;
   font-size: 1rem;
-  padding: .2rem .4rem;
+  padding: 0.2rem 0.4rem;
 }
 
 .chat-input .message-text {
   font-size: 1.2rem;
   border-width: 1px 0;
-  padding: .2rem .4rem;
+  padding: 0.2rem 0.4rem;
 }
 
 .chat-input .send-button {
@@ -78,7 +92,7 @@
 }
 
 .chat-message {
-  padding: .1rem .4rem;
+  padding: 0.1rem 0.4rem;
 }
 
 .chat-message .author {
