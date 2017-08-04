@@ -26,9 +26,12 @@ export default class App extends React.Component {
       animationConfig: {
         placeholderText: 'No one is typing',
         textToShow: '', // TODO: consider: `${whoIsTyping[0]} is typing`
-        repeats: 1,
+        repeats: 3,
         duration: 1800,
-        steps: 100,
+        // opacity change step(must: 1 / step === 'integer'), it affects amount
+        // of steps to change element opacity from 0 to 1 or back, can be one
+        // of: [0.01, 0.02, 0.04, 0.05, 0.1, 0.2, 0.25, 0.5, 1]
+        step: 0.04,
         bidirectional: true
       }
       // isTypingQueue: [

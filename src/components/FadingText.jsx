@@ -7,24 +7,24 @@ export default class FadingText extends React.Component {
     this.state = {
       // repeats: 1,
       // duration: 600,
+      // consider removing fading and fadingText from state, leave only opacity
       opacity: 1, // this.props.initialOpacity, maybe not needed in state at all
       fading: false, // TODO: replace by this.fading = false; or fadingText
       fadingText: ''
     };
   }
   componentDidMount() {
-    if (this.props.steps < 1 || this.props.steps > 1000) {
-      console.error('Inapropriate number of steps passed');
-    }
+    this.checkStepValue();
     // TODO: start fading here to
+    // TODO: prop types
   }
   componentDidUpdate(prevProps, prevState) {
-    console.log('Fade componentDidUpdate props ', this.props);
-    console.log('componentDidUpdate prevProps === this.props',
-      prevProps === this.props);
-    // fade-in/out is happening  now
+    this.checkStepValue();
+    console.log('Fade componentDidUpdate props ', this.props, 'state ', this.state);
+    // console.log('componentDidUpdate prevProps === this.props',
+    //   prevProps === this.props);
+    // fade-in/out is currently happening
     if (this.state.fading) {
-      // this.refs.fade.style.opacity = this.state.opacity;
       return;
     }
     // whole fade-in/fadeout animation has ended on prev cycle; single cooldown
@@ -35,24 +35,19 @@ export default class FadingText extends React.Component {
 
     if (!this.state.fading && this.props.textToShow) {
       // fade-in/out is gonna start now
-      // this.refs.fade.style.opacity = this.state.opacity;
-      // TODO: replace by functional setState - not needed here, fresh state/props
       this.setState({
         opacity: 0,
         fading: true,
         fadingText: this.props.textToShow
       });
-      const {repeats, duration, steps, bidirectional} = this.props;
+      const {repeats, duration, step, bidirectional} = this.props;
 
-      // this.startFade(repeats, duration, steps, bidirectional);
-      this.setFadeTimer(repeats, duration, steps, bidirectional);
+      this.setFadeTimer(repeats, duration, step, bidirectional);
     }
   }
-  setFadeTimer(repeats, duration, steps, bidirectional) {
+  setFadeTimer(repeats, duration, step, bidirectional) {
     // TODO: pass initialOpacity too
-    // TODO: replace steps by smoothness or step (from 0.001 to 1)
-    // TODO: round step for 3 numbers after dot
-    const step = 1 / steps;
+    const steps = 1 / step;
     const stepsOverall = steps * (bidirectional ? 2 : 1) * repeats;
     const singleStepInterval = duration / stepsOverall;
 
@@ -88,24 +83,31 @@ export default class FadingText extends React.Component {
       if (this.increasing) {
         // multiply by 1000 to avoid inaccuracy of operations with floats
         // return ((prevState.opacity * 1000) + (step * 1000)) / 1000;
-        return Number((prevState.opacity + step).toFixed(1));
+        return Number((prevState.opacity + step).toFixed(2));
       }
       // return ((prevState.opacity * 1000) - (step * 1000)) / 1000;
-      return Number((prevState.opacity - step).toFixed(1));
+      return Number((prevState.opacity - step).toFixed(2));
 
     } else if (this.increasing) {
       if (prevState.opacity === 1) {
         return 0;
       }
       // return ((prevState.opacity * 1000) + (step * 1000)) / 1000;
-      return Number((prevState.opacity + step).toFixed(1));
+      return Number((prevState.opacity + step).toFixed(2));
 
     } else if (!this.increasing) {
       if (prevState.opacity === 0) {
         return 1;
       }
       // return ((prevState.opacity * 1000) - (step * 1000)) / 1000;
-      return Number((prevState.opacity - step).toFixed(1));
+      return Number((prevState.opacity - step).toFixed(2));
+    }
+  }
+  checkStepValue() {
+    if (!Number.isInteger(1 / this.props.step) || this.props.step < 0.01 ||
+        this.props.step > 1) {
+      throw new Error('Inappropriate opacity change step value was passed, ' +
+        'must be one of 0.01, 0.02, 0.04, 0.05, 0.1, 0.2, 0.25, 0.5, 1');
     }
   }
   render() {

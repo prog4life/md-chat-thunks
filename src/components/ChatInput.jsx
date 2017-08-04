@@ -13,7 +13,6 @@ class ChatInput extends React.Component {
     }
 
     if (message.length < 1) {
-      alert('Message is too short (min 1 letter)');
       this.refs.message.focus();
       return;
     }

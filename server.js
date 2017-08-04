@@ -124,7 +124,7 @@ app.use((error, req, res, next) => {
 
 app.set('port', port);
 app.set('ip', port);
-
+// TODO: rename ip to hostname
 server.listen(port, ip);
 // same as passing callback as 3rd arg to server.listen() above:
 server.on('listening', () => {
