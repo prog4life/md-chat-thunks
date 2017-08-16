@@ -23,11 +23,10 @@ class ChatInput extends React.Component {
     return (
       <div className="chat-input">
         <input className="nickname" ref="nickname" type="text"
-          placeholder="Your nickname"/>
+          placeholder="Your nickname" />
         <textarea className="message-text" ref="message" rows="5" required
           onChange={this.props.onTyping}
-          placeholder="Write your message here">
-        </textarea>
+          placeholder="Write your message here" />
         <button className="send-button"
           onClick={this.onClickSend.bind(this)}>SEND</button>
       </div>

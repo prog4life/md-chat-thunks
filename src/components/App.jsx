@@ -1,5 +1,5 @@
 import React from 'react';
-import idis from 'short-id';
+import shortid from 'shortid';
 
 import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
@@ -61,6 +61,7 @@ export default class App extends React.Component {
     if (this.state.websocket === prevState.websocket) {
       return;
     }
+    // TODO: consider replacing by Promise
     if (this.state.websocket && !this.state.websocket.onmessage) {
       setOnMessageHandler(this.state.websocket, (error, stateUpdates) => {
         this.setState({
@@ -107,7 +108,7 @@ export default class App extends React.Component {
   renderMessageList() {
     return this.state.messages.map((message) => (
       // TODO: replace by id client from message
-      <ChatMessage key={idis.generate()} {...message} />));
+      <ChatMessage key={shortid.generate()} {...message} />));
   }
   handleTypingAnimationSwitch() {
     // remove one, whose typing notification was shown, after showing it
@@ -138,10 +139,12 @@ export default class App extends React.Component {
           whoIsTyping={this.state.whoIsTyping}
           isTypingAnimationOn={this.state.isTypingAnimationOn}
           animationConfig={this.state.animationConfig}
-          onAnimationSwitch={this.handleTypingAnimationSwitch} />
+          onAnimationSwitch={this.handleTypingAnimationSwitch}
+        />
         <ChatInput
           onTyping={this.handleTyping}
-          onSendMessage={this.sendMessage} />
+          onSendMessage={this.sendMessage}
+        />
       </div>
     );
   }

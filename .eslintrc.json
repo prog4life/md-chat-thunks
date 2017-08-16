@@ -1,0 +1,140 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "globalReturn": false,
+      "impliedStrict": false,
+      "jsx": true,
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true,
+    "jquery": true,
+    "commonjs": true,
+    "mocha": true
+  },
+  "root": true,
+  "globals": {
+      "document": false,
+      "window": false,
+      "console": false,
+      "process": false,
+      "__dirname": false
+  },
+  "extends": ["eslint:all", "plugin:react/all"],
+  "plugins": ["react"],
+  "rules": {
+    "array-bracket-newline": ["off", {
+      "multiline": true,
+      "minItems": 1
+    }],
+    "array-element-newline": ["off"],
+    "arrow-body-style": ["warn"],
+    "arrow-parens": ["warn"],
+    "brace-style": ["error", "1tbs", { "allowSingleLine": false }],
+    "capitalized-comments": "off",
+    "callback-return": ["error", ["callback", "cb"]],
+    "consistent-return": ["warn", { "treatUndefinedAsUnspecified": true }],
+    "dot-location": ["warn", "property"],
+    "func-style": ["off", "expression"],
+    "func-names": ["off", "as-needed"],
+    "id-length": "off",
+    "indent": ["warn", 2, {
+      "SwitchCase": 1,
+      "MemberExpression": 0
+    }],
+    "init-declarations": "warn",
+    "linebreak-style": ["off", "unix"],
+    "line-comment-position": ["off", { "position": "above" }],
+    "max-len": ["off"],
+    "max-params": ["warn", 4],
+    "max-statements": ["warn", 10, { "ignoreTopLevelFunctions": true }],
+    "multiline-ternary": "off",
+    "newline-after-var": ["warn"],
+    "newline-before-return": "off",
+    "newline-per-chained-call": "warn",
+    "no-alert": "warn",
+    "no-console": ["off"],
+    "no-debugger": "error",
+    "no-extra-parens": ["error", "all", {
+      "conditionalAssign": true,
+      "returnAssign": false,
+      "nestedBinaryExpressions": false,
+      "ignoreJSX": "all"
+    }],
+    "no-implicit-globals": ["warn"],
+    "no-inline-comments": "off",
+    "no-magic-numbers": ["warn", {
+      "ignore": [0, 1, -1, 1000, 60],
+      "ignoreArrayIndexes": true
+    }],
+    "no-multi-spaces": "warn",
+    "no-plusplus": ["off"],
+    "no-process-env": "off",
+    "no-shadow": ["warn", {
+      "hoist": "functions",
+      "allow": ["err", "error", "cb", "callback"]
+    }],
+    "no-ternary": "off",
+    "no-trailing-spaces": "warn",
+    "no-undef": ["error"],
+    "no-undefined": "warn",
+    "no-unused-vars": "warn",
+    "no-use-before-define": ["error", {
+      "functions": false,
+      "classes": true,
+      "variables": false
+    }],
+    "no-var": ["off"],
+    "no-warning-comments": ["off", {
+      "terms": ["todo", "fixme", "xxx"],
+      "location": "start"
+    }],
+    "object-curly-newline": ["off", {
+      "ObjectExpression": "always",
+      "ObjectPattern": "never"
+    }],
+    "object-curly-spacing": "off",
+    "object-property-newline": "off",
+    "object-shorthand": "warn",
+    "one-var": ["off"],
+    "padded-blocks": "off",
+    "prefer-arrow-callback": "warn",
+    "prefer-const": ["warn"],
+    "prefer-destructuring": "warn",
+    "prefer-template": "warn",
+    "quotes": ["warn", "single", {
+      "avoidEscape": true,
+      "allowTemplateLiterals": true
+    }],
+    "quote-props": ["warn", "as-needed"],
+    "react/jsx-indent": [2, 2],
+    "react/jsx-indent-props": [2, 2],
+    "react/jsx-max-props-per-line": [0],
+    "react/jsx-no-literals": [0, {"noStrings": false}],
+    "react/jsx-sort-props": [0],
+    "react/no-set-state": [1],
+    "require-jsdoc": ["off", {
+      "require": {
+        "FunctionDeclaration": true,
+        "MethodDefinition": true,
+        "ClassDeclaration": false,
+        "ArrowFunctionExpression": false
+      }
+    }],
+    "semi": "error",
+    "sort-imports": ["off"],
+    "sort-keys": "off",
+    "space-before-function-paren": ["warn", {
+      "anonymous": "always",
+      "named": "never",
+      "asyncArrow": "always"
+    }],
+    "strict": "warn",
+    "vars-on-top": "off"
+  }
+}

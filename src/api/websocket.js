@@ -1,16 +1,17 @@
-export default function startWs(cb) {
+export default function startWs(done) {
   const ws = new WebSocket('ws://localhost:8787');
 
-  cb(ws);
+  done(ws);
 
-  ws.onopen = () => {
-    // server must generate new id, and respond with it
-    const dataToSend = {
-      type: 'GET_ID'
-    };
-
-    ws.send(JSON.stringify(dataToSend));
-  };
+  // TODO: remove this, server is sending id on connection automatically at now
+  // ws.onopen = () => {
+  //   // server must generate new id, and respond with it
+  //   const dataToSend = {
+  //     type: 'GET_ID'
+  //   };
+  //
+  //   ws.send(JSON.stringify(dataToSend));
+  // };
 }
 
 export const setOnMessageHandler = (ws, cb) => {

@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/index.jsx',
+  entry: './src/index.jsx', // TODO: add babel-polyfill later
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'public')
@@ -19,7 +19,7 @@ module.exports = {
         ],
         loader: 'babel-loader',
         options: {
-          presets: ['react', 'env']
+          presets: ['react', 'es2015'] // TODO: add stage-? later
         }
       }
     ]
@@ -32,7 +32,7 @@ module.exports = {
       path.resolve(__dirname, 'src'),
       'node_modules'
     ],
-    extensions: ['.js', '.json', '.jsx', '.css']
+    extensions: ['.js', '.json', '.jsx', '.css', '*']
   },
   devtool: 'source-map'
 };
