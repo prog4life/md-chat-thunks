@@ -5,7 +5,7 @@ import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
 import ChatMessage from './ChatMessage';
 import TypingNotification from './TypingNotification';
-import startWs, {setOnMessageHandler} from '../api/websocket';
+import startWebSocket, {setOnMessageHandler} from '../api/websocket';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -18,103 +18,107 @@ export default class App extends React.Component {
         {
           id: '32425gser27408908',
           nickname: 'test user',
-          message: 'Sample test user message'
+          text: 'Sample test user message'
         }
       ],
       whoIsTyping: [],
-      isTypingAnimationOn: false,
       animationConfig: {
         placeholderText: 'No one is typing',
-        textToShow: '', // TODO: consider: `${whoIsTyping[0]} is typing`
-        repeats: 3,
+        textToShow: '', // TODO: try: `${whoIsTyping[0]} is typing` or getter
+        repeats: 2,
         duration: 1800,
         // opacity change step(must: 1 / step === 'integer'), it affects amount
         // of steps to change element opacity from 0 to 1 or back, can be one
         // of: [0.01, 0.02, 0.04, 0.05, 0.1, 0.2, 0.25, 0.5, 1]
-        step: 0.04,
+        step: 0.5,
         bidirectional: true
       }
-      // isTypingQueue: [
-      //   {
-      //     nickname: 'as obj',
-      //     timestamp: 1356547547
-      //   }
-      // ]
     };
 
-    this.handleTypingAnimationSwitch =
-      this.handleTypingAnimationSwitch.bind(this);
+    this.handleTypingAnimationEnd = this.handleTypingAnimationEnd.bind(this);
     this.handleTyping = this.handleTyping.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
   }
   componentDidMount() {
-    startWs((websocket) => {
+    startWebSocket((websocket) => {
       this.setState({
         websocket
       });
     });
   }
   componentDidUpdate(prevProps, prevState) {
-    // console.log('New state', this.state);
-    // console.log('prevProps ', prevProps);
+    const {websocket, messages} = this.state;
     // console.log('prevState ', prevState);
-    if (this.state.websocket === prevState.websocket) {
+    if (websocket.readyState === WebSocket.OPEN) {
+      clearTimeout(this.websocketTimeoutId);
+    }
+    if (websocket.readyState !== WebSocket.OPEN) { // TODO: add no id condition
+      console.log('webscoket readystate is not OPEN');
+
+      this.websocketTimeoutId = setTimeout(() => {
+        startWebSocket((websocket) => {
+          this.setState({
+            websocket
+          });
+        });
+      }, 1000);
+    }
+    // if same socket - no need to set handlers
+    if (websocket === prevState.websocket) {
       return;
     }
     // TODO: consider replacing by Promise
-    if (this.state.websocket && !this.state.websocket.onmessage) {
-      setOnMessageHandler(this.state.websocket, (error, stateUpdates) => {
-        this.setState({
-          id: stateUpdates.id || this.state.id,
-          messages: stateUpdates.message
-            ? this.state.messages.concat(stateUpdates.message)
-            : this.state.messages,
-          whoIsTyping: stateUpdates.whoIsTyping || this.state.whoIsTyping
-          // participants: 43
+    if (websocket && !websocket.onmessage) {
+      setOnMessageHandler(websocket, (stateUpdates) => {
+        const newStatePart = {};
+
+        Object.keys(stateUpdates).forEach((prop) => {
+          if (prop === 'message') {
+            newStatePart.messages = messages.concat(stateUpdates.message);
+            return;
+          }
+          newStatePart[prop] = stateUpdates[prop];
         });
+        this.setState(newStatePart);
+        // previos version of state updating
+        // this.setState({
+        //   id: stateUpdates.id || this.state.id,
+        //   messages: stateUpdates.message
+        //     ? messages.concat(stateUpdates.message)
+        //     : messages,
+        //   whoIsTyping: stateUpdates.whoIsTyping || this.state.whoIsTyping
+        // });
       });
     }
   }
-  sendMessage(nickname, message) {
-    // TODO: try set state in shorter way, 1 of next 2
-    // const newState = {};
-    //
-    // Object.keys(this.state).forEach((key) => {
-    //   newState[key] = this.state[key]
-    // });
-
-    // Object.assign(newState, this.state);
-
+  sendMessage(nickname, text) {
     // save new message to state
     this.setState({
-      nickname, // TODO: check if nickname was changed, do not overwrite if yes
+      nickname, // TODO: overwrite nickname only if its value has changed
       messages: this.state.messages.concat({
         id: this.state.id,
         isNotification: false,
         nickname: 'Me',
-        message
+        text
       })
-      // participants: 43
     });
-
-    // send new message with nickname through websocket
+    // TODO: check if socket readyState is OPEN, create connection if not
     this.state.websocket.send(JSON.stringify({
       id: this.state.id,
       name: nickname,
-      message,
+      text,
       type: 'MESSAGE'
     }));
   }
   renderMessageList() {
     return this.state.messages.map((message) => (
-      // TODO: replace by id client from message
+      // TODO: replace key value by client id from message
       <ChatMessage key={shortid.generate()} {...message} />));
   }
-  handleTypingAnimationSwitch() {
+  handleTypingAnimationEnd() {
     // remove one, whose typing notification was shown, after showing it
     this.setState({
       whoIsTyping: []
-      // participants: 43
     });
   }
   handleTyping(event) {
@@ -131,19 +135,17 @@ export default class App extends React.Component {
     return (
       <div className="chat-app">
         <h3>Lil Chat</h3>
-        <ChatHistory
-          messages={this.state.messages}>
+        <ChatHistory messages={this.state.messages}>
           {this.renderMessageList()}
         </ChatHistory>
         <TypingNotification
           whoIsTyping={this.state.whoIsTyping}
-          isTypingAnimationOn={this.state.isTypingAnimationOn}
-          animationConfig={this.state.animationConfig}
-          onAnimationSwitch={this.handleTypingAnimationSwitch}
+          config={this.state.animationConfig}
+          onStop={this.handleTypingAnimationEnd}
         />
         <ChatInput
           onTyping={this.handleTyping}
-          onSendMessage={this.sendMessage}
+          handleSendMessage={this.sendMessage}
         />
       </div>
     );

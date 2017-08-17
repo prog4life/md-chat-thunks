@@ -1,8 +1,16 @@
-export default function startWs(done) {
+import parseJSON from '../helpers/json-parser';
+
+// TODO: consider storing websocket object and id in here, and replacing
+// them from App state
+// TODO: set to newly created in startWebSocket
+// let ws = null;
+
+export default function startWebSocket(done) {
   const ws = new WebSocket('ws://localhost:8787');
 
-  done(ws);
-
+  ws.onopen = (openEvent) => {
+    done(ws);
+  };
   // TODO: remove this, server is sending id on connection automatically at now
   // ws.onopen = () => {
   //   // server must generate new id, and respond with it
@@ -15,56 +23,39 @@ export default function startWs(done) {
 }
 
 export const setOnMessageHandler = (ws, cb) => {
+  /* eslint callback-return: 0 */
   ws.onmessage = (messageEvent) => {
     const incoming = parseJSON(messageEvent.data);
 
     if (!incoming) {
       return;
     }
-    const {id, type, name, message: incomingMessage, participants} = incoming;
+    const {id, type, name, text} = incoming;
 
     switch (type) {
       case 'SET_ID':
-        // if (message && message.length > 1) {
-        //   ws.send(JSON.stringify({
-        //     id,
-        //     name: Array.from(message).reverse().join(''), // TODO: change to real name later
-        //     message,
-        //     type: 'MESSAGE'
-        //   }));
-        // }
-        // clientData.id = id;
-        cb(null, { id });
+        cb({ id });
         break;
-
       case 'MESSAGE':
-        cb(null, {
+        cb({
           message: {
             id,
             isNotification: false,
             nickname: name,
-            message: incomingMessage
+            text
           }
-          // participants
         });
-        // showMessage(id, incomingMessage); // TODO: replace id by name
         break;
-
       case 'IS_TYPING':
-        cb(null, {
+        cb({
           whoIsTyping: [name]
         });
-        // showIsTyping(name);
         break;
-
       case 'JOIN_CHAT':
-        // showInfo(type, name);
         break;
       case 'LEAVE_CHAT':
-        // showInfo(type, name);
         break;
       case 'CHANGE_NAME':
-        // showInfo(type, name);
         break;
       default:
         console.error('Unknown websocket message type, default case has fired');
@@ -79,23 +70,10 @@ export const setOnMessageHandler = (ws, cb) => {
 //   messages: [
 //     {
 //       id: 'wa3rg4yxsf8se7fr943',
-//       isNotification: true, // or false
+//       isNotification: true,
 //       nickame: 'some user*s nickname',
-//       message: 'some tex'
+//       text: 'some tex'
 //     }
 //   ],
 //   whoIsTyping: ['username'],
-//   participants: 43
 // }
-
-const parseJSON = (json) => {
-  let parsed = null;
-
-  try {
-    parsed = JSON.parse(json);
-  } catch (e) {
-    console.error('Failed to parse incoming data ', e);
-    return false;
-  }
-  return parsed;
-};

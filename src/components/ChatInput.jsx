@@ -1,37 +1,60 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 class ChatInput extends React.Component {
-  onClickSend(event) {
+  constructor(props) {
+    super(props);
+
+    this.handleClickSend = this.handleClickSend.bind(this);
+  }
+  handleClickSend(event) {
     event.preventDefault();
     const nickname = this.refs.nickname.value;
-    const message = this.refs.message.value;
+    const messageText = this.refs.messageText.value;
 
-    if (nickname.length < 1 || nickname.length > 30) {
-      alert('Nickname is too short or too long (max 30 letters)');
+    if (nickname.length < 2 || nickname.length > 30) {
+      alert('Nickname is too short or too long (min: 2 and max: 30 letters)');
       this.refs.nickname.focus();
       return;
     }
 
-    if (message.length < 1) {
-      this.refs.message.focus();
+    if (messageText.length < 1) {
+      this.refs.messageText.focus();
       return;
     }
-    this.refs.message.value = '';
-    this.props.onSendMessage(nickname, message);
+    this.refs.messageText.value = '';
+    this.props.handleSendMessage(nickname, messageText);
   }
   render() {
     return (
       <div className="chat-input">
-        <input className="nickname" ref="nickname" type="text"
-          placeholder="Your nickname" />
-        <textarea className="message-text" ref="message" rows="5" required
+        <input
+          className="nickname"
+          ref="nickname"
+          type="text"
+          placeholder="Your nickname"
+        />
+        <textarea
+          className="message-text"
+          ref="messageText"
+          rows="5" required
           onChange={this.props.onTyping}
-          placeholder="Write your message here" />
-        <button className="send-button"
-          onClick={this.onClickSend.bind(this)}>SEND</button>
+          placeholder="Write your message here"
+        />
+        <button
+          className="send-button"
+          onClick={this.handleClickSend}
+        >
+          SEND
+        </button>
       </div>
     );
   }
 }
+
+ChatInput.propTypes = {
+  handleSendMessage: PropTypes.func.isRequired,
+  onTyping: PropTypes.func.isRequired
+};
 
 export default ChatInput;

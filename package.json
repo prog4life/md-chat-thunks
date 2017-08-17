@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "build": "node_modules/.bin/webpack --color --progress",
+    "start": "npm run build && node server.js",
+    "build": "webpack --color --progress",
     "watch": "node_modules/.bin/webpack -w --color --progress",
     "serve": "webpack -w --color --progress",
     "mon": "nodemon server.js"

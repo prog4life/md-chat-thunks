@@ -22,10 +22,10 @@ class WebsocketChat {
   handleIncomingData(ws, rawIncoming) {
     const incoming = this.parseIncomingJSON(rawIncoming);
 
-    if (!this.validateIncomingData(incoming)) {
+    if (!incoming || !this.validateIncomingData(incoming)) {
       return;
     }
-    const {id, name, message, type} = incoming;
+    const {id, name, text, type} = incoming;
 
     switch (type) {
       case 'GET_ID':
@@ -79,13 +79,13 @@ class WebsocketChat {
   }
 
   resendMessageToAll(ws, incoming) {
-    const {id, name, message, type} = incoming;
+    const {id, name, text, type} = incoming;
 
     // TODO: validate incoming
     const outgoing = JSON.stringify({
       id,
       name,
-      message,
+      text,
       type
     });
 
@@ -114,31 +114,29 @@ class WebsocketChat {
     // over them to check each
 
     // if (typeof id !== 'string' || id === '') {
-    //   console.error('Incorrect incoming id');
+    //   console.error('Incorrect value of id property of incoming message');
     //   return;
     // }
     //
-    // if (typeof message !== 'string' || message === '') {
-    //   console.error('Incorrect incoming message');
+    // if (typeof text !== 'string' || text === '') {
+    //   console.error('Incorrect value of text property of incoming message');
     //   return;
     // }
     //
     // if (typeof name !== 'string' || name === '') {
-    //   console.error('Incorrect incoming name');
+    //   console.error('Incorrect value of name property of incoming message');
     //   return;
     // }
   }
 
   // TODO: replace out of this file
   parseIncomingJSON(json) {
-    let parsed = null;
-
     try {
-      parsed = JSON.parse(json);
+      return JSON.parse(json);
     } catch (e) {
       console.error(e);
+      return false;
     }
-    return parsed;
   }
 }
 

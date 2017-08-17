@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ChatMessage = ({nickname, message}) => {
+const ChatMessage = ({nickname, text}) => {
   return (
     <div className="chat-message">
       <span className={(() => {
@@ -12,7 +12,7 @@ const ChatMessage = ({nickname, message}) => {
         {nickname}:<span> </span>
       </span>
       <span>
-        {message}
+        {text}
       </span>
     </div>
   );
