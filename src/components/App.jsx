@@ -5,15 +5,19 @@ import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
 import ChatMessage from './ChatMessage';
 import TypingNotification from './TypingNotification';
-import startWebSocket, {setOnMessageHandler} from '../api/websocket';
+import openWebSocket, {setOnMessageHandler} from '../api/websocket';
+import animationConfig from '../helpers/animation';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      // TODO: remove from state
       id: '005',
       nickname: '',
+      // TODO: change to form in ChatInput and make it controlled
+      messageText: '',
       messages: [
         {
           id: '32425gser27408908',
@@ -21,95 +25,109 @@ export default class App extends React.Component {
           text: 'Sample test user message'
         }
       ],
-      whoIsTyping: [],
-      animationConfig: {
-        placeholderText: 'No one is typing',
-        textToShow: '', // TODO: try: `${whoIsTyping[0]} is typing` or getter
-        repeats: 2,
-        duration: 1800,
-        // opacity change step(must: 1 / step === 'integer'), it affects amount
-        // of steps to change element opacity from 0 to 1 or back, can be one
-        // of: [0.01, 0.02, 0.04, 0.05, 0.1, 0.2, 0.25, 0.5, 1]
-        step: 0.5,
-        bidirectional: true
-      }
+      // TODO: remove from state ?
+      whoIsTyping: []
     };
 
     this.handleTypingAnimationEnd = this.handleTypingAnimationEnd.bind(this);
     this.handleTyping = this.handleTyping.bind(this);
-    this.sendMessage = this.sendMessage.bind(this);
+    this.handleSendMessage = this.handleSendMessage.bind(this);
   }
   componentDidMount() {
-    startWebSocket((websocket) => {
-      this.setState({
-        websocket
+    this.startWebSocket();
+  }
+  componentDidUpdate(prevProps, prevState) {
+    // console.log('prevState ', prevState);
+    // TODO: add no id condition
+    if (this.websocket.readyState !== WebSocket.OPEN) {
+      console.log('webscoket readystate is not OPEN');
+      this.startWebSocket();
+    }
+    // NOTE: not needed more; if same socket - no need to set handlers
+    // if (this.websocket === prevState.websocket) {
+    //   return;
+    // }
+    // safety doublecheck
+    if (this.websocket.readyState === WebSocket.OPEN) {
+      clearInterval(this.websocketIntervalId);
+    }
+  }
+  startWebSocket(done) {
+    const handleOpen = (websocket) => {
+      this.websocket = websocket;
+      this.addWebSocketHandlers();
+      if (typeof done === 'function') {
+        done(websocket);
+      }
+    };
+
+    openWebSocket(handleOpen);
+
+    this.websocketIntervalId = setInterval(() => {
+      if (this.websocket.readyState === WebSocket.OPEN) {
+        clearInterval(this.websocketIntervalId);
+        return;
+      }
+      openWebSocket(handleOpen);
+    }, 1000);
+  }
+  addWebSocketHandlers() {
+    // TODO: consider replacing by Promise
+    setOnMessageHandler(this.websocket, (receivedData) => {
+      // TEMP: alternative version of state updating
+      // const newStatePart = {};
+
+      // Object.keys(receivedData).forEach((prop) => {
+      //   if (prop === 'message') {
+      //     newStatePart.messages = messages.concat(receivedData.message);
+      //     return;
+      //   }
+      //   newStatePart[prop] = receivedData[prop];
+      // });
+      // this.setState(newStatePart);
+      this.setState((prevState, props) => {
+        return {
+          id: receivedData.id || this.state.id,
+          messages: receivedData.message
+            ? prevState.messages.concat(receivedData.message)
+            : prevState.messages,
+          whoIsTyping: receivedData.whoIsTyping || this.state.whoIsTyping
+        };
       });
     });
   }
-  componentDidUpdate(prevProps, prevState) {
-    const {websocket, messages} = this.state;
-    // console.log('prevState ', prevState);
-    if (websocket.readyState === WebSocket.OPEN) {
-      clearTimeout(this.websocketTimeoutId);
-    }
-    if (websocket.readyState !== WebSocket.OPEN) { // TODO: add no id condition
-      console.log('webscoket readystate is not OPEN');
-
-      this.websocketTimeoutId = setTimeout(() => {
-        startWebSocket((websocket) => {
-          this.setState({
-            websocket
-          });
-        });
-      }, 1000);
-    }
-    // if same socket - no need to set handlers
-    if (websocket === prevState.websocket) {
-      return;
-    }
-    // TODO: consider replacing by Promise
-    if (websocket && !websocket.onmessage) {
-      setOnMessageHandler(websocket, (stateUpdates) => {
-        const newStatePart = {};
-
-        Object.keys(stateUpdates).forEach((prop) => {
-          if (prop === 'message') {
-            newStatePart.messages = messages.concat(stateUpdates.message);
-            return;
-          }
-          newStatePart[prop] = stateUpdates[prop];
-        });
-        this.setState(newStatePart);
-        // previos version of state updating
-        // this.setState({
-        //   id: stateUpdates.id || this.state.id,
-        //   messages: stateUpdates.message
-        //     ? messages.concat(stateUpdates.message)
-        //     : messages,
-        //   whoIsTyping: stateUpdates.whoIsTyping || this.state.whoIsTyping
-        // });
-      });
-    }
-  }
-  sendMessage(nickname, text) {
-    // save new message to state
+  handleSendMessage(nickname, text) {
+    // save sent message to state for rendering
     this.setState({
-      nickname, // TODO: overwrite nickname only if its value has changed
+      nickname,
       messages: this.state.messages.concat({
-        id: this.state.id,
+        id: this.state.id, // NOTE: perhaps must use guaranteedly updated id
         isNotification: false,
         nickname: 'Me',
         text
       })
     });
-    // TODO: check if socket readyState is OPEN, create connection if not
-    this.state.websocket.send(JSON.stringify({
+
+    const outgoingData = {
       id: this.state.id,
       name: nickname,
       text,
       type: 'MESSAGE'
-    }));
+    };
+
+    // TODO: check if socket readyState is OPEN, create connection if not
+    // NOTE: can check for new message in componentDidUpdate and send from there
+    if (this.websocket.readyState === WebSocket.OPEN) {
+      this.websocket.send(JSON.stringify(outgoingData));
+    } else {
+      this.startWebSocket((websocket) => {
+        websocket.send(JSON.stringify(outgoingData));
+      });
+    }
   }
+  // sendData(data) {
+  //   this.websocket.send(JSON.stringify(data));
+  // }
   renderMessageList() {
     return this.state.messages.map((message) => (
       // TODO: replace key value by client id from message
@@ -125,7 +143,7 @@ export default class App extends React.Component {
     if (this.state.nickname.length < 2) {
       return;
     }
-    this.state.websocket.send(JSON.stringify({
+    this.websocket.send(JSON.stringify({
       id: this.state.id,
       name: this.state.nickname,
       type: 'IS_TYPING'
@@ -140,12 +158,12 @@ export default class App extends React.Component {
         </ChatHistory>
         <TypingNotification
           whoIsTyping={this.state.whoIsTyping}
-          config={this.state.animationConfig}
+          config={animationConfig}
           onStop={this.handleTypingAnimationEnd}
         />
         <ChatInput
           onTyping={this.handleTyping}
-          handleSendMessage={this.sendMessage}
+          onSendMessage={this.handleSendMessage}
         />
       </div>
     );

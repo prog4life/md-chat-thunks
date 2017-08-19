@@ -1,43 +1,11 @@
-export function fadeInOut(element, times = 1, interval = 600) {
-  return new Promise((resolve) => {
-    // if step is 0.1 of full opacity (1), then it will be 10 intervals
-    const stepIntl = interval / 10;
-    let fullyChanged = false;
-
-    fadeInOut.repeats = fadeInOut.repeats ? fadeInOut.repeats : 0;
-
-    if (fadeInOut.repeats === times) {
-      fadeInOut.repeats = 0;
-      resolve();
-      return;
-    }
-
-    const intervalId = setInterval(() => {
-      if (Number(element.style.opacity) === 1) {
-        fullyChanged = true;
-      }
-
-      if (fullyChanged) {
-        element.style.opacity = Number(element.style.opacity) - 0.1;
-
-        if (Number(element.style.opacity) === 0) {
-          fadeInOut.repeats++;
-          clearInterval(intervalId);
-          fadeInOut(element, times, interval);
-          return;
-        }
-
-      } else {
-        element.style.opacity = Number(element.style.opacity) + 0.1;
-      }
-    }, stepIntl);
-  });
-}
-
-// function fadeIn() {
-  // become visible
-// }
-
-// function fadeOut() {
-  // disappear
-// }
+export default {
+  placeholderText: 'No one is typing',
+  textToShow: '', // TODO: try: `${whoIsTyping[0]} is typing` or getter
+  repeats: 2,
+  duration: 1800,
+  // opacity change step(must: 1 / step === 'integer'), it affects amount
+  // of steps to change element opacity from 0 to 1 or back, can be one
+  // of: [0.01, 0.02, 0.04, 0.05, 0.1, 0.2, 0.25, 0.5, 1]
+  step: 0.5,
+  bidirectional: true
+};

@@ -23,7 +23,7 @@ class ChatInput extends React.Component {
       return;
     }
     this.refs.messageText.value = '';
-    this.props.handleSendMessage(nickname, messageText);
+    this.props.onSendMessage(nickname, messageText);
   }
   render() {
     return (
@@ -53,7 +53,7 @@ class ChatInput extends React.Component {
 }
 
 ChatInput.propTypes = {
-  handleSendMessage: PropTypes.func.isRequired,
+  onSendMessage: PropTypes.func.isRequired,
   onTyping: PropTypes.func.isRequired
 };
 

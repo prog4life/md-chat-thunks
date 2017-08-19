@@ -2,28 +2,24 @@ import parseJSON from '../helpers/json-parser';
 
 // TODO: consider storing websocket object and id in here, and replacing
 // them from App state
-// TODO: set to newly created in startWebSocket
+// TODO: set to newly created in openWebSocket
 // let ws = null;
 
-export default function startWebSocket(done) {
+export default function openWebSocket(done) {
   const ws = new WebSocket('ws://localhost:8787');
 
   ws.onopen = (openEvent) => {
     done(ws);
   };
-  // TODO: remove this, server is sending id on connection automatically at now
-  // ws.onopen = () => {
-  //   // server must generate new id, and respond with it
-  //   const dataToSend = {
-  //     type: 'GET_ID'
-  //   };
-  //
-  //   ws.send(JSON.stringify(dataToSend));
-  // };
+  ws.onerror = (error) => {
+    console.warn('closing websocket due to error: ', error);
+    ws.close();
+  };
 }
 
 export const setOnMessageHandler = (ws, cb) => {
   /* eslint callback-return: 0 */
+  // TODO: maybe it's reasonable to use addEventListener
   ws.onmessage = (messageEvent) => {
     const incoming = parseJSON(messageEvent.data);
 
