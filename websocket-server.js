@@ -18,8 +18,6 @@ const startServer = (server) => {
 
     console.log('wss onconnection location', location.pathname);
 
-    chat.assignNewId(ws);
-
     // TODO: try currying here
     ws.on('message', function incoming(incomingData) {
       console.log('Socket message received: %s', incomingData);

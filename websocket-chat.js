@@ -29,7 +29,11 @@ class WebsocketChat {
 
     switch (type) {
       case 'GET_ID':
-        this.giveNewId(ws);
+        this.assignNewId(ws);
+        break;
+      case 'HAS_ID':
+        console.log('Has id: ', id);
+        // TODO save into User's data
         break;
       case 'MESSAGE':
         this.resendMessageToAll(ws, incoming);
@@ -67,7 +71,7 @@ class WebsocketChat {
   broadcast(ws, outgoing) {
     this.wss.clients.forEach((client) => {
       if (client === ws) {
-        console.log('broadcast ws and client are same');
+        console.log('not sending to itself');
         return;
       }
       if (client.readyState === websocket.OPEN) {

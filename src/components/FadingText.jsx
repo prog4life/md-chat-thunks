@@ -6,11 +6,8 @@ export default class FadingText extends React.Component {
     super(props);
 
     this.state = {
-      // repeats: 1,
-      // duration: 600,
-      // consider removing fading from state, leave only opacity
-      opacity: 1, // this.props.initialOpacity, maybe not needed in state at all
-      fading: false // TODO: replace by this.fading = false;
+      opacity: 1,
+      fading: false
     };
   }
   componentDidMount() {
@@ -27,13 +24,13 @@ export default class FadingText extends React.Component {
     return Boolean(nextProps.textToShow);
   }
   componentDidUpdate(prevProps, prevState) {
-    console.log('Fade componentDidUpdate props ', this.props, 'state ', this.state);
+    // console.log('Fade componentDidUpdate props ', this.props, 'state ', this.state);
     // fade-in/out is currently happening
     if (this.state.fading) {
       return;
     }
     // whole fade-in/fadeout animation has ended on prev cycle; single cooldown
-    // TODO: can check this.props === prevProps (false if passed from parent)
+    // TODO: can check this.props === prevProps
     if (prevState.fading) {
       return;
     }
@@ -41,6 +38,10 @@ export default class FadingText extends React.Component {
     if (!this.state.fading && this.props.textToShow) {
       this.startFading();
     }
+  }
+  componentWillUnmount() {
+    // doublecheck
+    clearInterval(this.fadeTimerId);
   }
   startFading() {
     this.setState({
@@ -127,6 +128,7 @@ FadingText.propTypes = {
 };
 
 FadingText.defaultProps = {
+  // TODO: initialOpacity
   repeats: 3,
   duration: 1800,
   step: 0.05,

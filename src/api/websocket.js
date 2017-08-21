@@ -17,10 +17,11 @@ export default function openWebSocket(done) {
   };
 }
 
-export const setOnMessageHandler = (ws, cb) => {
+// TODO: split into separate listener setters
+export const addOnMessageListener = (ws, cb) => {
   /* eslint callback-return: 0 */
   // TODO: maybe it's reasonable to use addEventListener
-  ws.onmessage = (messageEvent) => {
+  ws.addEventListener('message', (messageEvent) => {
     const incoming = parseJSON(messageEvent.data);
 
     if (!incoming) {
@@ -56,7 +57,7 @@ export const setOnMessageHandler = (ws, cb) => {
       default:
         console.error('Unknown websocket message type, default case has fired');
     }
-  };
+  });
 };
 
 // this.state = {
