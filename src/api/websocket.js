@@ -1,14 +1,11 @@
 import parseJSON from '../helpers/json-parser';
 
-// TODO: consider storing websocket object and id in here, and replacing
-// them from App state
-// TODO: set to newly created in openWebSocket
-// let ws = null;
-
 export default function openWebSocket(done) {
   const ws = new WebSocket('ws://localhost:8787');
 
   ws.onopen = (openEvent) => {
+    // NOTE: it could be better to add here first on message listener, that
+    // will parse incoming JSON and store it in module scope variable
     done(ws);
   };
   ws.onerror = (error) => {
@@ -18,10 +15,11 @@ export default function openWebSocket(done) {
 }
 
 // TODO: split into separate listener setters
-export const addOnMessageListener = (ws, cb) => {
+
+export const addOnMessageListener = (websocket, callbacks) => {
+  const {messageCallback, typingCallback, idCallback} = callbacks;
   /* eslint callback-return: 0 */
-  // TODO: maybe it's reasonable to use addEventListener
-  ws.addEventListener('message', (messageEvent) => {
+  websocket.addEventListener('message', (messageEvent) => {
     const incoming = parseJSON(messageEvent.data);
 
     if (!incoming) {
@@ -31,10 +29,16 @@ export const addOnMessageListener = (ws, cb) => {
 
     switch (type) {
       case 'SET_ID':
-        cb({ id });
+        if (!idCallback) {
+          return;
+        }
+        idCallback({ id });
         break;
       case 'MESSAGE':
-        cb({
+        if (!messageCallback) {
+          return;
+        }
+        messageCallback({
           message: {
             id,
             isNotification: false,
@@ -44,7 +48,10 @@ export const addOnMessageListener = (ws, cb) => {
         });
         break;
       case 'IS_TYPING':
-        cb({
+        if (!typingCallback) {
+          return;
+        }
+        typingCallback({
           whoIsTyping: [name]
         });
         break;
@@ -55,22 +62,7 @@ export const addOnMessageListener = (ws, cb) => {
       case 'CHANGE_NAME':
         break;
       default:
-        console.error('Unknown websocket message type, default case has fired');
+        console.warn('Unknown websocket message type, default case has fired');
     }
   });
 };
-
-// this.state = {
-//   id: 'wa3rg4yxsf8se7fr943',
-//   websocket: websocket
-//   nickame: '',
-//   messages: [
-//     {
-//       id: 'wa3rg4yxsf8se7fr943',
-//       isNotification: true,
-//       nickame: 'some user*s nickname',
-//       text: 'some tex'
-//     }
-//   ],
-//   whoIsTyping: ['username'],
-// }

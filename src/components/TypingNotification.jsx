@@ -7,7 +7,8 @@ export default class TypingNotification extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     if (this.props.whoIsTyping[0] === nextProps.whoIsTyping[0]) {
       return false;
-    } // TODO: also return false if nextProps.whoIsTyping[0] == false
+    }
+    // TODO: also return false if nextProps.whoIsTyping[0] === false
     return true;
   }
   renderNotification() {

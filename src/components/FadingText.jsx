@@ -106,6 +106,7 @@ export default class FadingText extends React.Component {
     }
   }
   render() {
+    // TODO: try change color rgba alpha-channel instead of opacity
     return (
       <div
         className="fading-text"

@@ -38,7 +38,7 @@ export default class App extends React.Component {
   }
   componentDidUpdate(prevProps, prevState) {
     // console.log('prevState ', prevState);
-    // TODO: handle id absence
+    // TODO: check if it's better to place something into componentWillUpdate
     if (this.websocket.readyState !== WebSocket.OPEN) {
       console.log('webscoket readystate is not OPEN');
       this.startWebSocket(() => {
@@ -57,9 +57,11 @@ export default class App extends React.Component {
   startWebSocket(done) {
     const handleOpen = (websocket) => {
       this.websocket = websocket;
-      // TODO: probably need to bind this or wrap into arrow function
-      addOnMessageListener(websocket, this.incomingMessageHandler.bind(this));
-      addOnMessageListener(websocket, this.incomingTypingHandler.bind(this));
+      // TODO: bind this or wrap into arrow function
+      addOnMessageListener(websocket, {
+        messageCallback: this.incomingMessageCallback.bind(this),
+        typingCallback: this.incomingTypingCallback.bind(this)
+      });
       // TODO: check if function passed
       done(websocket);
     };
@@ -87,45 +89,36 @@ export default class App extends React.Component {
     }
   }
   getNewId(done) {
-    addOnMessageListener(this.websocket, (receivedData) => {
-      // TODO: remove this check after splitting listeners setter in websocket.js
-      if (!receivedData.id) {
-        console.log('getNewId without id: ', receivedData);
-        return;
-      }
-      this.clientId = receivedData.id;
-      // TODO: check if function passed
-      done(receivedData.id);
+    addOnMessageListener(this.websocket, {
+      // immediate call with done, callback returned
+      idCallback: this.incomingIdCallback(done)
     });
     this.websocket.send(JSON.stringify({
       type: 'GET_ID'
     }));
   }
-  incomingMessageHandler(receivedData) {
-    // TODO: remove this check after splitting listeners setter in websocket.js
-    if (!receivedData.message) {
-      console.log('incomingMessageHandler without message: ', receivedData);
-      return;
-    }
+  incomingIdCallback(done) {
+    return (extractedData) => {
+      this.clientId = extractedData.id;
+      // TODO: check if function passed
+      done(extractedData.id);
+    };
+  }
+  incomingMessageCallback(extractedData) {
     this.setState((prevState, props) => {
       return {
-        messages: receivedData.message
+        messages: extractedData.message
           // NOTE: maybe replace with array + spread off:
-          // [...prevState.messages, receivedData.message]
-          ? prevState.messages.concat(receivedData.message)
+          // [...prevState.messages, extractedData.message]
+          ? prevState.messages.concat(extractedData.message)
           : prevState.messages
       };
     });
   }
-  incomingTypingHandler(receivedData) {
-    // TODO: remove this check after splitting listeners setter in websocket.js
-    if (!receivedData.whoIsTyping) {
-      console.log('incomingTypingHandler without whoIsTyping: ', receivedData);
-      return;
-    }
+  incomingTypingCallback(extractedData) {
     this.setState((prevState, props) => {
       return {
-        whoIsTyping: receivedData.whoIsTyping || prevState.whoIsTyping
+        whoIsTyping: extractedData.whoIsTyping || prevState.whoIsTyping
       };
     });
   }
@@ -155,6 +148,9 @@ export default class App extends React.Component {
 
       this.websocket.send(JSON.stringify(outgoingData));
     };
+
+    // IDEA: store outgoing as this.unsent [], check it in componentDidUpdate
+    // and send all data if not empty + clear array
 
     if (this.websocket.readyState !== WebSocket.OPEN) {
       // TODO: consider passing checkId and onReadyToSend directly as param
