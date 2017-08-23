@@ -14,10 +14,9 @@ export default function openWebSocket(done) {
   };
 }
 
-// TODO: split into separate listener setters
+export const addOnMessageListener = (websocket, handlers) => {
+  const {idHandler, messageHandler, typingHandler} = handlers;
 
-export const addOnMessageListener = (websocket, callbacks) => {
-  const {messageCallback, typingCallback, idCallback} = callbacks;
   /* eslint callback-return: 0 */
   websocket.addEventListener('message', (messageEvent) => {
     const incoming = parseJSON(messageEvent.data);
@@ -28,32 +27,31 @@ export const addOnMessageListener = (websocket, callbacks) => {
     const {id, type, name, text} = incoming;
 
     switch (type) {
-      case 'SET_ID':
-        if (!idCallback) {
-          return;
+      case 'IS_TYPING':
+        if (typingHandler) {
+          typingHandler({
+            whoIsTyping: [name]
+          });
         }
-        idCallback({ id });
         break;
       case 'MESSAGE':
-        if (!messageCallback) {
-          return;
+        if (messageHandler) {
+          messageHandler({
+            message: {
+              id,
+              isNotification: false,
+              nickname: name,
+              text
+            }
+          });
         }
-        messageCallback({
-          message: {
-            id,
-            isNotification: false,
-            nickname: name,
-            text
-          }
-        });
         break;
-      case 'IS_TYPING':
-        if (!typingCallback) {
-          return;
+      case 'SET_ID':
+        if (idHandler) {
+          idHandler({
+            id
+          });
         }
-        typingCallback({
-          whoIsTyping: [name]
-        });
         break;
       case 'JOIN_CHAT':
         break;
@@ -66,3 +64,96 @@ export const addOnMessageListener = (websocket, callbacks) => {
     }
   });
 };
+
+// NOTE: alternatively can use following separate listener setters;
+// also can pass done as one of params
+
+export const addTypingListener = (websocket, typingHandler) => {
+  websocket.addEventListener('message', (messageEvent) => {
+    const incoming = parseJSON(messageEvent.data);
+
+    if (!incoming) {
+      return;
+    }
+    const {type, name} = incoming;
+
+    if (type === 'MESSAGE') {
+      typingHandler({
+        whoIsTyping: [name]
+      });
+    }
+  });
+};
+
+export const addMessageListener = (websocket, messageHandler) => {
+  websocket.addEventListener('message', (messageEvent) => {
+    const incoming = parseJSON(messageEvent.data);
+
+    if (!incoming) {
+      return;
+    }
+    const {id, type, name, text} = incoming;
+
+    if (type === 'MESSAGE') {
+      messageHandler({
+        message: {
+          id,
+          isNotification: false,
+          nickname: name,
+          text
+        }
+      });
+    }
+  });
+};
+
+export const addIdListener = (websocket, idHandler) => {
+  websocket.addEventListener('message', (messageEvent) => {
+    const incoming = parseJSON(messageEvent.data);
+
+    if (!incoming) {
+      return;
+    }
+    const {id, type} = incoming;
+
+    if (type === 'MESSAGE') {
+      idHandler({
+        id
+      });
+    }
+  });
+};
+
+// export const addOnMessageListener = (websocket, handlers) => {
+//   websocket.addEventListener('message', (messageEvent) => {
+//     const incoming = parseJSON(messageEvent.data);
+//
+//     if (!incoming) {
+//       return;
+//     }
+//     const {id, type, name, text} = incoming;
+//
+//     const extracted = {
+//       SET_ID: {
+//         id
+//       },
+//       MESSAGE: {
+//         message: {
+//           id,
+//           isNotification: false,
+//           nickname: name,
+//           text
+//         }
+//       },
+//       IS_TYPING: {
+//         whoIsTyping: [name]
+//       }
+//     };
+//
+//     Object.keys(handlers).forEach((handler) => {
+//       if (type === handler) {
+//         handlers[type](extracted[type]);
+//       }
+//     });
+//   });
+// };
