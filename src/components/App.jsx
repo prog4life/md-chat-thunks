@@ -39,16 +39,7 @@ export default class App extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     // console.log('prevState ', prevState);
     // TODO: check if it's better to place something into componentWillUpdate
-    if (this.websocket.readyState !== WebSocket.OPEN) {
-      console.log('webscoket readystate is not OPEN');
-      this.startWebSocket(() => {
-        this.checkId((id) => console.log('Checked id: ', id));
-      });
-    }
-
-    if (!this.clientId) {
-      this.getNewId((id) => console.log('Received new id: ', id));
-    }
+    this.prepareConnection(() => console.log('componentDidUpdate conn ready'));
   }
   componentWillUnmount() {
     // doublecheck
@@ -57,20 +48,24 @@ export default class App extends React.Component {
   prepareConnection(onReady) {
     // TODO:
     if (this.websocket.readyState !== WebSocket.OPEN) {
+      console.log('webscoket readystate is not OPEN');
       // TODO: consider passing checkId and onReady directly as param
-      this.startWebSocket(() => {
+      this.startWebSocket((websocket) => {
         this.checkId((id) => {
-          console.log('Check id in handleSendMessage', id);
+          console.log('Check id in prepareConnection', id);
           onReady();
         });
       });
+      return;
     }
 
     if (!this.clientId) {
+      console.log('webscoket readystate is OPEN, but no id');
       this.getNewId((id) => {
-        console.log('Received new id in handleSendMessage: ', id);
+        console.log('Received new id in prepareConnection: ', id);
         onReady();
       });
+      return;
     }
     onReady();
   }
@@ -110,7 +105,7 @@ export default class App extends React.Component {
   }
   getNewId(done) {
     addOnMessageListener(this.websocket, {
-      // immediate call with done, callback returned
+      // immediate call, returned handler function with done in closure
       idHandler: this.incomingIdHandler(done)
     });
     this.websocket.send(JSON.stringify({
@@ -171,28 +166,7 @@ export default class App extends React.Component {
     // IDEA: store outgoing as this.unsent [], check it in componentDidUpdate
     // and send all data if not empty + clear array
 
-    if (this.websocket.readyState !== WebSocket.OPEN) {
-      // TODO: consider passing checkId and saveAndSend directly as param
-      this.startWebSocket(() => {
-        this.checkId((id) => {
-          console.log('Check id in handleSendMessage', id);
-          saveAndSend();
-        });
-      });
-    }
-
-    if (!this.clientId) {
-      this.getNewId((id) => {
-        console.log('Received new id in handleSendMessage: ', id);
-        saveAndSend();
-      });
-    }
-    saveAndSend();
-  }
-  renderMessageList() {
-    return this.state.messages.map((message) => (
-      // TODO: replace key value by client id from message
-      <ChatMessage key={shortid.generate()} {...message} />));
+    this.prepareConnection(saveAndSend);
   }
   handleTypingAnimationEnd() {
     // remove one, whose typing notification was shown, after showing it
@@ -213,23 +187,12 @@ export default class App extends React.Component {
       }));
     };
 
-    if (this.websocket.readyState !== WebSocket.OPEN) {
-      // TODO: consider passing checkId and saveAndSend directly as param
-      this.startWebSocket(() => {
-        this.checkId((id) => {
-          console.log('Check id in handleSendMessage', id);
-          sendTyping();
-        });
-      });
-    }
-
-    if (!this.clientId) {
-      this.getNewId((id) => {
-        console.log('Received new id in handleSendMessage: ', id);
-        sendTyping();
-      });
-    }
-    sendTyping();
+    this.prepareConnection(sendTyping);
+  }
+  renderMessageList() {
+    return this.state.messages.map((message) => (
+      // TODO: replace key value by client id from message
+      <ChatMessage key={shortid.generate()} {...message} />));
   }
   render() {
     return (
