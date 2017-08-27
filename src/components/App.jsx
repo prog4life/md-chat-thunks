@@ -1,9 +1,7 @@
 import React from 'react';
-import shortid from 'shortid';
 
 import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
-import ChatMessage from './ChatMessage';
 import TypingNotification from './TypingNotification';
 import openWebSocket, {addOnMessageListener} from '../api/websocket';
 import animationConfig from '../helpers/animation';
@@ -189,19 +187,11 @@ export default class App extends React.Component {
 
     this.prepareConnection(sendTyping);
   }
-  // TODO: replace to ChatHistory
-  renderMessageList() {
-    return this.state.messages.map((message) => (
-      // TODO: replace key value by client id from message
-      <ChatMessage key={shortid.generate()} {...message} />));
-  }
   render() {
     return (
       <div className="chat-app">
         <h3>Lil Chat</h3>
-        <ChatHistory messages={this.state.messages}>
-          {this.renderMessageList()}
-        </ChatHistory>
+        <ChatHistory messages={this.state.messages} />
         <TypingNotification
           whoIsTyping={this.state.whoIsTyping}
           config={animationConfig}

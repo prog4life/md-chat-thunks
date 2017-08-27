@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const ChatMessage = ({nickname, text}) => {
   return (
@@ -14,3 +15,8 @@ const ChatMessage = ({nickname, text}) => {
 };
 
 export default ChatMessage;
+
+ChatMessage.propTypes = {
+  nickname: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired
+};
