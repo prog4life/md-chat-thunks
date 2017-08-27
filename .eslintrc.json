@@ -115,6 +115,9 @@
     "react/jsx-indent": [2, 2],
     "react/jsx-indent-props": [2, 2],
     "react/jsx-max-props-per-line": [0],
+    "react/jsx-no-bind": [2, {
+      "ignoreRefs": true
+    }],
     "react/jsx-no-literals": [0, {"noStrings": false}],
     "react/jsx-sort-props": [0],
     "react/no-set-state": [1],

@@ -189,6 +189,7 @@ export default class App extends React.Component {
 
     this.prepareConnection(sendTyping);
   }
+  // TODO: replace to ChatHistory
   renderMessageList() {
     return this.state.messages.map((message) => (
       // TODO: replace key value by client id from message

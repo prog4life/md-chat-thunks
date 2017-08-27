@@ -1,11 +1,22 @@
 import React from 'react';
 
-const ChatHistory = (props) => {
-  return (
-    <div className="chat-history">
-      {props.children}
-    </div>
-  );
-};
+class ChatHistory extends React.Component {
+  componentDidMount() {
+    this.historyNode.scrollTop = this.historyNode.scrollHeight;
+  }
+  componentDidUpdate() {
+    this.historyNode.scrollTop = this.historyNode.scrollHeight;
+  }
+  render() {
+    return (
+      <div
+        className="chat-history"
+        ref={(thisDiv) => (this.historyNode = thisDiv)}
+      >
+        {this.props.children}
+      </div>
+    );
+  }
+}
 
 export default ChatHistory;

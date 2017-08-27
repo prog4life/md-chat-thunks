@@ -110,7 +110,10 @@ export default class FadingText extends React.Component {
     return (
       <div
         className="fading-text"
-        style={{ opacity: `${this.state.opacity}`}}
+        style={{
+          // opacity: `${this.state.opacity}`
+          color: `rgba(0, 0, 0, ${this.state.opacity})`
+        }}
       >
         {this.state.fading ? this.props.textToShow : this.props.placeholderText}
       </div>
