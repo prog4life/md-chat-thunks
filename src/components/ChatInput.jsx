@@ -5,49 +5,50 @@ class ChatInput extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleClickSend = this.handleClickSend.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
-  handleClickSend(event) {
+  handleSubmit(event) {
     event.preventDefault();
-    const nickname = this.refs.nickname.value;
-    const messageText = this.refs.messageText.value;
+    const nickname = event.target.nickname.value;
+    const messageText = event.target.messageText.value;
 
     if (nickname.length < 2 || nickname.length > 30) {
-      alert('Nickname is too short or too long (min: 2 and max: 30 letters)');
-      this.refs.nickname.focus();
+      event.target.nickname.focus();
       return;
     }
 
     if (messageText.length < 1) {
-      this.refs.messageText.focus();
+      event.target.messageText.focus();
       return;
     }
-    this.refs.messageText.value = '';
+    event.target.messageText.value = '';
     this.props.onSendMessage(nickname, messageText);
   }
   render() {
     return (
-      <div className="chat-input">
+      <form
+        className="chat-input"
+        onSubmit={this.handleSubmit}
+      >
         <input
           className="nickname"
-          ref="nickname"
+          name="nickname"
           type="text"
+          title="Nickname length must be from 2 to 30 characters"
           placeholder="Your nickname"
         />
         <textarea
           className="message-text"
-          ref="messageText"
-          rows="5" required
+          name="messageText"
+          rows="5"
+          required
           onChange={this.props.onTyping}
           placeholder="Write your message here"
         />
-        <button
-          className="send-button"
-          onClick={this.handleClickSend}
-        >
+        <button className="send-button">
           SEND
         </button>
-      </div>
+      </form>
     );
   }
 }

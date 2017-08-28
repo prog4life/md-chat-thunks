@@ -80,7 +80,7 @@ export default class App extends React.Component {
     };
 
     openWebSocket(handleOpen);
-
+    // TODO: if interval is present terminate new websocket opening
     this.websocketIntervalId = setInterval(() => {
       if (this.websocket.readyState === WebSocket.OPEN) {
         clearInterval(this.websocketIntervalId);
@@ -141,7 +141,7 @@ export default class App extends React.Component {
     // TODO: try currying here = id => () => { }
     const saveAndSend = () => {
       // save sent message to state for rendering
-      this.setState({
+      this.setState({ // TODO: use functional setState
         nickname,
         messages: this.state.messages.concat({
           // TODO: remove from here and check id presence before setState
