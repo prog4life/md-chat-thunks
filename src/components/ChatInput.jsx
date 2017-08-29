@@ -5,24 +5,43 @@ class ChatInput extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      nickname: '',
+      messageText: ''
+    };
+
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
   }
-  handleSubmit(event) {
-    event.preventDefault();
-    const nickname = event.target.nickname.value;
-    const messageText = event.target.messageText.value;
+  handleSubmit(e) {
+    e.preventDefault();
+    const {nickname, messageText} = this.state;
+    const formElems = e.target.elements;
 
     if (nickname.length < 2 || nickname.length > 30) {
-      event.target.nickname.focus();
+      formElems.nickname.focus();
       return;
     }
 
     if (messageText.length < 1) {
-      event.target.messageText.focus();
+      formElems.messageText.focus();
       return;
     }
-    event.target.messageText.value = '';
+    this.setState({
+      messageText: ''
+    });
     this.props.onSendMessage(nickname, messageText);
+  }
+  handleInputChange(e) {
+    /* eslint react/no-unused-state: 0 */
+    const {name, value} = e.target;
+
+    this.setState({
+      [name]: value
+    });
+    if (name === 'messageText') {
+      this.props.onTyping();
+    }
   }
   render() {
     return (
@@ -34,16 +53,18 @@ class ChatInput extends React.Component {
           className="nickname"
           name="nickname"
           type="text"
-          title="Nickname length must be from 2 to 30 characters"
-          placeholder="Your nickname"
+          value={this.state.nickname}
+          placeholder="Your nickname (from 2 to 30 characters)"
+          onChange={this.handleInputChange}
         />
         <textarea
           className="message-text"
           name="messageText"
           rows="5"
           required
-          onChange={this.props.onTyping}
+          value={this.state.messageText}
           placeholder="Write your message here"
+          onChange={this.handleInputChange}
         />
         <button className="send-button">
           SEND

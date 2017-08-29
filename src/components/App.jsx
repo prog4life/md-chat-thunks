@@ -12,8 +12,6 @@ export default class App extends React.Component {
 
     this.state = {
       nickname: '',
-      // TODO: change to form in ChatInput and make it controlled
-      messageText: '',
       messages: [
         {
           id: '32425gser27408908',
@@ -21,7 +19,6 @@ export default class App extends React.Component {
           text: 'Sample test user message'
         }
       ],
-      // TODO: remove from state ?
       whoIsTyping: []
     };
 
@@ -35,7 +32,6 @@ export default class App extends React.Component {
     });
   }
   componentDidUpdate(prevProps, prevState) {
-    // console.log('prevState ', prevState);
     // TODO: check if it's better to place something into componentWillUpdate
     this.prepareConnection(() => console.log('componentDidUpdate conn ready'));
   }
@@ -44,7 +40,6 @@ export default class App extends React.Component {
     clearInterval(this.websocketIntervalId);
   }
   prepareConnection(onReady) {
-    // TODO:
     if (this.websocket.readyState !== WebSocket.OPEN) {
       console.log('webscoket readystate is not OPEN');
       // TODO: consider passing checkId and onReady directly as param
@@ -136,15 +131,13 @@ export default class App extends React.Component {
     });
   }
   handleSendMessage(nickname, text) {
-    // TODO: check if socket readyState is OPEN, create connection if not
-    // TODO: check id presence
     // TODO: try currying here = id => () => { }
     const saveAndSend = () => {
       // save sent message to state for rendering
-      this.setState({ // TODO: use functional setState
+      // TODO: use functional setState
+      this.setState({
         nickname,
         messages: this.state.messages.concat({
-          // TODO: remove from here and check id presence before setState
           id: this.clientId,
           isNotification: false,
           nickname: 'Me',
@@ -172,7 +165,7 @@ export default class App extends React.Component {
       whoIsTyping: []
     });
   }
-  handleTyping(event) {
+  handleTyping() {
     if (this.state.nickname.length < 2) {
       return;
     }
