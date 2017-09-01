@@ -1,18 +1,24 @@
 import parseJSON from '../helpers/json-parser';
 
-export default function openWebSocket(done) {
+export default function createWebSocket(openHandler) {
   const ws = new WebSocket('ws://localhost:8787');
 
   ws.onopen = (openEvent) => {
     // NOTE: it could be better to add here first on message listener, that
     // will parse incoming JSON and store it in module scope variable
-    done(ws);
+    openHandler(ws);
   };
-  ws.onerror = (error) => {
-    console.warn('closing websocket due to error: ', error);
-    ws.close();
-  };
+  return ws;
 }
+
+// export default function openWebSocket(done) {
+//   const ws = new WebSocket('ws://localhost:8787');
+//   ws.onopen = (openEvent) => {
+//     // NOTE: it could be better to add here first on message listener, that
+//     // will parse incoming JSON and store it in module scope variable
+//     done(ws);
+//   };
+// }
 
 export const addOnMessageListener = (websocket, handlers) => {
   const {idHandler, messageHandler, typingHandler} = handlers;
@@ -63,6 +69,21 @@ export const addOnMessageListener = (websocket, handlers) => {
         console.warn('Unknown websocket message type, default case has fired');
     }
   });
+};
+
+export const addOnCloseListener = (websocket, closeHandler) => {
+  websocket.addEventListener('close', (event) => {
+    if (event.wasClean) {
+      console.log(`Clean, code: ${event.code}, reason: ${event.reason}`);
+    } else {
+      console.log(`Not clean, code: ${event.code}, reason: ${event.reason}`);
+    }
+    closeHandler();
+  });
+};
+
+export const addOnErrorListener = (websocket, errorEventHandler) => {
+  websocket.addEventListener('error', errorEventHandler);
 };
 
 // NOTE: alternatively can use following separate listener setters;

@@ -35,7 +35,7 @@ const startServer = (server) => {
 
     ws.on('close', function closeWebSocket(code, reason) {
       console.log('ws onclose code: %s and reason: %s ', code, reason);
-      console.log('ws onclose clients ', Array.from(wss.clients));
+      console.log('ws onclose clients size', wss.clients.size);
     });
   });
 };

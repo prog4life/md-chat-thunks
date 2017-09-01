@@ -3,7 +3,11 @@ import React from 'react';
 import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
 import TypingNotification from './TypingNotification';
-import openWebSocket, {addOnMessageListener} from '../api/websocket';
+import createWebSocket, {
+  addOnMessageListener,
+  addOnCloseListener,
+  addOnErrorListener
+} from '../api/websocket';
 import animationConfig from '../helpers/animation';
 
 export default class App extends React.Component {
@@ -27,23 +31,27 @@ export default class App extends React.Component {
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
   componentDidMount() {
-    this.startWebSocket(() => {
+    this.setupWebSocket(() => {
       this.checkId((id) => console.log('Checked id: ', id));
     });
+    // this.monitorConnection();
   }
   componentDidUpdate(prevProps, prevState) {
     // TODO: check if it's better to place something into componentWillUpdate
-    this.prepareConnection(() => console.log('componentDidUpdate conn ready'));
+    // TODO: check if calling it here is overkill
+    // this.prepareConnection(() => console.log('componentDidUpdate conn ready'));
   }
   componentWillUnmount() {
     // doublecheck
     clearInterval(this.websocketIntervalId);
+    // TODO: resolve
+    // clearInterval(this.monitoringTimerId);
   }
   prepareConnection(onReady) {
     if (this.websocket.readyState !== WebSocket.OPEN) {
       console.log('webscoket readystate is not OPEN');
       // TODO: consider passing checkId and onReady directly as param
-      this.startWebSocket((websocket) => {
+      this.setupWebSocket((websocket) => {
         this.checkId((id) => {
           console.log('Check id in prepareConnection', id);
           onReady();
@@ -62,27 +70,59 @@ export default class App extends React.Component {
     }
     onReady();
   }
-  startWebSocket(done) {
+  setupWebSocket(done) {
     const handleOpen = (websocket) => {
-      this.websocket = websocket;
+      // this.websocket = websocket;
       // TODO: bind this or wrap into arrow function
       addOnMessageListener(websocket, {
         messageHandler: this.incomingMessageHandler.bind(this),
         typingHandler: this.incomingTypingHandler.bind(this)
       });
+      addOnCloseListener(websocket, () => {
+        this.setupWebSocket(() => {
+          this.checkId((id) => {
+            console.log('Reopen on close with id:', id);
+          });
+        });
+      });
       // TODO: check if function passed
       done(websocket);
     };
 
-    openWebSocket(handleOpen);
-    // TODO: if interval is present terminate new websocket opening
-    this.websocketIntervalId = setInterval(() => {
-      if (this.websocket.readyState === WebSocket.OPEN) {
-        clearInterval(this.websocketIntervalId);
-        return;
+    this.websocket = createWebSocket(handleOpen);
+
+    addOnErrorListener(this.websocket, () => {
+      if (this.websocket && this.websocket.readyState !== WebSocket.CLOSED) {
+        this.websocket.close();
       }
-      openWebSocket(handleOpen);
-    }, 1000);
+      this.setupWebSocket(() => {
+        this.checkId((id) => {
+          console.log('Reopen on error with id:', id);
+        });
+      });
+    });
+
+    // openWebSocket(handleOpen);
+    // TODO: prevent multiple intervals without refs(ids) creation
+    // this.websocketIntervalId = setInterval(() => {
+    //   if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+    //     clearInterval(this.websocketIntervalId);
+    //     return;
+    //   }
+    //   // to close pending websocket, that was left after prior opening attempt
+    //   // this.websocket = null;
+    //   openWebSocket(handleOpen);
+    // }, 1000);
+  }
+  // NOTE: perhaps reopening connection on close is enough
+  monitorConnection() {
+    // TODO: set Timer that will track connection open state each ~ 5 sec and
+    // will reopen it if needed
+    this.monitoringTimerId = setInterval(() => {
+      this.prepareConnection(() =>
+        console.log('Monitoring: connection ready')
+      );
+    }, 5000);
   }
   checkId(done) {
     if (this.clientId) {
