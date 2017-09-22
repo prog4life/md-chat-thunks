@@ -6,10 +6,10 @@ import ChatMessage from './ChatMessage';
 
 class ChatHistory extends React.Component {
   componentDidMount() {
-    this.historyNode.scrollTop = this.historyNode.scrollHeight;
+    this.historyElem.scrollTop = this.historyElem.scrollHeight;
   }
   componentDidUpdate() {
-    this.historyNode.scrollTop = this.historyNode.scrollHeight;
+    this.historyElem.scrollTop = this.historyElem.scrollHeight;
   }
   renderMessageList() {
     return this.props.messages.map((message) => (
@@ -21,7 +21,7 @@ class ChatHistory extends React.Component {
     return (
       <div
         className="chat-history"
-        ref={(thisDiv) => (this.historyNode = thisDiv)}
+        ref={(thisDiv) => (this.historyElem = thisDiv)}
       >
         {this.renderMessageList()}
       </div>

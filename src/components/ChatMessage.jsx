@@ -5,7 +5,7 @@ const ChatMessage = ({nickname, text}) => {
   return (
     <div className="chat-message">
       <span className={nickname === 'Me' ? 'myself' : 'author'}>
-        {nickname}:{'\u00A0'}
+        {nickname}:{' '}
       </span>
       <span>
         {text}
