@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// import FadingText from './FadingText';
-import FadingTextTransition from './FadingTextTransition';
+import FadingText from './FadingText';
 
 export default class TypingNotification extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
@@ -37,7 +36,7 @@ export default class TypingNotification extends React.Component {
       updConfig.textToShow = `${whoIsTyping} is typing`;
     }
     return (
-      <FadingTextTransition
+      <FadingText
         onAnimationEnd={this.props.onStop}
         {...updConfig}
       />

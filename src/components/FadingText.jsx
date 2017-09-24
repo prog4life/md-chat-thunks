@@ -6,7 +6,8 @@ export default class FadingText extends React.Component {
     super(props);
 
     this.state = {
-      opacity: 1,
+      // opacity: 1,
+      class: 'fading-text opaque-text',
       fading: false
     };
   }
@@ -18,7 +19,7 @@ export default class FadingText extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     // when fading is active and parent component is trying to rerender this
     // component, it should refuse such excess rendering
-    if (this.state.fading && this.state.opacity === nextState.opacity) {
+    if (this.state.fading && this.state.class === nextState.class) {
       return false;
     }
     return Boolean(nextProps.textToShow);
@@ -30,7 +31,7 @@ export default class FadingText extends React.Component {
       return;
     }
     // whole fade-in/fadeout animation has ended on prev cycle; single cooldown
-    // TODO: can check this.props === prevProps
+    // NOTE: can check this.props === prevProps
     if (prevState.fading) {
       return;
     }
@@ -45,18 +46,19 @@ export default class FadingText extends React.Component {
   }
   startFading() {
     this.setState({
-      opacity: 0,
+      // opacity: 0,
+      class: 'fading-text transparent-text',
       fading: true
     });
-    const {repeats, duration, step, bidirectional} = this.props;
+    const {repeats, duration, bidirectional} = this.props;
 
-    this.setFadeTimer(repeats, duration, step, bidirectional);
+    this.setFadeTimer(repeats, duration, bidirectional);
   }
-  setFadeTimer(repeats, duration, step, bidirectional) {
+  setFadeTimer(repeats, duration, bidirectional) {
     // TODO: pass initialOpacity too
-    const steps = 1 / step;
-    const stepsOverall = steps * (bidirectional ? 2 : 1) * repeats;
-    const singleStepInterval = duration / stepsOverall;
+    // TODO: test case when duration isn't divided by 2 with integer result
+    const switchInterval = duration / (bidirectional ? 2 : 1);
+    const stepsOverall = repeats * (bidirectional ? 2 : 1);
 
     this.increasing = true; // initialOpacity === 1 ? false : true;
     this.stepsDone = 0;
@@ -65,7 +67,8 @@ export default class FadingText extends React.Component {
       if (this.stepsDone === stepsOverall) {
         clearInterval(this.fadeTimerId);
         this.setState({
-          opacity: 1,
+          // opacity: 1,
+          class: 'fading-text opaque-text',
           fading: false
         });
         this.stepsDone = 0;
@@ -74,45 +77,31 @@ export default class FadingText extends React.Component {
       }
       this.setState((prevState) => {
         return {
-          opacity: this.countOpacity(prevState, bidirectional, step)
+          // class: this.changeClass(prevState)
+          class: prevState.class === 'fading-text opaque-text'
+            ? 'fading-text transparent-text'
+            : 'fading-text opaque-text'
         };
       });
       this.stepsDone++;
-    }, singleStepInterval);
-  }
-  countOpacity(prevState, bidirectional, step) {
-    if (bidirectional) {
-      if (prevState.opacity === 1) {
-        this.increasing = false;
-      } else if (prevState.opacity === 0) {
-        this.increasing = true;
-      }
-      if (this.increasing) {
-        return Number((prevState.opacity + step).toFixed(2));
-      }
-      return Number((prevState.opacity - step).toFixed(2));
+    }, switchInterval);
 
-    } else if (this.increasing) {
-      if (prevState.opacity === 1) {
-        return 0;
-      }
-      return Number((prevState.opacity + step).toFixed(2));
-
-    } else if (!this.increasing) {
-      if (prevState.opacity === 0) {
-        return 1;
-      }
-      return Number((prevState.opacity - step).toFixed(2));
-    }
+    // this.changeClass = (prevState) => {
+    //   if (prevState.class === 'fading-text-opaque') {
+    //     return 'fading-text-transparent';
+    //   } else if (prevState.class === 'fading-text-transparent') {
+    //     return 'fading-text-opaque';
+    //   }
+    // }
   }
   render() {
     return (
       <div
-        className="fading-text"
-        style={{
-          // opacity: `${this.state.opacity}`
-          color: `rgba(0, 0, 0, ${this.state.opacity})`
-        }}
+        className={this.state.class}
+        // style={{
+        //   opacity: `${this.state.opacity}`
+        //   color: `rgba(0, 0, 0, ${this.state.opacity})`
+        // }}
       >
         {this.state.fading ? this.props.textToShow : this.props.placeholderText}
       </div>
@@ -126,16 +115,15 @@ FadingText.propTypes = {
   onAnimationEnd: PropTypes.func,
   placeholderText: PropTypes.string,
   repeats: PropTypes.number,
-  step: PropTypes.oneOf([0.01, 0.02, 0.04, 0.05, 0.1, 0.2, 0.25, 0.5, 1]),
   textToShow: PropTypes.string
 };
 
 FadingText.defaultProps = {
   // TODO: initialOpacity
   repeats: 3,
-  duration: 1800,
-  step: 0.05,
+  duration: 1000,
   bidirectional: true,
+  // TODO: consider to set default placeholder as null
   placeholderText: '',
   textToShow: '',
   onAnimationEnd(f) {

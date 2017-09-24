@@ -7,8 +7,8 @@ import createWebSocket, {
   addOnMessageListener,
   addOnCloseListener,
   addOnErrorListener
-} from '../api/websocket';
-import animationConfig from '../helpers/animation';
+} from '../utils/websocket';
+import typingNotifiConfig from '../config/typing-notification';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -26,13 +26,13 @@ export default class App extends React.Component {
       whoIsTyping: []
     };
 
-    this.handleTypingAnimationEnd = this.handleTypingAnimationEnd.bind(this);
+    this.handleTypingNotifiEnd = this.handleTypingNotifiEnd.bind(this);
     this.handleTyping = this.handleTyping.bind(this);
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
   componentDidMount() {
     this.setupWebSocket(() => {
-      this.checkId((id) => console.log('Checked id: ', id));
+      this.checkId((id) => console.log(`Client has id: ${id}`));
     });
     // this.monitorConnection();
   }
@@ -48,12 +48,12 @@ export default class App extends React.Component {
     // clearInterval(this.monitoringTimerId);
   }
   prepareConnection(onReady) {
-    if (this.websocket.readyState !== WebSocket.OPEN) {
+    if (this.websocket && this.websocket.readyState !== WebSocket.OPEN) {
       console.log('webscoket readystate is not OPEN');
-      // TODO: consider passing checkId and onReady directly as param
+      // TODO: consider passing checkId and onReady directly as params
       this.setupWebSocket((websocket) => {
         this.checkId((id) => {
-          console.log('Check id in prepareConnection', id);
+          console.log(`Checked id in prepareConnection: ${id}`);
           onReady();
         });
       });
@@ -63,7 +63,7 @@ export default class App extends React.Component {
     if (!this.clientId) {
       console.log('webscoket readystate is OPEN, but no id');
       this.getNewId((id) => {
-        console.log('Received new id in prepareConnection: ', id);
+        console.log(`Received new id in prepareConnection: ${id}`);
         onReady();
       });
       return;
@@ -73,7 +73,6 @@ export default class App extends React.Component {
   setupWebSocket(done) {
     const handleOpen = (websocket) => {
       // this.websocket = websocket;
-      // TODO: bind this or wrap into arrow function
       addOnMessageListener(websocket, {
         messageHandler: this.incomingMessageHandler.bind(this),
         typingHandler: this.incomingTypingHandler.bind(this)
@@ -81,7 +80,7 @@ export default class App extends React.Component {
       addOnCloseListener(websocket, () => {
         this.setupWebSocket(() => {
           this.checkId((id) => {
-            console.log('Reopen on close with id:', id);
+            console.log(`Reopen on close with id: ${id}`);
           });
         });
       });
@@ -97,7 +96,7 @@ export default class App extends React.Component {
       }
       this.setupWebSocket(() => {
         this.checkId((id) => {
-          console.log('Reopen on error with id:', id);
+          console.log(`Reopen on error with id: ${id}`);
         });
       });
     });
@@ -138,7 +137,7 @@ export default class App extends React.Component {
   }
   getNewId(done) {
     addOnMessageListener(this.websocket, {
-      // immediate call, returned handler function with done in closure
+      // immediate call, will return handler function with done in closure
       idHandler: this.incomingIdHandler(done)
     });
     this.websocket.send(JSON.stringify({
@@ -199,7 +198,7 @@ export default class App extends React.Component {
 
     this.prepareConnection(saveAndSend);
   }
-  handleTypingAnimationEnd() {
+  handleTypingNotifiEnd() {
     // remove one, whose typing notification was shown, after showing it
     this.setState({
       whoIsTyping: []
@@ -227,8 +226,8 @@ export default class App extends React.Component {
         <ChatHistory messages={this.state.messages} />
         <TypingNotification
           whoIsTyping={this.state.whoIsTyping}
-          config={animationConfig}
-          onStop={this.handleTypingAnimationEnd}
+          config={typingNotifiConfig}
+          onStop={this.handleTypingNotifiEnd}
         />
         <ChatInput
           onTyping={this.handleTyping}
