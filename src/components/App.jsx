@@ -34,6 +34,7 @@ export default class App extends React.Component {
     this.setupWebSocket(() => {
       this.checkId((id) => console.log(`Client has id: ${id}`));
     });
+    // TODO: resolve
     // this.monitorConnection();
   }
   componentDidUpdate(prevProps, prevState) {

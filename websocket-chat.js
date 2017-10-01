@@ -71,7 +71,7 @@ class WebsocketChat {
   broadcast(ws, outgoing) {
     this.wss.clients.forEach((client) => {
       if (client === ws) {
-        console.log('Itself, clients size: ', this.wss.clients.size);
+        console.log('Self clients item, clients size: ', this.wss.clients.size);
         return;
       }
       if (client.readyState === websocket.OPEN) {

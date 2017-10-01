@@ -35,7 +35,7 @@ export default class FadingText extends React.Component {
       return;
     }
     // whole fade-in/fadeout animation has ended on prev cycle; single cooldown
-    // NOTE: can check this.props === prevProps
+    // NOTE: probably can check this.props === prevProps
     if (prevState.fading) {
       return;
     }
@@ -58,10 +58,8 @@ export default class FadingText extends React.Component {
     this.setFadeTimer(repeats, duration, bidirectional);
   }
   setFadeTimer(repeats, duration, bidirectional) {
-    // TODO: pass initialOpacity too
     const stepsOverall = repeats * (bidirectional ? 2 : 1);
 
-    this.increasing = true; // initialOpacity === 1 ? false : true;
     this.stepsDone = 1;
 
     this.fadeTimerId = setInterval(() => {
@@ -113,9 +111,8 @@ FadingText.propTypes = {
 };
 
 FadingText.defaultProps = {
-  // TODO: initialOpacity
   repeats: 3,
-  duration: 1000,
+  duration: 500,
   bidirectional: true,
   // TODO: consider to set default placeholder as null
   placeholderText: '',

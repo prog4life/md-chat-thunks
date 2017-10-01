@@ -46,36 +46,13 @@ export default class TypingNotification extends React.Component {
 }
 
 TypingNotification.propTypes = {
-  config: PropTypes.object.isRequired,
+  config: PropTypes.shape({
+    placeholderText: PropTypes.string,
+    textToShow: PropTypes.string,
+    repeats: PropTypes.number,
+    duration: PropTypes.number,
+    bidirectional: PropTypes.bool
+  }).isRequired,
   onStop: PropTypes.func.isRequired,
-  // shouldDisplay: PropTypes.bool.isRequired,
   whoIsTyping: PropTypes.arrayOf(PropTypes.string).isRequired
 };
-
-// export default class TypingNotification extends React.Component {
-//   componentDidUpdate(prevProps, prevState) {
-//     if (this.props.whoIsTyping.length === 0) {
-//       return;
-//     }
-//     this.props.handleShowTyping(this.refs.typingText);
-//   }
-//   shouldComponentUpdate() {
-//     if (this.props.shouldDisplay) {
-//       return false;
-//     }
-//     return true;
-//   }
-//   render() {
-//     const renderNotification = () => {
-//       if (this.props.whoIsTyping.length === 1) {
-//         return `${this.props.whoIsTyping[0]} is typing`;
-//       }
-//       return `No one is typing`;
-//     };
-//     return (
-//       <div className="typing">
-//         <p className="typing-text" ref="typingText">{renderNotification()}</p>
-//       </div>
-//     );
-//   }
-// }
