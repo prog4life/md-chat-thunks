@@ -55,16 +55,16 @@
 }
 
 .fading-text {
-  transition: color 0.5s ease;
+  transition: color 1s ease-out;
 }
 
-.transparent-text {
+/* .transparent-text {
   color: rgba(0, 0, 0, 0);
-}
+} */
 
-.opaque-text {
+/* .opaque-text {
   color: rgba(0, 0, 0, 1);
-}
+} */
 
 textarea,
 textarea:hover,

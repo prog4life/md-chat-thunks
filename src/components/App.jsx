@@ -26,7 +26,7 @@ export default class App extends React.Component {
       whoIsTyping: []
     };
 
-    this.handleTypingNotifiEnd = this.handleTypingNotifiEnd.bind(this);
+    this.handleClearTyping = this.handleClearTyping.bind(this);
     this.handleTyping = this.handleTyping.bind(this);
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
@@ -100,22 +100,10 @@ export default class App extends React.Component {
         });
       });
     });
-
-    // openWebSocket(handleOpen);
-    // TODO: prevent multiple intervals without refs(ids) creation
-    // this.websocketIntervalId = setInterval(() => {
-    //   if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
-    //     clearInterval(this.websocketIntervalId);
-    //     return;
-    //   }
-    //   // to close pending websocket, that was left after prior opening attempt
-    //   // this.websocket = null;
-    //   openWebSocket(handleOpen);
-    // }, 1000);
   }
   // NOTE: perhaps reopening connection on close is enough
   monitorConnection() {
-    // TODO: set Timer that will track connection open state each ~ 5 sec and
+    // set timer that will track connection open state each ~ 5 sec and
     // will reopen it if needed
     this.monitoringTimerId = setInterval(() => {
       this.prepareConnection(() =>
@@ -152,13 +140,19 @@ export default class App extends React.Component {
     };
   }
   incomingMessageHandler(extractedData) {
+    const {message} = extractedData;
+
     this.setState((prevState, props) => {
       return {
-        messages: extractedData.message
+        messages: message
           // NOTE: maybe replace with array + spread off:
           // [...prevState.messages, extractedData.message]
-          ? prevState.messages.concat(extractedData.message)
-          : prevState.messages
+          ? prevState.messages.concat(message)
+          : prevState.messages,
+        // if receive new message from one whose typing notification is showing
+        whoIsTyping: prevState.whoIsTyping[0] === message.nickname
+          ? []
+          : prevState.whoIsTyping
       };
     });
   }
@@ -170,7 +164,6 @@ export default class App extends React.Component {
     });
   }
   handleSendMessage(nickname, text) {
-    // TODO: try currying here = id => () => { }
     const saveAndSend = () => {
       // save sent message to state for rendering
       // TODO: use functional setState
@@ -178,7 +171,6 @@ export default class App extends React.Component {
         nickname,
         messages: this.state.messages.concat({
           id: this.clientId,
-          isNotification: false,
           nickname: 'Me',
           text
         })
@@ -198,7 +190,7 @@ export default class App extends React.Component {
 
     this.prepareConnection(saveAndSend);
   }
-  handleTypingNotifiEnd() {
+  handleClearTyping() {
     // remove one, whose typing notification was shown, after showing it
     this.setState({
       whoIsTyping: []
@@ -227,7 +219,7 @@ export default class App extends React.Component {
         <TypingNotification
           whoIsTyping={this.state.whoIsTyping}
           config={typingNotifiConfig}
-          onStop={this.handleTypingNotifiEnd}
+          onStop={this.handleClearTyping}
         />
         <ChatInput
           onTyping={this.handleTyping}

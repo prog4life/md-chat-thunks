@@ -34,7 +34,6 @@ export const addOnMessageListener = (websocket, handlers) => {
           messageHandler({
             message: {
               id,
-              isNotification: false,
               nickname: name,
               text
             }
@@ -105,7 +104,6 @@ export const addMessageListener = (websocket, messageHandler) => {
       messageHandler({
         message: {
           id,
-          isNotification: false,
           nickname: name,
           text
         }
@@ -147,7 +145,6 @@ export const addIdListener = (websocket, idHandler) => {
 //       MESSAGE: {
 //         message: {
 //           id,
-//           isNotification: false,
 //           nickname: name,
 //           text
 //         }

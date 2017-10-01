@@ -8,7 +8,6 @@ export default class TypingNotification extends React.Component {
     if (this.props.whoIsTyping[0] === nextProps.whoIsTyping[0]) {
       return false;
     }
-    // TODO: also return false if nextProps.whoIsTyping[0] === false
     return true;
   }
   renderNotification() {
@@ -18,29 +17,24 @@ export default class TypingNotification extends React.Component {
     } = this.props;
 
     // TODO: use next variant, temporarily Object.assign is used instead
-    // let updConfig = {
+    // let updatedConfig = {
     //   ...this.props.config
     // };
 
-    const updConfig = {};
+    const updatedConfig = {};
 
-    Object.assign(updConfig, config);
-    // if (!whoIsTyping) {
-    //   return (
-    //     <div className="noanimation-text">
-    //       {config.placeholderText}
-    //     </div>
-    //   );
-    // }
+    Object.assign(updatedConfig, config);
+
     if (whoIsTyping) {
-      updConfig.textToShow = `${whoIsTyping} is typing`;
+      updatedConfig.textToShow = `${whoIsTyping} is typing`;
+      return (
+        <FadingText
+          onAnimationEnd={this.props.onStop}
+          {...updatedConfig}
+        />
+      );
     }
-    return (
-      <FadingText
-        onAnimationEnd={this.props.onStop}
-        {...updConfig}
-      />
-    );
+    return config.placeholderText;
   }
   render() {
     return (
