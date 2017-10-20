@@ -58,12 +58,12 @@ export default class FadingText extends React.Component {
     this.setFadeTimer(repeats, duration, bidirectional);
   }
   setFadeTimer(repeats, duration, bidirectional) {
-    const stepsOverall = repeats * (bidirectional ? 2 : 1);
+    const stepsInTotal = repeats * (bidirectional ? 2 : 1);
 
     this.stepsDone = 1;
 
     this.fadeTimerId = setInterval(() => {
-      if (this.stepsDone === stepsOverall) {
+      if (this.stepsDone === stepsInTotal) {
         clearInterval(this.fadeTimerId);
         this.setState({
           opacity: 1,
