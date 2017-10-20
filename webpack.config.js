@@ -9,7 +9,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.(js|jsx)$/,
         include: [
           path.resolve(__dirname, 'src')
         ],
@@ -19,7 +19,7 @@ module.exports = {
         ],
         loader: 'babel-loader',
         options: {
-          presets: ['react', 'es2015'] // TODO: add stage-? later
+          presets: ['react', 'env'] // TODO: add stage-? later
         }
       }
     ]
