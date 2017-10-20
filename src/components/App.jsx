@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
@@ -230,3 +231,5 @@ export default class App extends React.Component {
     );
   }
 }
+
+connect()(App);
