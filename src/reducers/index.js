@@ -1,11 +1,19 @@
 import { combineReducers } from 'redux';
 import {
-  nicknameReducer, idReducer, messagesReducers, typingReducer
+  nicknameReducer,
+  clientIdReducer,
+  messagesReducer,
+  typingReducer,
+  readyStateReducer,
+  unsentReducer
 } from './reducers';
 
 export default combineReducers({
+  readyState: readyStateReducer,
   nickname: nicknameReducer,
-  id: idReducer,
-  messages: messagesReducers,
-  whoIsTyping: typingReducer
+  clientId: clientIdReducer,
+  messages: messagesReducer,
+  whoIsTyping: typingReducer,
+  // TODO: rename to unsentReducer
+  unsent: unsentReducer
 });
