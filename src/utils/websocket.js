@@ -32,6 +32,7 @@ export const addOnErrorListener = (ws, handler) => {
 // };
 
 export const parseMsg = (incomingDataHandler, specificHandler) => (messageEvent) => {
+  // TODO: change to in-place JSON.parse()
   const incoming = parseJSON(messageEvent.data);
 
   if (!incoming) {

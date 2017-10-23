@@ -49,7 +49,7 @@ export default class App extends React.Component {
       // TODO: replace bindings to constructor
       openHandler: this.websocketOpenHandler,
       closeHandler: this.websocketCloseHandler.bind(this),
-      errorHandler: this.websocketErrorHandler.bind(this),
+      // errorHandler: this.websocketErrorHandler.bind(this),
       saveClientId: this.incomingIdHandler.bind(this),
       addMessageToState: this.incomingMessageHandler.bind(this),
       addTypingDataToState: this.incomingTypingHandler.bind(this)
