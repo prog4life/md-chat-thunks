@@ -14,7 +14,8 @@ export default class App extends React.Component {
       nickname: '',
       messages: [
         {
-          id: '32425gser27408908',
+          // TODO: add msg id with shortid
+          authorId: '32425gser27408908',
           nickname: 'test user',
           text: 'Sample test user message'
         }
@@ -22,13 +23,14 @@ export default class App extends React.Component {
       whoIsTyping: []
     };
 
-    // this.websocketOpenHandler = this.websocketOpenHandler.bind(this);
+    this.websocketOpenHandler = this.websocketOpenHandler.bind(this);
     this.handleClearTyping = this.handleClearTyping.bind(this);
     this.handleTyping = this.handleTyping.bind(this);
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
   componentDidMount() {
     this.setupWebSocket();
+    this.unsent = [];
 
     // TODO: resolve
     // this.monitorConnection();
@@ -39,29 +41,44 @@ export default class App extends React.Component {
     // this.prepareConnection(() => console.log('componentDidUpdate conn ready'));
   }
   componentWillUnmount() {
-    // doublecheck
-    clearInterval(this.websocketIntervalId);
     // TODO: resolve
     // clearInterval(this.monitoringTimerId);
   }
-  setupWebSocket(done) {
-
-    // this.websocket = new WebSocket('ws://localhost:8787');
+  setupWebSocket() {
     this.websocket = createWebSocket({
-      openHandler: this.websocketOpenHandler.bind(this),
+      // TODO: replace bindings to constructor
+      openHandler: this.websocketOpenHandler,
       closeHandler: this.websocketCloseHandler.bind(this),
       errorHandler: this.websocketErrorHandler.bind(this),
-      addIdToState: this.incomingIdHandler((id) => {
-        console.log('New clientId: %s, new id: %s', this.clientId, id);
-      }),
+      saveClientId: this.incomingIdHandler.bind(this),
       addMessageToState: this.incomingMessageHandler.bind(this),
       addTypingDataToState: this.incomingTypingHandler.bind(this)
     });
   }
-  getNewId() {
-    this.websocket.send(JSON.stringify({
-      type: 'GET_ID'
-    }));
+  getNewClientId() {
+    this.websocket.send(JSON.stringify({ type: 'GET_ID' }));
+  }
+  postponeSending(outgoingData) {
+    this.unsent = outgoingData.type === 'MESSAGE'
+      ? [...this.unsent, outgoingData]
+      : this.unsent;
+  }
+  sendUnsent() {
+    // TODO: limit sending to last * messages
+    this.unsent.forEach(msg => this.websocket.send(JSON.stringify(msg)));
+    this.unsent = [];
+  }
+  handleSending(outgoingData) {
+    if (!this.websocket || this.websocket.readyState !== WebSocket.OPEN) {
+      this.postponeSending(outgoingData);
+      this.setupWebSocket();
+    }
+
+    if (!this.clientId) {
+      this.postponeSending(outgoingData);
+      this.getNewClientId();
+    }
+    this.websocket.send(JSON.stringify(outgoingData));
   }
   // NOTE: perhaps reopening connection on close is enough
   // monitorConnection() {
@@ -69,88 +86,55 @@ export default class App extends React.Component {
   //   // will reopen it if needed
   //   this.monitoringTimerId = setInterval(() => {
   //     this.prepareConnection(() => console.log('Monitoring: connection ready'));
-  //   }, 5000);
+  //   }, 3000);
   // }
-  // prepareConnection(onReady) {
-  //   if (this.websocket && this.websocket.readyState !== WebSocket.OPEN) {
-  //     console.log('webscoket readystate is not OPEN');
-  //     // TODO: consider passing checkId and onReady directly as params
-  //     this.setupWebSocket((websocket) => {
-  //       this.checkId((id) => {
-  //         console.log(`Checked id in prepareConnection: ${id}`);
-  //         onReady();
-  //       });
-  //     });
-  //     return;
-  //   }
-  //
-  //   if (!this.clientId) {
-  //     console.log('webscoket readystate is OPEN, but no id');
-  //     this.getNewId((id) => {
-  //       console.log(`Received new id in prepareConnection: ${id}`);
-  //       onReady();
-  //     });
-  //     return;
-  //   }
-  //   onReady();
-  // }
-  incomingIdHandler(done) {
-    return (extractedData) => {
-      this.clientId = extractedData.id;
-      // TODO: check if function passed
-      done(extractedData.id);
-    };
+  incomingIdHandler(extractedData) {
+    this.clientId = extractedData.id;
+    console.log('New clientId: ', this.clientId);
+
+    this.sendUnsent();
   }
   incomingMessageHandler(extractedData) {
     const { message } = extractedData;
 
-    this.setState((prevState, props) => {
-      return {
-        messages: message
-          // NOTE: maybe replace with array + spread off:
-          // [...prevState.messages, extractedData.message]
-          ? prevState.messages.concat(message)
-          : prevState.messages,
-        // if receive new message from one whose typing notification is showing
-        whoIsTyping: prevState.whoIsTyping[0] === message.nickname
-          ? []
-          : prevState.whoIsTyping
-      };
-    });
+    this.setState((prevState, props) => ({
+      messages: message
+        // NOTE: maybe replace with array + spread off:
+        // [...prevState.messages, extractedData.message]
+        ? prevState.messages.concat(message)
+        : prevState.messages,
+      // to terminate displaying of typing notification if new message
+      // from same one is received
+      whoIsTyping: prevState.whoIsTyping[0] === message.nickname
+        ? []
+        : prevState.whoIsTyping
+    }));
   }
   incomingTypingHandler(extractedData) {
-    this.setState((prevState, props) => {
-      return {
-        whoIsTyping: extractedData.whoIsTyping || prevState.whoIsTyping
-      };
-    });
+    this.setState((prevState, props) => ({
+      whoIsTyping: extractedData.whoIsTyping || prevState.whoIsTyping
+    }));
   }
   handleSendMessage(nickname, text) {
-    const saveAndSend = () => {
-      // save sent message to state for rendering
-      // TODO: use functional setState
-      this.setState({
-        nickname,
-        messages: this.state.messages.concat({
-          id: this.clientId,
-          nickname: 'Me',
-          text
-        })
-      });
-      const outgoingData = {
-        id: this.clientId,
-        name: nickname,
-        text,
-        type: 'MESSAGE'
-      };
+    // add message that is being sent to state for rendering
+    // TODO: use functional setState                                             !!!
+    this.setState(prevState => ({
+      nickname,
+      messages: prevState.messages.concat({
+        authorId: this.clientId,
+        nickname: 'Me',
+        text
+      })
+    }));
 
-      this.websocket.send(JSON.stringify(outgoingData));
+    const outgoingMessage = {
+      senderId: this.clientId,
+      name: nickname,
+      text,
+      type: 'MESSAGE'
     };
 
-    // IDEA: store outgoing as this.unsent [], check it in componentDidUpdate
-    // and send all data if not empty + clear array
-
-    this.prepareConnection(saveAndSend);
+    this.handleSending(outgoingMessage);
   }
   handleClearTyping() {
     // remove one, whose typing notification was shown, after showing it
@@ -163,37 +147,36 @@ export default class App extends React.Component {
       return;
     }
 
-    const sendTyping = () => {
-      this.websocket.send(JSON.stringify({
-        id: this.clientId,
-        name: this.state.nickname,
-        type: 'IS_TYPING'
-      }));
+    const outgoingTypingNotification = {
+      senderId: this.clientId,
+      name: this.state.nickname,
+      type: 'IS_TYPING'
     };
 
-    this.prepareConnection(sendTyping);
+    this.handleSending(outgoingTypingNotification);
   }
   websocketOpenHandler() {
-    // TODO: send 'HAS_ID':
-    //     this.websocket.send(JSON.stringify({
-    //       id: this.clientId,
-    //       type: 'HAS_ID'
-    //     }));
     console.log('WebSocket is open, readyState: ', this.websocket.readyState);
     if (!this.clientId) {
-      this.getNewId();
+      this.getNewClientId();
       return;
     }
     console.log(`Client has id: ${this.clientId}`);
+    this.sendUnsent();
+
+    this.websocket.send(JSON.stringify({
+      clientId: this.clientId,
+      type: 'HAS_ID'
+    }));
   }
   websocketCloseHandler() {
     // TODO: recreate connection only at some user action or by monitorConnection
     this.setupWebSocket();
   }
-  websocketErrorHandler() {
-    // TODO: recreate connection only at some user action or by monitorConnection
-    // this.setupWebSocket();
-  }
+  // websocketErrorHandler() {
+  //   // TODO: recreate connection only at some user action or by monitorConnection
+  //   // this.setupWebSocket();
+  // }
   render() {
     return (
       <div className="chat-app">

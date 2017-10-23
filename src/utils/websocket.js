@@ -1,9 +1,5 @@
 import parseJSON from './json-parser';
 
-export const addOnOpenListener = (ws, handler) => {
-  ws.addEventListener('open', handler);
-};
-
 // TODO: replace later by handler
 export const addOnCloseListener = (ws, handler) => {
   ws.addEventListener('close', (event) => {
@@ -26,11 +22,6 @@ export const addOnErrorListener = (ws, handler) => {
   });
 };
 
-export const addOnMessageListener = (websocket, handler) => {
-  /* eslint callback-return: 0 */
-  websocket.addEventListener('message', handler);
-};
-
 // export const parseMsg = (incomingDataHandler) => (messageEvent) => {
 //   const incoming = parseJSON(messageEvent.data);
 //
@@ -49,11 +40,11 @@ export const parseMsg = (incomingDataHandler, specificHandler) => (messageEvent)
   incomingDataHandler(incoming)(specificHandler);
 };
 
-export const handleId = incoming => (addIdToState) => {
+export const handleId = incoming => (saveClientId) => {
   const { id, type } = incoming;
 
   if (type === 'SET_ID') {
-    addIdToState({
+    saveClientId({
       id
     });
   }
@@ -87,22 +78,26 @@ export const handleTypingData = incoming => (addTypingDataToState) => {
 
 export default function createWebSocket(handlers) {
   const {
+    // TODO: make them module level variables to use in removeEventListener
     openHandler,
     closeHandler,
-    errorHandler,
-    addIdToState,
+    // errorHandler,
+    saveClientId,
     addMessageToState,
     addTypingDataToState
   } = handlers;
   const ws = new WebSocket('ws://localhost:8787');
 
-  addOnOpenListener(ws, openHandler);
+  ws.addEventListener('open', openHandler);
   addOnCloseListener(ws, closeHandler);
-  addOnErrorListener(ws, errorHandler);
-  // addOnMessageListener(ws, parseMsg(handleId(addIdToState)));
-  addOnMessageListener(ws, parseMsg(handleId, addIdToState));
-  addOnMessageListener(ws, parseMsg(handleMessage, addMessageToState));
-  addOnMessageListener(ws, parseMsg(handleTypingData, addTypingDataToState));
+  // addOnErrorListener(ws, errorHandler);
+  // ws.addEventListener('message', parseMsg(handleId(saveClientId)));
+  ws.addEventListener('message', parseMsg(handleId, saveClientId));
+  ws.addEventListener('message', parseMsg(handleMessage, addMessageToState));
+  ws.addEventListener(
+    'message',
+    parseMsg(handleTypingData, addTypingDataToState)
+  );
 
   return ws;
 }
