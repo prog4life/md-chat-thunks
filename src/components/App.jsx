@@ -3,11 +3,7 @@ import React from 'react';
 import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
 import TypingNotification from './TypingNotification';
-import createWebSocket, {
-  addOnMessageListener,
-  addOnCloseListener,
-  addOnErrorListener
-} from '../utils/websocket';
+import createWebSocket from '../utils/websocket';
 import typingNotifiConfig from '../config/typing-notification';
 
 export default class App extends React.Component {
@@ -26,14 +22,14 @@ export default class App extends React.Component {
       whoIsTyping: []
     };
 
+    // this.websocketOpenHandler = this.websocketOpenHandler.bind(this);
     this.handleClearTyping = this.handleClearTyping.bind(this);
     this.handleTyping = this.handleTyping.bind(this);
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
   componentDidMount() {
-    this.setupWebSocket(() => {
-      this.checkId((id) => console.log(`Client has id: ${id}`));
-    });
+    this.setupWebSocket();
+
     // TODO: resolve
     // this.monitorConnection();
   }
@@ -48,91 +44,56 @@ export default class App extends React.Component {
     // TODO: resolve
     // clearInterval(this.monitoringTimerId);
   }
-  prepareConnection(onReady) {
-    if (this.websocket && this.websocket.readyState !== WebSocket.OPEN) {
-      console.log('webscoket readystate is not OPEN');
-      // TODO: consider passing checkId and onReady directly as params
-      this.setupWebSocket((websocket) => {
-        this.checkId((id) => {
-          console.log(`Checked id in prepareConnection: ${id}`);
-          onReady();
-        });
-      });
-      return;
-    }
-
-    if (!this.clientId) {
-      console.log('webscoket readystate is OPEN, but no id');
-      this.getNewId((id) => {
-        console.log(`Received new id in prepareConnection: ${id}`);
-        onReady();
-      });
-      return;
-    }
-    onReady();
-  }
   setupWebSocket(done) {
-    const handleOpen = (websocket) => {
-      // this.websocket = websocket;
-      addOnMessageListener(websocket, {
-        messageHandler: this.incomingMessageHandler.bind(this),
-        typingHandler: this.incomingTypingHandler.bind(this)
-      });
-      addOnCloseListener(websocket, () => {
-        this.setupWebSocket(() => {
-          this.checkId((id) => {
-            console.log(`Reopen on close with id: ${id}`);
-          });
-        });
-      });
-      // TODO: check if function passed
-      done(websocket);
-    };
 
-    this.websocket = createWebSocket(handleOpen);
-
-    addOnErrorListener(this.websocket, () => {
-      if (this.websocket && this.websocket.readyState !== WebSocket.CLOSED) {
-        this.websocket.close();
-      }
-      this.setupWebSocket(() => {
-        this.checkId((id) => {
-          console.log(`Reopen on error with id: ${id}`);
-        });
-      });
+    // this.websocket = new WebSocket('ws://localhost:8787');
+    this.websocket = createWebSocket({
+      openHandler: this.websocketOpenHandler.bind(this),
+      closeHandler: this.websocketCloseHandler.bind(this),
+      errorHandler: this.websocketErrorHandler.bind(this),
+      addIdToState: this.incomingIdHandler((id) => {
+        console.log('New clientId: %s, new id: %s', this.clientId, id);
+      }),
+      addMessageToState: this.incomingMessageHandler.bind(this),
+      addTypingDataToState: this.incomingTypingHandler.bind(this)
     });
   }
-  // NOTE: perhaps reopening connection on close is enough
-  monitorConnection() {
-    // set timer that will track connection open state each ~ 5 sec and
-    // will reopen it if needed
-    this.monitoringTimerId = setInterval(() => {
-      this.prepareConnection(() =>
-        console.log('Monitoring: connection ready')
-      );
-    }, 5000);
-  }
-  checkId(done) {
-    if (this.clientId) {
-      this.websocket.send(JSON.stringify({
-        id: this.clientId,
-        type: 'HAS_ID'
-      }));
-      // TODO: check if function passed
-      done(this.clientId);
-    } else {
-      this.getNewId(done);
-    }
-  }
-  getNewId(done) {
-    addOnMessageListener(this.websocket, {
-      // immediate call, will return handler function with done in closure
-      idHandler: this.incomingIdHandler(done)
-    });
+  getNewId() {
     this.websocket.send(JSON.stringify({
       type: 'GET_ID'
     }));
   }
+  // NOTE: perhaps reopening connection on close is enough
+  // monitorConnection() {
+  //   // set timer that will track connection open state each ~ 5 sec and
+  //   // will reopen it if needed
+  //   this.monitoringTimerId = setInterval(() => {
+  //     this.prepareConnection(() => console.log('Monitoring: connection ready'));
+  //   }, 5000);
+  // }
+  // prepareConnection(onReady) {
+  //   if (this.websocket && this.websocket.readyState !== WebSocket.OPEN) {
+  //     console.log('webscoket readystate is not OPEN');
+  //     // TODO: consider passing checkId and onReady directly as params
+  //     this.setupWebSocket((websocket) => {
+  //       this.checkId((id) => {
+  //         console.log(`Checked id in prepareConnection: ${id}`);
+  //         onReady();
+  //       });
+  //     });
+  //     return;
+  //   }
+  //
+  //   if (!this.clientId) {
+  //     console.log('webscoket readystate is OPEN, but no id');
+  //     this.getNewId((id) => {
+  //       console.log(`Received new id in prepareConnection: ${id}`);
+  //       onReady();
+  //     });
+  //     return;
+  //   }
+  //   onReady();
+  // }
   incomingIdHandler(done) {
     return (extractedData) => {
       this.clientId = extractedData.id;
@@ -141,7 +102,7 @@ export default class App extends React.Component {
     };
   }
   incomingMessageHandler(extractedData) {
-    const {message} = extractedData;
+    const { message } = extractedData;
 
     this.setState((prevState, props) => {
       return {
@@ -211,6 +172,27 @@ export default class App extends React.Component {
     };
 
     this.prepareConnection(sendTyping);
+  }
+  websocketOpenHandler() {
+    // TODO: send 'HAS_ID':
+    //     this.websocket.send(JSON.stringify({
+    //       id: this.clientId,
+    //       type: 'HAS_ID'
+    //     }));
+    console.log('WebSocket is open, readyState: ', this.websocket.readyState);
+    if (!this.clientId) {
+      this.getNewId();
+      return;
+    }
+    console.log(`Client has id: ${this.clientId}`);
+  }
+  websocketCloseHandler() {
+    // TODO: recreate connection only at some user action or by monitorConnection
+    this.setupWebSocket();
+  }
+  websocketErrorHandler() {
+    // TODO: recreate connection only at some user action or by monitorConnection
+    // this.setupWebSocket();
   }
   render() {
     return (
