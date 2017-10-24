@@ -3,9 +3,6 @@ const shortid = require('shortid');
 
 let chatInstance = null;
 
-/* eslint consistent-this: 0 */
-/* eslint prefer-arrow-callback: 0 */
-/* eslint class-methods-use-this: 0 */
 class WebsocketChat {
   constructor() {
     if (!chatInstance) {
@@ -16,24 +13,35 @@ class WebsocketChat {
 
   setWebsocketServer(wss) {
     // TODO: do something if wss already present
-    this.wss = wss;
+    if (!this.wss) {
+      this.wss = wss;
+      return;
+    }
+    this.wss.close(() => {
+      this.wss = wss;
+    });
   }
 
   handleIncomingData(ws, rawIncoming) {
-    const incoming = this.parseIncomingJSON(rawIncoming);
+    let incoming = null;
+    try {
+      incoming = JSON.parse(rawIncoming);
+    } catch (e) {
+      console.error('Failed to parse incoming json ', e);
+    }
 
     if (!incoming || !this.validateIncomingData(incoming)) {
       return;
     }
-    const {id, name, text, type} = incoming;
+    const { id, name, text, type } = incoming;
 
     switch (type) {
       case 'GET_ID':
         this.assignNewId(ws);
         break;
       case 'HAS_ID':
+        // NOTE: to save as User's data
         console.log('Has id: ', id);
-        // TODO save into User's data
         break;
       case 'MESSAGE':
         this.resendMessageToAll(ws, incoming);
@@ -48,7 +56,7 @@ class WebsocketChat {
       case 'CHANGE_NAME':
         break;
       default:
-        console.error('Unknown incoming message type, default case');
+        console.error('Unknown type of incoming message');
     }
   }
 
@@ -83,7 +91,7 @@ class WebsocketChat {
   }
 
   resendMessageToAll(ws, incoming) {
-    const {id, name, text, type} = incoming;
+    const { id, name, text, type } = incoming;
 
     // TODO: validate incoming
     const outgoing = JSON.stringify({
@@ -97,7 +105,7 @@ class WebsocketChat {
   }
 
   sendTypingNotification(ws, incoming) {
-    const {id, name, type} = incoming;
+    const { id, name, type } = incoming;
 
     // TODO: validate incoming
 
@@ -131,16 +139,6 @@ class WebsocketChat {
     //   console.error('Incorrect value of name property of incoming message');
     //   return;
     // }
-  }
-
-  // TODO: replace out of this file
-  parseIncomingJSON(json) {
-    try {
-      return JSON.parse(json);
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
   }
 }
 

@@ -1,8 +1,5 @@
 const websocket = require('ws');
-const url = require('url');
 const chat = require('./websocket-chat').createChat();
-
-/* eslint prefer-arrow-callback: 0 */
 
 const startServer = (server) => {
   const wss = new websocket.Server({
@@ -13,32 +10,50 @@ const startServer = (server) => {
 
   chat.setWebsocketServer(wss);
 
-  wss.on('connection', function connection(ws, req) {
-    const location = url.parse(req.url, true);
-
-    console.log('wss onconnection location', location.pathname);
-
+  wss.on('connection', (ws) => {
+    ws.isAlive = true;
+    // heartbeat callback
+    ws.on('pong', () => {
+      this.isAlive = true
+    });
     // TODO: try currying here
-    ws.on('message', function incoming(incomingData) {
-      console.log('Socket message received: %s', incomingData);
+    ws.on('message', (incoming) => {
+      console.log('Socket message received: %s', incoming);
 
-      chat.handleIncomingData(ws, incomingData);
+      chat.handleIncomingData(ws, incoming);
     });
 
-    ws.on('error', function sockerr(error) {
-      // TODO: remove instances from sockets, close ws ?
-      // wss.clients.delete(ws);
-
+    ws.on('error', (error) => {
       console.error('ws onerror with error: ', error);
-      console.log('ws onerror clients ', Array.from(wss.clients));
+      ws.terminate();
     });
 
-    ws.on('close', function closeWebSocket(code, reason) {
+    ws.on('close', (code, reason) => {
       console.log('ws onclose code: %s and reason: %s ', code, reason);
       console.log('ws onclose clients size', wss.clients.size);
     });
   });
+
+  wss.on('error', (error) => {
+    console.error('Websocket Server error ', error);
+    wss.close(() => {
+      setTimeout(() => startServer(server), 1000);
+    });
+  });
+
+  wss.checkInterval = setInterval(() => {
+    wss.clients.foreach((ws) => {
+      if (!ws.isAlive) {
+        ws.terminate();
+        return;
+      }
+
+      ws.isAlive = false;
+      ws.ping('', false, true);
+    });
+  }, 10000); // NOTE: was 30000 in example
+
+  return wss;
 };
 
-// TODO: export other functions separately when testing will be added
 module.exports = startServer;

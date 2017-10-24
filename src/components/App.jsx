@@ -14,7 +14,7 @@ export default class App extends React.Component {
       nickname: '',
       messages: [
         {
-          // TODO: add msg id with shortid
+          // TODO: add msg id using shortid
           authorId: '32425gser27408908',
           nickname: 'test user',
           text: 'Sample test user message'
