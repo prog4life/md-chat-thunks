@@ -15,7 +15,7 @@ export default class App extends React.Component {
       messages: [
         {
           // TODO: add msg id using shortid
-          authorId: '32425gser27408908',
+          clientId: '32425gser27408908',
           nickname: 'test user',
           text: 'Sample test user message'
         }
@@ -46,7 +46,7 @@ export default class App extends React.Component {
   }
   setupWebSocket() {
     this.websocket = createWebSocket({
-      // TODO: replace bindings to constructor
+      clientId TODO: replace bindings to constructor
       openHandler: this.websocketOpenHandler,
       closeHandler: this.websocketCloseHandler.bind(this),
       // errorHandler: this.websocketErrorHandler.bind(this),
@@ -89,7 +89,7 @@ export default class App extends React.Component {
   //   }, 3000);
   // }
   incomingIdHandler(extractedData) {
-    this.clientId = extractedData.id;
+    this.clientId = extractedData.clientId;
     console.log('New clientId: ', this.clientId);
 
     this.sendUnsent();
@@ -121,15 +121,15 @@ export default class App extends React.Component {
     this.setState(prevState => ({
       nickname,
       messages: prevState.messages.concat({
-        authorId: this.clientId,
+        clientId: this.clientId,
         nickname: 'Me',
         text
       })
     }));
 
     const outgoingMessage = {
-      senderId: this.clientId,
-      name: nickname,
+      clientId: this.clientId,
+      nickname,
       text,
       type: 'MESSAGE'
     };
@@ -148,8 +148,8 @@ export default class App extends React.Component {
     }
 
     const outgoingTypingNotification = {
-      senderId: this.clientId,
-      name: this.state.nickname,
+      clientId: this.clientId,
+      nickname: this.state.nickname,
       type: 'IS_TYPING'
     };
 

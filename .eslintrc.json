@@ -35,6 +35,10 @@
       "peerDependencies": false
     }],
     "linebreak-style": ["off", "unix"],
+    "object-curly-newline": ["error", {
+      "minProperties": 5,
+      "consistent": true
+    }],
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
   },
   "settings": {

@@ -14,7 +14,7 @@ export const addOnErrorListener = (ws, handler) => {
     if (ws && ws.readyState !== WebSocket.CLOSED) {
       ws.close();
     }
-    // NOTE: probably redundant, websocket will be recreated on close event
+    // NOTE: probably redunclientIdnt, websocket will be recreated on close event
     if (!ws || ws.readyState === WebSocket.CLOSED ||
         ws.readyState === WebSocket.CLOSING) {
       // handler();
@@ -42,25 +42,23 @@ export const parseMsg = (incomingDataHandler, specificHandler) => (messageEvent)
 };
 
 export const handleId = incoming => (saveClientId) => {
-  const { id, type } = incoming;
+  const { clientId, type } = incoming;
 
   if (type === 'SET_ID') {
     saveClientId({
-      id
+      clientId
     });
   }
 };
 
 export const handleMessage = incoming => (addMessageToState) => {
-  const {
-    id, name, text, type
-  } = incoming;
+  const { clientId, nickname, text, type } = incoming;
 
   if (type === 'MESSAGE') {
     addMessageToState({
       message: {
-        id,
-        nickname: name,
+        clientId,
+        nickname,
         text
       }
     });
@@ -68,11 +66,11 @@ export const handleMessage = incoming => (addMessageToState) => {
 };
 
 export const handleTypingData = incoming => (addTypingDataToState) => {
-  const { name, type } = incoming;
+  const { nickname, type } = incoming;
 
   if (type === 'IS_TYPING') {
     addTypingDataToState({
-      whoIsTyping: [name]
+      whoIsTyping: [nickname]
     });
   }
 };
@@ -115,13 +113,13 @@ export default function createWebSocket(handlers) {
 //     if (!incoming) {
 //       return;
 //     }
-//     const {id, type, name, text} = incoming;
+//     const {clientId, type, nickname, text} = incoming;
 //
 //     switch (type) {
 //       case 'IS_TYPING':
 //         if (typeof typingHandler === 'function') {
 //           typingHandler({
-//             whoIsTyping: [name]
+//             whoIsTyping: [nickname]
 //           });
 //         }
 //         break;
@@ -129,8 +127,8 @@ export default function createWebSocket(handlers) {
 //         if (typeof messageHandler === 'function') {
 //           messageHandler({
 //             message: {
-//               id,
-//               nickname: name,
+//               clientId,
+//               nickname,
 //               text
 //             }
 //           });
@@ -139,7 +137,7 @@ export default function createWebSocket(handlers) {
 //       case 'SET_ID':
 //         if (typeof idHandler === 'function') {
 //           idHandler({
-//             id
+//             clientId
 //           });
 //         }
 //         break;
@@ -177,11 +175,11 @@ export default function createWebSocket(handlers) {
 //     if (!incoming) {
 //       return;
 //     }
-//     const {type, name} = incoming;
+//     const {type, nickname} = incoming;
 //
 //     if (type === 'IS_TYPING') {
 //       typingHandler({
-//         whoIsTyping: [name]
+//         whoIsTyping: [nickname]
 //       });
 //     }
 //   });
@@ -194,13 +192,13 @@ export default function createWebSocket(handlers) {
 //     if (!incoming) {
 //       return;
 //     }
-//     const {id, type, name, text} = incoming;
+//     const {clientId, type, nickname, text} = incoming;
 //
 //     if (type === 'MESSAGE') {
 //       messageHandler({
 //         message: {
-//           id,
-//           nickname: name,
+//           clientId,
+//           nickname,
 //           text
 //         }
 //       });
@@ -215,11 +213,11 @@ export default function createWebSocket(handlers) {
 //     if (!incoming) {
 //       return;
 //     }
-//     const {id, type} = incoming;
+//     const {clientId, type} = incoming;
 //
 //     if (type === 'SET_ID') {
 //       idHandler({
-//         id
+//         clientId
 //       });
 //     }
 //   });
@@ -232,21 +230,21 @@ export default function createWebSocket(handlers) {
 //     if (!incoming) {
 //       return;
 //     }
-//     const {id, type, name, text} = incoming;
+//     const {clientId, type, nickname, text} = incoming;
 //
 //     const extracted = {
 //       SET_ID: {
-//         id
+//         clientId
 //       },
 //       MESSAGE: {
 //         message: {
-//           id,
-//           nickname: name,
+//           clientId,
+//           nickname,
 //           text
 //         }
 //       },
 //       IS_TYPING: {
-//         whoIsTyping: [name]
+//         whoIsTyping: [nickname]
 //       }
 //     };
 //

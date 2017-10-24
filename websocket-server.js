@@ -14,7 +14,7 @@ const startServer = (server) => {
     ws.isAlive = true;
     // heartbeat callback
     ws.on('pong', () => {
-      this.isAlive = true
+      this.isAlive = true;
     });
     // TODO: try currying here
     ws.on('message', (incoming) => {

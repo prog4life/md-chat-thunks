@@ -29,19 +29,20 @@ class WebsocketChat {
     } catch (e) {
       console.error('Failed to parse incoming json ', e);
     }
-
-    if (!incoming || !this.validateIncomingData(incoming)) {
+    // TODO: resolve static method call with class name
+    if (!incoming || !WebsocketChat.validateIncomingData(incoming)) {
       return;
     }
-    const { id, name, text, type } = incoming;
+    const { clientId, type } = incoming;
 
     switch (type) {
       case 'GET_ID':
-        this.assignNewId(ws);
+        // TODO: resolve static method call with this.constructor
+        this.constructor.assignNewId(ws);
         break;
       case 'HAS_ID':
-        // NOTE: to save as User's data
-        console.log('Has id: ', id);
+        // NOTE: to save as part User's data
+        console.log('Has clientId: ', clientId);
         break;
       case 'MESSAGE':
         this.resendMessageToAll(ws, incoming);
@@ -60,18 +61,17 @@ class WebsocketChat {
     }
   }
 
-  assignNewId(ws) {
-    // TODO: replace by uuid
-    const id = shortid.generate();
+  static assignNewId(ws) {
+    const clientId = shortid.generate();
 
     ws.send(JSON.stringify({
-      id,
+      clientId,
       type: 'SET_ID'
     }), (e) => {
       if (e) {
-        console.log('send id error: ', e);
+        console.log('send clientId error: ', e);
       }
-      console.log('new id sent: ', id);
+      console.log('new clientId sent: ', clientId);
     });
   }
 
@@ -91,12 +91,12 @@ class WebsocketChat {
   }
 
   resendMessageToAll(ws, incoming) {
-    const { id, name, text, type } = incoming;
+    const { clientId, nickname, text, type } = incoming;
 
     // TODO: validate incoming
     const outgoing = JSON.stringify({
-      id,
-      name,
+      clientId,
+      nickname,
       text,
       type
     });
@@ -105,28 +105,28 @@ class WebsocketChat {
   }
 
   sendTypingNotification(ws, incoming) {
-    const { id, name, type } = incoming;
+    const { clientId, nickname, type } = incoming;
 
     // TODO: validate incoming
 
     const outgoing = JSON.stringify({
-      id,
-      name,
+      clientId,
+      nickname,
       type
     });
 
     this.broadcast(ws, outgoing);
   }
 
-  validateIncomingData(dataToCheck) {
+  static validateIncomingData(dataToCheck) {
     // TODO: refactor this, temporary return as is
     return dataToCheck;
 
     // TODO: pass here obj with only props that must be not falsy, and loop
     // over them to check each
 
-    // if (typeof id !== 'string' || id === '') {
-    //   console.error('Incorrect value of id property of incoming message');
+    // if (typeof clientId !== 'string' || clientId === '') {
+    //   console.error('Incorrect value of clientId property of incoming message');
     //   return;
     // }
     //
@@ -135,8 +135,8 @@ class WebsocketChat {
     //   return;
     // }
     //
-    // if (typeof name !== 'string' || name === '') {
-    //   console.error('Incorrect value of name property of incoming message');
+    // if (typeof nickname !== 'string' || nickname === '') {
+    //   console.error('Incorrect value of nickname property of incoming message');
     //   return;
     // }
   }
