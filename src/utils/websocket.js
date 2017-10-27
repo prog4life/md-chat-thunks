@@ -14,7 +14,7 @@ export const addOnErrorListener = (ws, handler) => {
     if (ws && ws.readyState !== WebSocket.CLOSED) {
       ws.close();
     }
-    // NOTE: probably redunclientIdnt, websocket will be recreated on close event
+    // NOTE: probably redundant, websocket will be recreated on close event
     if (!ws || ws.readyState === WebSocket.CLOSED ||
         ws.readyState === WebSocket.CLOSING) {
       // handler();

@@ -46,7 +46,7 @@ export default class App extends React.Component {
   }
   setupWebSocket() {
     this.websocket = createWebSocket({
-      clientId TODO: replace bindings to constructor
+      // TODO: replace bindings to constructor
       openHandler: this.websocketOpenHandler,
       closeHandler: this.websocketCloseHandler.bind(this),
       // errorHandler: this.websocketErrorHandler.bind(this),
@@ -72,11 +72,13 @@ export default class App extends React.Component {
     if (!this.websocket || this.websocket.readyState !== WebSocket.OPEN) {
       this.postponeSending(outgoingData);
       this.setupWebSocket();
+      return;
     }
 
     if (!this.clientId) {
       this.postponeSending(outgoingData);
       this.getNewClientId();
+      return;
     }
     this.websocket.send(JSON.stringify(outgoingData));
   }

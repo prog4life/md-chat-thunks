@@ -14,7 +14,7 @@ const startServer = (server) => {
     ws.isAlive = true;
     // heartbeat callback
     ws.on('pong', () => {
-      this.isAlive = true;
+      ws.isAlive = true;
     });
     // TODO: try currying here
     ws.on('message', (incoming) => {
@@ -42,7 +42,7 @@ const startServer = (server) => {
   });
 
   wss.checkInterval = setInterval(() => {
-    wss.clients.foreach((ws) => {
+    wss.clients.forEach((ws) => {
       if (!ws.isAlive) {
         ws.terminate();
         return;

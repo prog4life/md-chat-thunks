@@ -12,7 +12,7 @@ class WebsocketChat {
   }
 
   setWebsocketServer(wss) {
-    // TODO: do something if wss already present
+    // TODO: do something if wss is present already
     if (!this.wss) {
       this.wss = wss;
       return;
