@@ -10,8 +10,8 @@
     "watch": "node_modules/.bin/webpack -w --color --progress",
     "serve": "webpack -w --color --progress",
     "mon": "nodemon server.js",
-    "debug": "node --inspect-brk server.js",
-    "mondeb": "nodemon --inspect-brk=9229 server.js"
+    "debug": "node --inspect-brk=9229 server.js",
+    "mondeb": "nodemon --inspect=9229 server.js"
   },
   "dependencies": {
     "babel-core": "^6.26.0",

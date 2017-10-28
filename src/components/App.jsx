@@ -45,11 +45,17 @@ export default class App extends React.Component {
     // clearInterval(this.monitoringTimerId);
   }
   setupWebSocket() {
+    if (this.websocket &&
+       (this.websocket.readyState === 0 || this.websocket.readyState === 1)) {
+      console.log('readyState of ws in setupWebSocket: ', this.websocket.readyState);
+      // this.websocket.close(1000, 'New connection opening is started');
+      return;
+    }
     this.websocket = createWebSocket({
       // TODO: replace bindings to constructor
       openHandler: this.websocketOpenHandler,
       closeHandler: this.websocketCloseHandler.bind(this),
-      // errorHandler: this.websocketErrorHandler.bind(this),
+      errorHandler: this.websocketErrorHandler.bind(this),
       saveClientId: this.incomingIdHandler.bind(this),
       addMessageToState: this.incomingMessageHandler.bind(this),
       addTypingDataToState: this.incomingTypingHandler.bind(this)
@@ -65,7 +71,9 @@ export default class App extends React.Component {
   }
   sendUnsent() {
     // TODO: limit sending to last * messages
-    this.unsent.forEach(msg => this.websocket.send(JSON.stringify(msg)));
+    this.unsent.forEach((msg) => {
+      this.websocket.send(JSON.stringify(msg));
+    });
     this.unsent = [];
   }
   handleSending(outgoingData) {
@@ -119,7 +127,6 @@ export default class App extends React.Component {
   }
   handleSendMessage(nickname, text) {
     // add message that is being sent to state for rendering
-    // TODO: use functional setState                                             !!!
     this.setState(prevState => ({
       nickname,
       messages: prevState.messages.concat({
@@ -164,21 +171,25 @@ export default class App extends React.Component {
       return;
     }
     console.log(`Client has id: ${this.clientId}`);
-    this.sendUnsent();
 
     this.websocket.send(JSON.stringify({
       clientId: this.clientId,
       type: 'HAS_ID'
     }));
+
+    this.sendUnsent();
   }
-  websocketCloseHandler() {
+  websocketCloseHandler(event) {
     // TODO: recreate connection only at some user action or by monitorConnection
-    this.setupWebSocket();
+    // TODO: remove this condition
+    if (event.code === 1006 || !event.wasClean) {
+      this.setupWebSocket();
+    }
   }
-  // websocketErrorHandler() {
-  //   // TODO: recreate connection only at some user action or by monitorConnection
-  //   // this.setupWebSocket();
-  // }
+  websocketErrorHandler() {
+    // TODO: recreate connection only at some user action or by monitorConnection
+    // this.setupWebSocket();
+  }
   render() {
     return (
       <div className="chat-app">

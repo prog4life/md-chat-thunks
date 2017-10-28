@@ -30,7 +30,7 @@ class WebsocketChat {
       console.error('Failed to parse incoming json ', e);
     }
     // TODO: resolve static method call with class name
-    if (!incoming || !WebsocketChat.validateIncomingData(incoming)) {
+    if (!incoming || !this.constructor.validateIncomingData(incoming)) {
       return;
     }
     const { clientId, type } = incoming;
@@ -69,7 +69,7 @@ class WebsocketChat {
       type: 'SET_ID'
     }), (e) => {
       if (e) {
-        console.log('send clientId error: ', e);
+        console.log('clientId sending error: ', e);
       }
       console.log('new clientId sent: ', clientId);
     });
@@ -79,7 +79,7 @@ class WebsocketChat {
   broadcast(ws, outgoing) {
     this.wss.clients.forEach((client) => {
       if (client === ws) {
-        console.log('Self clients item, clients size: ', this.wss.clients.size);
+        console.log('Same clients item, clients size: ', this.wss.clients.size);
         return;
       }
       if (client.readyState === websocket.OPEN) {

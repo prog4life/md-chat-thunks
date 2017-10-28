@@ -4,21 +4,18 @@ import parseJSON from './json-parser';
 export const addOnCloseListener = (ws, handler) => {
   ws.addEventListener('close', (event) => {
     console.log(`Closing code: ${event.code}, wasClean: ${event.wasClean}`);
-    handler();
+    handler(event);
   });
 };
 
 export const addOnErrorListener = (ws, handler) => {
   ws.addEventListener('error', (event) => {
     console.log('Error event: ', event);
-    if (ws && ws.readyState !== WebSocket.CLOSED) {
-      ws.close();
-    }
-    // NOTE: probably redundant, websocket will be recreated on close event
-    if (!ws || ws.readyState === WebSocket.CLOSED ||
-        ws.readyState === WebSocket.CLOSING) {
-      // handler();
-    }
+    // if (ws && ws.readyState !== WebSocket.CLOSED) {
+    //   ws.close();
+    //   return;
+    // }
+    // handler();
   });
 };
 
@@ -85,6 +82,7 @@ export default function createWebSocket(handlers) {
     addMessageToState,
     addTypingDataToState
   } = handlers;
+  // const ws = new WebSocket('ws://localhost:8484');
   const ws = new WebSocket('ws://localhost:8787');
 
   ws.addEventListener('open', openHandler);

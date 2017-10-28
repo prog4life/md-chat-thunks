@@ -12,7 +12,7 @@ class ChatHistory extends React.Component {
     this.historyElem.scrollTop = this.historyElem.scrollHeight;
   }
   renderMessageList() {
-    return this.props.messages.map((message) => (
+    return this.props.messages.map(message => (
       // TODO: replace key value by client id from message
       <ChatMessage key={shortid.generate()} {...message} />
     ));
@@ -20,8 +20,8 @@ class ChatHistory extends React.Component {
   render() {
     return (
       <div
+        ref={(thisDiv) => { this.historyElem = thisDiv; }}
         className="chat-history"
-        ref={(thisDiv) => (this.historyElem = thisDiv)}
       >
         {this.renderMessageList()}
       </div>

@@ -3,9 +3,9 @@ const chat = require('./websocket-chat').createChat();
 
 const startServer = (server) => {
   const wss = new websocket.Server({
-    // TODO: try to use on diferent port while express server up and running
-    // port: 8484, // OR:
-    server
+    server // OR:
+    // to use on diferent port than express server
+    // port: 8484
   });
 
   chat.setWebsocketServer(wss);
