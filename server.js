@@ -18,7 +18,7 @@ app.set('hostname', hostname);
 
 app.use(express.static(path.join(__dirname, 'public')));
 // TODO: temporary styles are loaded from this dir
-app.use(express.static(path.join(__dirname, 'src')));
+// app.use(express.static(path.join(__dirname, 'src')));
 
 app.get('/favicon.ico', (req, res) => {
   res.set('Content-Type', 'image/x-icon');
