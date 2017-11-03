@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
+const autoprefixer = require('autoprefixer');
 
 module.exports = {
   entry: [
@@ -36,7 +37,16 @@ module.exports = {
               sourceMap: true
             }
           },
-          // 'postcss-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
+              plugins: [
+                autoprefixer
+              ],
+              sourceMap: true
+            }
+          },
           'resolve-url-loader',
           {
             loader: 'sass-loader',
