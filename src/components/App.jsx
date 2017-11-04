@@ -123,7 +123,9 @@ export default class App extends React.Component {
   incomingTypingHandler(extractedData) {
     this.setState((prevState, props) => ({
       whoIsTyping: extractedData.whoIsTyping || prevState.whoIsTyping
-    }));
+    }), () => {
+      console.log('---------Incoming Typing Notification-----------');
+    });
   }
   handleSendMessage(nickname, text) {
     // add message that is being sent to state for rendering

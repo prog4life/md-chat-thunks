@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 /* eslint no-magic-numbers: 0 */
-export default class FadingText extends React.Component {
+export default class FadeInOutText extends React.Component {
   constructor(props) {
     super(props);
 
@@ -120,7 +120,7 @@ export default class FadingText extends React.Component {
   }
 }
 
-FadingText.propTypes = {
+FadeInOutText.propTypes = {
   bidirectional: PropTypes.bool,
   duration: PropTypes.number,
   onAnimationEnd: PropTypes.func,
@@ -130,7 +130,7 @@ FadingText.propTypes = {
   textToShow: PropTypes.string
 };
 
-FadingText.defaultProps = {
+FadeInOutText.defaultProps = {
   // TODO: initialOpacity
   repeats: 3,
   duration: 1800,

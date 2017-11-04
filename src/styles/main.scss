@@ -49,17 +49,17 @@
   outline: none;
 }
 
-.fading-text {
+.blinking-text {
   transition: color 1s ease-out;
+
+  /* .transparent {
+    color: rgba(0, 0, 0, 0);
+  } */
+
+  /* .opaque {
+    color: rgba(0, 0, 0, 1);
+  } */
 }
-
-/* .transparent-text {
-  color: rgba(0, 0, 0, 0);
-} */
-
-/* .opaque-text {
-  color: rgba(0, 0, 0, 1);
-} */
 
 textarea,
 textarea:hover,
