@@ -1,6 +1,11 @@
 const webpack = require('webpack');
 const path = require('path');
 const autoprefixer = require('autoprefixer');
+const scssSyntax = require('postcss-scss');
+// const cssnano = require('cssnano');
+
+const nodeEnv = JSON.stringify(process.env.NODE_ENV || 'development');
+// const isProd = nodeEnv === 'production';
 
 module.exports = {
   entry: [
@@ -41,8 +46,10 @@ module.exports = {
             loader: 'postcss-loader',
             options: {
               ident: 'postcss',
+              syntax: scssSyntax,
               plugins: [
                 autoprefixer
+                // cssnano
               ],
               sourceMap: true
             }
@@ -64,7 +71,7 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development')
+        NODE_ENV: nodeEnv
       }
     })
   ],

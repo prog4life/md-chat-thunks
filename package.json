@@ -37,6 +37,7 @@
   "devDependencies": {
     "autoprefixer": "^7.1.6",
     "postcss-loader": "^2.0.8",
+    "postcss-scss": "^1.0.2",
     "resolve-url-loader": "^2.2.0"
   },
   "author": "",

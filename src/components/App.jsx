@@ -194,7 +194,7 @@ export default class App extends React.Component {
   }
   render() {
     return (
-      <div className="chat-app">
+      <div className="chat-app wrapper">
         <h3>Lil Chat</h3>
         <ChatHistory messages={this.state.messages} />
         <TypingNotification
