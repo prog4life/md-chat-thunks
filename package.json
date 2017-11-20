@@ -24,15 +24,15 @@
     "body-parser": "^1.18.2",
     "css-loader": "^0.28.7",
     "express": "^4.16.2",
-    "node-sass": "^4.5.3",
+    "node-sass": "^4.7.1",
     "prop-types": "^15.6.0",
-    "react": "^16.0.0",
-    "react-dom": "^16.0.0",
+    "react": "^16.1.1",
+    "react-dom": "^16.1.1",
     "sass-loader": "^6.0.6",
     "shortid": "^2.2.8",
     "style-loader": "^0.19.0",
     "webpack": "^3.8.1",
-    "ws": "^3.2.0"
+    "ws": "^3.3.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.6",

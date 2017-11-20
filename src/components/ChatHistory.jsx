@@ -5,11 +5,22 @@ import shortid from 'shortid';
 import ChatMessage from './ChatMessage';
 
 class ChatHistory extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isScrollToLastActive: true
+    };
+  }
   componentDidMount() {
     this.historyElem.scrollTop = this.historyElem.scrollHeight;
   }
-  componentDidUpdate() {
-    this.historyElem.scrollTop = this.historyElem.scrollHeight;
+  // TODO: block scrolling to last added message when user interact with list
+  // and restore scrolling when user scrolls to last message by itself
+  componentDidUpdate(prevProps) {
+    if (this.props.messages.length > prevProps.messages.length &&
+        this.state.isScrollToLastActive) {
+      this.historyElem.scrollTop = this.historyElem.scrollHeight;
+    }
   }
   renderMessageList() {
     return this.props.messages.map(message => (
