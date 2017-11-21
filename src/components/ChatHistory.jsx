@@ -17,13 +17,17 @@ class ChatHistory extends React.Component {
   // TODO: block scrolling to last added message when user interact with list
   // and restore scrolling when user scrolls to last message by itself
   componentDidUpdate(prevProps) {
-    if (this.props.messages.length > prevProps.messages.length &&
-        this.state.isScrollToLastActive) {
+    const { messages } = this.props;
+    const { isScrollToLastActive } = this.state;
+
+    if (messages.length > prevProps.messages.length && isScrollToLastActive) {
       this.historyElem.scrollTop = this.historyElem.scrollHeight;
     }
   }
   renderMessageList() {
-    return this.props.messages.map(message => (
+    const { messages } = this.props;
+
+    return messages.map(message => (
       // TODO: replace key value by client id from message
       <ChatMessage key={shortid.generate()} {...message} />
     ));

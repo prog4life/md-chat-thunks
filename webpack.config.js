@@ -9,7 +9,7 @@ const nodeEnv = JSON.stringify(process.env.NODE_ENV || 'development');
 
 module.exports = {
   entry: [
-    // 'babel-polyfill', // TODO: enable later or load needed core-js modules
+    // 'babel-polyfill', // NOTE: can load specific core-js polyfills separately
     './src/index.jsx'
   ],
   output: {
@@ -20,16 +20,22 @@ module.exports = {
     rules: [
       {
         test: /\.(js|jsx)$/,
+        loader: 'babel-loader',
         include: [
           path.resolve(__dirname, 'src')
         ],
         exclude: [
-          path.resolve(__dirname, 'node_modules'),
-          path.resolve(__dirname, 'bower_components')
+          path.resolve(__dirname, 'node_modules')
         ],
-        loader: 'babel-loader',
         options: {
-          presets: ['react', 'env', 'stage-3'] // TODO: add stage-3 or 2 later
+          presets: [
+            ['env', {
+              // useBuiltIns: true,
+              debug: true
+            }],
+            'react',
+            'stage-3'
+          ]
         }
       },
       {
@@ -49,6 +55,7 @@ module.exports = {
               syntax: scssSyntax,
               plugins: [
                 autoprefixer
+                // postcss-normalize,
                 // cssnano
               ],
               sourceMap: true

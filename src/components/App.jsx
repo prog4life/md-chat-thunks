@@ -1,5 +1,7 @@
 import React from 'react';
 
+// TODO: try to import files relative to src/, without .., as src is added
+// to modules in webpack's resolve
 import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
 import TypingNotification from './TypingNotification';
@@ -98,6 +100,7 @@ export default class App extends React.Component {
   //     this.prepareConnection(() => console.log('Monitoring: connection ready'));
   //   }, 3000);
   // }
+  // TODO: pass simply id, message and whoIsTyping instead of extractedData
   incomingIdHandler(extractedData) {
     this.clientId = extractedData.clientId;
     console.log('New clientId: ', this.clientId);
@@ -107,7 +110,7 @@ export default class App extends React.Component {
   incomingMessageHandler(extractedData) {
     const { message } = extractedData;
 
-    this.setState((prevState, props) => ({
+    this.setState(prevState => ({
       messages: message
         // NOTE: maybe replace with array + spread off:
         // [...prevState.messages, extractedData.message]
@@ -121,7 +124,8 @@ export default class App extends React.Component {
     }));
   }
   incomingTypingHandler(extractedData) {
-    this.setState((prevState, props) => ({
+    this.setState(prevState => ({
+      // FIXME: will be array anyway, need to check its item
       whoIsTyping: extractedData.whoIsTyping || prevState.whoIsTyping
     }), () => {
       console.log('---------Incoming Typing Notification-----------');
@@ -154,13 +158,14 @@ export default class App extends React.Component {
     });
   }
   handleTyping() {
-    if (this.state.nickname.length < 2) {
+    const { nickname } = this.state;
+    if (nickname.length < 2) {
       return;
     }
 
     const outgoingTypingNotification = {
       clientId: this.clientId,
-      nickname: this.state.nickname,
+      nickname,
       type: 'IS_TYPING'
     };
 
@@ -193,18 +198,21 @@ export default class App extends React.Component {
     // this.setupWebSocket();
   }
   render() {
+    const { messages, whoIsTyping } = this.state;
     return (
       <div className="chat-app wrapper">
-        <h3>Lil Chat</h3>
-        <ChatHistory messages={this.state.messages} />
+        <h3>
+          { 'Lil Chat' }
+        </h3>
+        <ChatHistory messages={messages} />
         <TypingNotification
-          whoIsTyping={this.state.whoIsTyping}
           config={typingNotifiConfig}
           onStop={this.handleClearTyping}
+          whoIsTyping={whoIsTyping}
         />
         <ChatInput
-          onTyping={this.handleTyping}
           onSendMessage={this.handleSendMessage}
+          onTyping={this.handleTyping}
         />
       </div>
     );
