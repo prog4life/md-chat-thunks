@@ -8,7 +8,9 @@
     "start": "npm run build && node server.js",
     "build": "webpack --color --progress",
     "watch": "node_modules/.bin/webpack -w --color --progress",
-    "serve": "webpack -w --color --progress",
+    "serve": "webpack -w --progress --color",
+    "srv": "webpack-dev-server --progress --color",
+    "up": "node server.js",
     "mon": "nodemon server.js",
     "debug": "node --inspect-brk=9229 server.js",
     "mondeb": "nodemon --inspect=9229 server.js"
@@ -36,6 +38,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^7.1.6",
+    "file-loader": "^1.1.5",
     "postcss-loader": "^2.0.8",
     "postcss-normalize": "^4.0.0",
     "postcss-scss": "^1.0.2",
@@ -43,7 +46,10 @@
     "stylelint-config-standard": "^17.0.0",
     "stylelint-no-unsupported-browser-features": "^1.0.1",
     "stylelint-order": "^0.7.0",
-    "stylelint-scss": "^2.1.0"
+    "stylelint-scss": "^2.1.0",
+    "url-loader": "^0.6.2",
+    "webpack-dev-middleware": "^1.12.0",
+    "webpack-dev-server": "^2.9.4"
   },
   "browserslist": [
     "> 0.3%",

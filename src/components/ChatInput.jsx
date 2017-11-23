@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import TextFieldMaterial from './TextFieldMaterial';
 
 class ChatInput extends React.Component {
   constructor(props) {
@@ -8,72 +9,99 @@ class ChatInput extends React.Component {
     this.state = {
       nickname: '',
       messageText: ''
+      // isNicknameFocused: false
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    // this.handleNicknameFocusToggle = this.handleNicknameFocusToggle.bind(this);
+  }
+  // FIXME: resolve
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps !== this.props || nextState !== this.state;
   }
   handleSubmit(e) {
     e.preventDefault();
-    const {nickname, messageText} = this.state;
-    const formElems = e.target.elements;
+    const { nickname, messageText } = e.target.elements;
+    const nicknameLength = nickname.value.length;
+    const messageTextLength = messageText.value.length;
 
-    if (nickname.length < 2 || nickname.length > 30) {
-      formElems.nickname.focus();
+    if (nicknameLength < 2 || nicknameLength > 30) {
+      nickname.focus();
       return;
     }
 
-    if (messageText.length < 1) {
-      formElems.messageText.focus();
+    if (messageTextLength < 1) {
+      messageText.focus();
       return;
     }
-    this.setState({
-      messageText: ''
-    });
-    this.props.onSendMessage(nickname, messageText);
+    this.setState({ messageText: '' });
+    this.props.onSendMessage(nickname.value, messageText.value);
   }
   handleInputChange(e) {
-    /* eslint react/no-unused-state: 0 */
-    const {name, value} = e.target;
+    const { name, value } = e.target;
+    const { onTyping } = this.props;
 
     this.setState({
       [name]: value
     });
+    // IDEA: typeof onTyping === 'function'
     if (name === 'messageText') {
-      this.props.onTyping();
+      onTyping();
     }
   }
+  // handleNicknameFocusToggle(e) {
+    // e.preventDefault();
+
+    // this.setState(prevState => ({
+    //   isNicknameFocused: !prevState.isNicknameFocused
+    // }));
+  // }
   render() {
+    const { nickname, messageText } = this.state;
+
     return (
       <form
         className="chat-input"
         onSubmit={this.handleSubmit}
       >
-        <input
-          className="nickname"
-          name="nickname"
-          type="text"
-          value={this.state.nickname}
-          placeholder="Your nickname (from 2 to 30 characters)"
-          onChange={this.handleInputChange}
+        <TextFieldMaterial
+          // onChange={this.handleInputChange}
+          placeholder={'Your nickname (from 2 to 30 characters)'}
+          // value={nickname}
+          // wrongInputMsg={'sample wrong input message'}
         />
-        <textarea
-          className="message-text"
-          name="messageText"
-          rows="5"
-          required
-          value={this.state.messageText}
-          placeholder="Write your message here"
+        {/* <TextFieldMaterialDumb
+          isFocused={isNicknameFocused}
           onChange={this.handleInputChange}
-        />
-        <button className="send-button">
-          SEND
+          onFocusToggle={this.handleNicknameFocusToggle}
+          placeholder={'Your nickname (from 2 to 30 characters)'}
+          value={nickname}
+          wrongInputMsg={'sample wrong input message'}
+        /> */}
+        <div className="message">
+          <textarea
+            className="message-field"
+            name="messageText"
+            onChange={this.handleInputChange}
+            placeholder="Write your message here"
+            required
+            rows="5"
+            value={messageText}
+          />
+        </div>
+        <button
+          className="send-button"
+          type="submit"
+        >
+          { 'SEND' }
         </button>
       </form>
     );
   }
 }
 
+// TODO: add default empty handler for onTyping
 ChatInput.propTypes = {
   onSendMessage: PropTypes.func.isRequired,
   onTyping: PropTypes.func.isRequired

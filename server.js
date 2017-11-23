@@ -2,7 +2,13 @@ const http = require('http');
 const path = require('path');
 const express = require('express');
 
+// const webpack = require('webpack');
+// const webpackDevMiddleWare = require('webpack-dev-middleware');
+// const config = require('./webpack.config.js');
+
 const app = express();
+
+// const compiler = webpack(config);
 
 const startWebsocketServer = require('./websocket-server');
 
@@ -13,12 +19,17 @@ startWebsocketServer(server);
 const port = process.env.PORT || 8787;
 const hostname = process.env.IP || 'localhost';
 
+// app.use(webpackDevMiddleWare(compiler, {
+//   publicPath: config.output.publicPath,
+//   stats: {
+//     colors: true
+//   }
+// }));
+
 app.set('port', port);
 app.set('hostname', hostname);
 
 app.use(express.static(path.join(__dirname, 'public')));
-// TODO: temporary styles are loaded from this dir
-// app.use(express.static(path.join(__dirname, 'src')));
 
 app.get('/favicon.ico', (req, res) => {
   res.set('Content-Type', 'image/x-icon');

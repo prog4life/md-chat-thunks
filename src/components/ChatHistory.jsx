@@ -44,8 +44,8 @@ class ChatHistory extends React.Component {
   }
 }
 
-export default ChatHistory;
-
 ChatHistory.propTypes = {
   messages: PropTypes.arrayOf(PropTypes.object).isRequired
 };
+
+export default ChatHistory;

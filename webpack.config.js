@@ -14,7 +14,8 @@ module.exports = {
   ],
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'public')
+    path: path.resolve(__dirname, 'public'),
+    publicPath: '/' // for webpack-dev-middleware
   },
   module: {
     rules: [
@@ -91,6 +92,12 @@ module.exports = {
       'node_modules'
     ],
     extensions: ['.js', '.json', '.jsx', '.css', '.scss', '*']
+  },
+  // NOTE: devServer is disabled due to usage of dev-middleware within server
+  devServer: {
+    contentBase: path.resolve(__dirname, 'public'),
+    compress: true
+    // port: 9000,
   },
   devtool: 'source-map'
 };
