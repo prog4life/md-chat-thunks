@@ -47,9 +47,9 @@ export default class App extends React.Component {
     // clearInterval(this.monitoringTimerId);
   }
   setupWebSocket() {
-    if (this.websocket &&
-       (this.websocket.readyState === 0 || this.websocket.readyState === 1)) {
-      console.log('readyState of ws in setupWebSocket: ', this.websocket.readyState);
+    const ws = this.websocket;
+    if (ws && (ws.readyState === 0 || ws.readyState === 1)) {
+      console.log('readyState of ws in setupWebSocket: ', ws.readyState);
       // this.websocket.close(1000, 'New connection opening is started');
       return;
     }
@@ -142,6 +142,8 @@ export default class App extends React.Component {
       })
     }));
 
+    // TODO: replace further part of this method into ChatInput component by
+    // passing clientId and handleSending to it
     const outgoingMessage = {
       clientId: this.clientId,
       nickname,
@@ -158,6 +160,8 @@ export default class App extends React.Component {
     });
   }
   handleTyping() {
+    // TODO: replace all this method into ChatInput component by
+    // passing clientId, handleSending and nickname to it
     const { nickname } = this.state;
     if (nickname.length < 2) {
       return;

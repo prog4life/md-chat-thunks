@@ -17,6 +17,23 @@ module.exports = {
     path: path.resolve(__dirname, 'public'),
     publicPath: '/' // for webpack-dev-middleware
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: nodeEnv
+      }
+    })
+  ],
+  resolve: {
+    alias: {
+      App: path.resolve(__dirname, 'src/components/App.jsx')
+    },
+    modules: [
+      path.resolve(__dirname, 'src'),
+      'node_modules'
+    ],
+    extensions: ['.js', '.json', '.jsx', '.css', '.scss', '*']
+  },
   module: {
     rules: [
       {
@@ -76,24 +93,6 @@ module.exports = {
       }
     ]
   },
-  plugins: [
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: nodeEnv
-      }
-    })
-  ],
-  resolve: {
-    alias: {
-      App: path.resolve(__dirname, 'src/components/App.jsx')
-    },
-    modules: [
-      path.resolve(__dirname, 'src'),
-      'node_modules'
-    ],
-    extensions: ['.js', '.json', '.jsx', '.css', '.scss', '*']
-  },
-  // NOTE: devServer is disabled due to usage of dev-middleware within server
   devServer: {
     contentBase: path.resolve(__dirname, 'public'),
     compress: true
