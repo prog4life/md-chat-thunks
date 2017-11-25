@@ -5,14 +5,29 @@ import shortid from 'shortid';
 import ChatMessage from './ChatMessage';
 
 class ChatHistory extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isScrollToLastActive: true
+    };
+  }
   componentDidMount() {
     this.historyElem.scrollTop = this.historyElem.scrollHeight;
   }
-  componentDidUpdate() {
-    this.historyElem.scrollTop = this.historyElem.scrollHeight;
+  // TODO: block scrolling to last added message when user interact with list
+  // and restore scrolling when user scrolls to last message by itself
+  componentDidUpdate(prevProps) {
+    const { messages } = this.props;
+    const { isScrollToLastActive } = this.state;
+
+    if (messages.length > prevProps.messages.length && isScrollToLastActive) {
+      this.historyElem.scrollTop = this.historyElem.scrollHeight;
+    }
   }
   renderMessageList() {
-    return this.props.messages.map((message) => (
+    const { messages } = this.props;
+
+    return messages.map(message => (
       // TODO: replace key value by client id from message
       <ChatMessage key={shortid.generate()} {...message} />
     ));
@@ -20,8 +35,8 @@ class ChatHistory extends React.Component {
   render() {
     return (
       <div
+        ref={(thisDiv) => { this.historyElem = thisDiv; }}
         className="chat-history"
-        ref={(thisDiv) => (this.historyElem = thisDiv)}
       >
         {this.renderMessageList()}
       </div>
@@ -29,8 +44,8 @@ class ChatHistory extends React.Component {
   }
 }
 
-export default ChatHistory;
-
 ChatHistory.propTypes = {
   messages: PropTypes.arrayOf(PropTypes.object).isRequired
 };
+
+export default ChatHistory;

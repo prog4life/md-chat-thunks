@@ -4,6 +4,8 @@ import { Provider } from 'react-redux';
 import App from 'App';
 import configureStore from './store/configureStore';
 
+import './styles/main.scss';
+
 const initialState = {
   nickname: '',
   messages: [

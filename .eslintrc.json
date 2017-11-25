@@ -26,7 +26,7 @@
       "__dirname": false
   },
   "extends": ["airbnb", "plugin:react/all"],
-  "plugins": ["react"],
+  "plugins": ["react", "compat"],
   "rules": {
     "comma-dangle": ["error", "never"],
     "import/no-extraneous-dependencies": ["error", {
@@ -35,6 +35,10 @@
       "peerDependencies": false
     }],
     "linebreak-style": ["off", "unix"],
+    "object-curly-newline": ["error", {
+      "minProperties": 5,
+      "consistent": true
+    }],
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
   },
   "settings": {

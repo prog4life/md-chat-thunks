@@ -1,44 +1,75 @@
-const websocket = require('ws');
-const url = require('url');
-const chat = require('./websocket-chat').createChat();
+const ws = require('ws');
 
-/* eslint prefer-arrow-callback: 0 */
+const DEF_PING_INTRVL = 10000;
 
-const startServer = (server) => {
-  const wss = new websocket.Server({
-    // TODO: try to use on diferent port while express server up and running
-    // port: 8484, // OR:
-    server
+let onMessageHandler;
+
+const enablePing = (wss, interval = DEF_PING_INTRVL) => {
+  wss.checkInterval = setInterval(() => {
+    wss.clients.forEach((websocket) => {
+      if (!websocket.isAlive) {
+        websocket.terminate();
+        return;
+      }
+
+      websocket.isAlive = false;
+      websocket.ping('', false, true);
+    });
+  }, interval); // NOTE: was 30000 in example
+};
+
+const disablePing = wss => clearInterval(wss.checkInterval);
+
+const setOnMessageHandler = (handler) => {
+  onMessageHandler = handler;
+};
+
+const handleConnection = wss => (websocket) => {
+  websocket.isAlive = true;
+  // heartbeat callback
+  websocket.on('pong', () => {
+    console.log('heartbeat pong!');
+    websocket.isAlive = true;
   });
 
-  chat.setWebsocketServer(wss);
+  websocket.on('message', (incoming) => {
+    console.log('Socket message received: %s', incoming);
+    onMessageHandler(websocket, incoming);
+  });
 
-  wss.on('connection', function connection(ws, req) {
-    const location = url.parse(req.url, true);
+  websocket.on('error', (error) => {
+    console.error('websocket onerror with error: ', error);
+    websocket.terminate();
+  });
 
-    console.log('wss onconnection location', location.pathname);
-
-    // TODO: try currying here
-    ws.on('message', function incoming(incomingData) {
-      console.log('Socket message received: %s', incomingData);
-
-      chat.handleIncomingData(ws, incomingData);
-    });
-
-    ws.on('error', function sockerr(error) {
-      // TODO: remove instances from sockets, close ws ?
-      // wss.clients.delete(ws);
-
-      console.error('ws onerror with error: ', error);
-      console.log('ws onerror clients ', Array.from(wss.clients));
-    });
-
-    ws.on('close', function closeWebSocket(code, reason) {
-      console.log('ws onclose code: %s and reason: %s ', code, reason);
-      console.log('ws onclose clients size', wss.clients.size);
-    });
+  websocket.on('close', (code, reason) => {
+    console.log('websocket onclose code: %s and reason: %s ', code, reason);
+    console.log('websocket onclose clients size', wss.clients.size);
   });
 };
 
-// TODO: export other functions separately when testing will be added
-module.exports = startServer;
+const startServer = (httpServer, pingInterval) => {
+  const wss = new ws.Server({
+    server: httpServer // OR:
+    // to use on different port than express server
+    // port: 8484
+  });
+
+  wss.on('connection', handleConnection(wss));
+  wss.on('error', (error) => {
+    console.error('Websocket Server error ', error);
+    wss.close(() => {
+      setTimeout(() => startServer(httpServer), 1000);
+    });
+  });
+
+  if (pingInterval !== false) {
+    enablePing(wss, pingInterval);
+  }
+  return wss;
+};
+
+exports.start = startServer;
+exports.setWebsocketMsgHandler = setOnMessageHandler;
+exports.enablePing = enablePing;
+exports.disablePing = disablePing;

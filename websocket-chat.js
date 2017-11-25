@@ -3,11 +3,10 @@ const shortid = require('shortid');
 
 let chatInstance = null;
 
-/* eslint consistent-this: 0 */
-/* eslint prefer-arrow-callback: 0 */
-/* eslint class-methods-use-this: 0 */
 class WebsocketChat {
-  constructor() {
+  constructor(websocketServer) {
+    this.setWebsocketServer(websocketServer);
+
     if (!chatInstance) {
       chatInstance = this;
     }
@@ -15,30 +14,43 @@ class WebsocketChat {
   }
 
   setWebsocketServer(wss) {
-    // TODO: do something if wss already present
-    this.wss = wss;
+    if (!this.wss) {
+      this.wss = wss;
+      return;
+    }
+    this.wss.close(() => {
+      this.wss = wss;
+    });
   }
 
   handleIncomingData(ws, rawIncoming) {
-    const incoming = this.parseIncomingJSON(rawIncoming);
+    let incoming = null;
+    try {
+      incoming = JSON.parse(rawIncoming);
+    } catch (e) {
+      console.error('Failed to parse incoming json ', e);
+    }
 
-    if (!incoming || !this.validateIncomingData(incoming)) {
+    if (!incoming || !WebsocketChat.validateIncomingData(incoming)) {
       return;
     }
-    const {id, name, text, type} = incoming;
+    const { clientId, type } = incoming;
 
     switch (type) {
       case 'GET_ID':
-        this.assignNewId(ws);
+        // TODO: change back to WebsocketChat
+        this.constructor.assignNewId(ws);
         break;
       case 'HAS_ID':
-        console.log('Has id: ', id);
-        // TODO save into User's data
+        console.log('Has clientId: ', clientId);
         break;
       case 'MESSAGE':
         this.resendMessageToAll(ws, incoming);
         break;
       case 'IS_TYPING':
+
+        // TODO: add block with timeout to prevent too frequent notifications
+
         this.sendTypingNotification(ws, incoming);
         break;
       case 'JOIN_CHAT':
@@ -48,22 +60,21 @@ class WebsocketChat {
       case 'CHANGE_NAME':
         break;
       default:
-        console.error('Unknown incoming message type, default case');
+        console.error('Unknown type of incoming message');
     }
   }
 
-  assignNewId(ws) {
-    // TODO: replace by uuid
-    const id = shortid.generate();
+  static assignNewId(ws) {
+    const clientId = shortid.generate();
 
     ws.send(JSON.stringify({
-      id,
+      clientId,
       type: 'SET_ID'
     }), (e) => {
       if (e) {
-        console.log('send id error: ', e);
+        console.log('clientId sending error: ', e);
       }
-      console.log('new id sent: ', id);
+      console.log('new clientId sent: ', clientId);
     });
   }
 
@@ -71,7 +82,7 @@ class WebsocketChat {
   broadcast(ws, outgoing) {
     this.wss.clients.forEach((client) => {
       if (client === ws) {
-        console.log('Self clients item, clients size: ', this.wss.clients.size);
+        console.log('Same clients item, clients size: ', this.wss.clients.size);
         return;
       }
       if (client.readyState === websocket.OPEN) {
@@ -83,12 +94,13 @@ class WebsocketChat {
   }
 
   resendMessageToAll(ws, incoming) {
-    const {id, name, text, type} = incoming;
+    // NOTE: this method is added for future case of resending not
+    // whole incoming, but some part of it
+    const { clientId, nickname, text, type } = incoming;
 
-    // TODO: validate incoming
     const outgoing = JSON.stringify({
-      id,
-      name,
+      clientId,
+      nickname,
       text,
       type
     });
@@ -97,52 +109,26 @@ class WebsocketChat {
   }
 
   sendTypingNotification(ws, incoming) {
-    const {id, name, type} = incoming;
-
-    // TODO: validate incoming
+    // NOTE: this method is added for future case of resending not
+    // whole incoming, but some part of it
+    const { clientId, nickname, type } = incoming;
 
     const outgoing = JSON.stringify({
-      id,
-      name,
+      clientId,
+      nickname,
       type
     });
 
     this.broadcast(ws, outgoing);
   }
 
-  validateIncomingData(dataToCheck) {
-    // TODO: refactor this, temporary return as is
+  static validateIncomingData(dataToCheck) {
+    // TODO: complete it later, temporary return as is
     return dataToCheck;
 
-    // TODO: pass here obj with only props that must be not falsy, and loop
-    // over them to check each
-
-    // if (typeof id !== 'string' || id === '') {
-    //   console.error('Incorrect value of id property of incoming message');
-    //   return;
-    // }
-    //
-    // if (typeof text !== 'string' || text === '') {
-    //   console.error('Incorrect value of text property of incoming message');
-    //   return;
-    // }
-    //
-    // if (typeof name !== 'string' || name === '') {
-    //   console.error('Incorrect value of name property of incoming message');
-    //   return;
-    // }
-  }
-
-  // TODO: replace out of this file
-  parseIncomingJSON(json) {
-    try {
-      return JSON.parse(json);
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
+    // NOTE: validator, xss-filters, DOMPurify
   }
 }
 
-exports.createChat = () => new WebsocketChat();
+exports.create = websocketServer => new WebsocketChat(websocketServer);
 exports.WebsocketChat = WebsocketChat;

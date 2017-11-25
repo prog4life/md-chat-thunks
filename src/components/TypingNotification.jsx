@@ -1,13 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import FadingText from './FadingText';
+import FadeInOutText from './FadeInOutText';
 
 export default class TypingNotification extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
-    if (this.props.whoIsTyping[0] === nextProps.whoIsTyping[0]) {
-      return false;
-    }
+    console.log(`TypingNotif scu nextProps === this.props: ${nextProps === this.props} ---------------------------------TypingNotif scu START`);
+    console.log('TypingNotif scu this.props: ', this.props);
+    console.log('TypingNotif scu nextProps: ', nextProps);
+    // if (this.props.whoIsTyping[0] === nextProps.whoIsTyping[0]) {
+    //   console.log(`--------------------------------------------------------------------- TypingNotif scu END false`);
+    //   return false;
+    // }
+    console.log(`------------------------------------------------------------------------ TypingNotif scu END true`);
     return true;
   }
   renderNotification() {
@@ -17,7 +22,7 @@ export default class TypingNotification extends React.Component {
     } = this.props;
 
     // TODO: use next variant, temporarily Object.assign is used instead
-    // let updatedConfig = {
+    // const updatedConfig = {
     //   ...this.props.config
     // };
 
@@ -26,9 +31,10 @@ export default class TypingNotification extends React.Component {
     Object.assign(updatedConfig, config);
 
     if (whoIsTyping) {
+      console.log(`--------------------------------------------------------------------------- TypingNotif RENDER ANIMATION`);
       updatedConfig.textToShow = `${whoIsTyping} is typing`;
       return (
-        <FadingText
+        <FadeInOutText
           onAnimationEnd={this.props.onStop}
           {...updatedConfig}
         />
