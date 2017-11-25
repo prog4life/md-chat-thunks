@@ -112,8 +112,6 @@ export default class App extends React.Component {
 
     this.setState(prevState => ({
       messages: message
-        // NOTE: maybe replace with array + spread off:
-        // [...prevState.messages, extractedData.message]
         ? prevState.messages.concat(message)
         : prevState.messages,
       // to terminate displaying of typing notification if new message
@@ -132,7 +130,7 @@ export default class App extends React.Component {
     });
   }
   handleSendMessage(nickname, text) {
-    // add message that is being sent to state for rendering
+    // add message that is being sent to the state for rendering
     this.setState(prevState => ({
       nickname,
       messages: prevState.messages.concat({

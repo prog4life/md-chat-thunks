@@ -5,19 +5,22 @@ const express = require('express');
 // const webpack = require('webpack');
 // const webpackDevMiddleWare = require('webpack-dev-middleware');
 // const config = require('./webpack.config.js');
+// const compiler = webpack(config);
+
+const websocketChat = require('./websocket-chat');
+const websocketServer = require('./websocket-server');
 
 const app = express();
 
-// const compiler = webpack(config);
-
-const startWebsocketServer = require('./websocket-server');
-
 const server = http.createServer(app);
 
-startWebsocketServer(server);
+const wss = websocketServer.start(server);
+const chat = websocketChat.create(wss);
+websocketServer.setWebsocketMsgHandler(chat.handleIncomingData.bind(chat));
 
-const port = process.env.PORT || 8787;
-const hostname = process.env.IP || 'localhost';
+const port = 8787;
+
+app.set('port', port);
 
 // app.use(webpackDevMiddleWare(compiler, {
 //   publicPath: config.output.publicPath,
@@ -25,9 +28,6 @@ const hostname = process.env.IP || 'localhost';
 //     colors: true
 //   }
 // }));
-
-app.set('port', port);
-app.set('hostname', hostname);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -48,7 +48,7 @@ app.use((error, req, res, next) => {
   res.status(error.code || 500).end(error);
 });
 
-server.listen(port, hostname);
+server.listen(port);
 
 server.on('listening', () => {
   console.log(`Up & running at ${server.address().port} port`);

@@ -4,7 +4,9 @@ const shortid = require('shortid');
 let chatInstance = null;
 
 class WebsocketChat {
-  constructor() {
+  constructor(websocketServer) {
+    this.setWebsocketServer(websocketServer);
+
     if (!chatInstance) {
       chatInstance = this;
     }
@@ -12,7 +14,6 @@ class WebsocketChat {
   }
 
   setWebsocketServer(wss) {
-    // TODO: do something if wss is present already
     if (!this.wss) {
       this.wss = wss;
       return;
@@ -29,25 +30,27 @@ class WebsocketChat {
     } catch (e) {
       console.error('Failed to parse incoming json ', e);
     }
-    // TODO: resolve static method call with class name
-    if (!incoming || !this.constructor.validateIncomingData(incoming)) {
+
+    if (!incoming || !WebsocketChat.validateIncomingData(incoming)) {
       return;
     }
     const { clientId, type } = incoming;
 
     switch (type) {
       case 'GET_ID':
-        // TODO: resolve static method call with this.constructor
+        // TODO: change back to WebsocketChat
         this.constructor.assignNewId(ws);
         break;
       case 'HAS_ID':
-        // NOTE: to save as part User's data
         console.log('Has clientId: ', clientId);
         break;
       case 'MESSAGE':
         this.resendMessageToAll(ws, incoming);
         break;
       case 'IS_TYPING':
+
+        // TODO: add block with timeout to prevent too frequent notifications
+
         this.sendTypingNotification(ws, incoming);
         break;
       case 'JOIN_CHAT':
@@ -91,9 +94,10 @@ class WebsocketChat {
   }
 
   resendMessageToAll(ws, incoming) {
+    // NOTE: this method is added for future case of resending not
+    // whole incoming, but some part of it
     const { clientId, nickname, text, type } = incoming;
 
-    // TODO: validate incoming
     const outgoing = JSON.stringify({
       clientId,
       nickname,
@@ -105,9 +109,9 @@ class WebsocketChat {
   }
 
   sendTypingNotification(ws, incoming) {
+    // NOTE: this method is added for future case of resending not
+    // whole incoming, but some part of it
     const { clientId, nickname, type } = incoming;
-
-    // TODO: validate incoming
 
     const outgoing = JSON.stringify({
       clientId,
@@ -119,28 +123,12 @@ class WebsocketChat {
   }
 
   static validateIncomingData(dataToCheck) {
-    // TODO: refactor this, temporary return as is
+    // TODO: complete it later, temporary return as is
     return dataToCheck;
 
-    // TODO: pass here obj with only props that must be not falsy, and loop
-    // over them to check each
-
-    // if (typeof clientId !== 'string' || clientId === '') {
-    //   console.error('Incorrect value of clientId property of incoming message');
-    //   return;
-    // }
-    //
-    // if (typeof text !== 'string' || text === '') {
-    //   console.error('Incorrect value of text property of incoming message');
-    //   return;
-    // }
-    //
-    // if (typeof nickname !== 'string' || nickname === '') {
-    //   console.error('Incorrect value of nickname property of incoming message');
-    //   return;
-    // }
+    // NOTE: validator, xss-filters, DOMPurify
   }
 }
 
-exports.createChat = () => new WebsocketChat();
+exports.create = websocketServer => new WebsocketChat(websocketServer);
 exports.WebsocketChat = WebsocketChat;
