@@ -103,9 +103,26 @@ export const requestNewId = () => {
   };
 };
 
-export const setupConnection = () => (dispatch, getState) => {
+export const setupWebsocket = () => (dispatch, getState) => {
   // TODO: if already open, return existing ws
+  // webSocket = new WebSocket('ws://localhost:8787');
+  const { readyState } = getState();
+  if (readyState === 0 || readyState === 1) {
+    console.log('readyState of ws in setupWebSocket: ', readyState);
+    // this.websocket.close(1000, 'New connection opening is started');
+    return;
+  }
+
   webSocket = new WebSocket('ws://localhost:8787');
+
+  // webSocket = createWebSocket({
+  //   openHandler: this.websocketOpenHandler,
+  //   closeHandler: this.websocketCloseHandler.bind(this),
+  //   errorHandler: this.websocketErrorHandler.bind(this),
+  //   saveClientId: this.incomingIdHandler.bind(this),
+  //   addMessageToState: this.incomingMessageHandler.bind(this),
+  //   addTypingDataToState: this.incomingTypingHandler.bind(this)
+  // });
 
   // TODO: replace them to separate file and pass webSocket as param
   dispatch(addOnMessageListener());
@@ -138,7 +155,7 @@ export const getReadyToChat = () => (dispatch, getState) => {
   const { readyState, clientId } = getState();
 
   if (readyState !== WebSocket.OPEN) {
-    dispatch(setupConnection());
+    dispatch(setupWebsocket());
     return false;
   }
 

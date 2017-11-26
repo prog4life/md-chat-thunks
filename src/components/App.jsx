@@ -26,7 +26,6 @@ export class App extends React.Component {
     //   ],
     //   whoIsTyping: []
     // };
-    };
 
     this.websocketOpenHandler = this.websocketOpenHandler.bind(this);
     // this.handleClearTyping = this.handleClearTyping.bind(this);
@@ -34,8 +33,9 @@ export class App extends React.Component {
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
   componentDidMount() {
-    this.props.dispatch(getReadyToChat());
-    // this.setupWebSocket();
+    // this.props.dispatch(getReadyToChat());
+    this.websocket = this.props.dispatch(setupWebSocket(this.websocket));
+    // TODO: get id onOpen
     this.unsent = [];
     // TODO: resolve
     // this.monitorConnection();

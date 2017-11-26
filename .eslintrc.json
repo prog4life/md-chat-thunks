@@ -25,10 +25,19 @@
       "process": false,
       "__dirname": false
   },
-  "extends": ["airbnb", "plugin:react/all"],
-  "plugins": ["react", "compat"],
+  "extends": [
+    "airbnb",
+    "plugin:react/all",
+    "plugin:import/errors",
+    "plugin:import/warnings"
+  ],
+  "plugins": [
+    "react",
+    "compat"
+  ],
   "rules": {
     "comma-dangle": ["error", "never"],
+    "compat/compat": "error",
     "import/no-extraneous-dependencies": ["error", {
       "devDependencies": true,
       "optionalDependencies": false,
