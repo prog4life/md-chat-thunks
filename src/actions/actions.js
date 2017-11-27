@@ -2,6 +2,11 @@ import parseJSON from '../utils/json-parser';
 // NOTE: alternatively store it in App component and pass to thunks
 let webSocket;
 
+const WS_CLOSED = 'CLOSED';
+const WS_OPEN = 'OPEN';
+
+export const getWebsocketInstance = () => webSocket;
+
 export const addMessage = message => ({
   type: 'MESSAGE_ADD',
   message
@@ -16,7 +21,17 @@ export const clearUnsent = () => ({
   type: 'UNSENT_CLEAR'
 });
 
-export const addOnMessageListener = () => (dispatch) => {
+export const requestNewId = () => {
+  webSocket.send(JSON.stringify({
+    type: 'GET_ID'
+  }));
+  // next type is Redux action type, when above type is JSON websocket msg type
+  return {
+    type: 'CLIENT_ID_REQUESTED'
+  };
+};
+
+export const listenWebsocketMessage = () => (dispatch) => {
   webSocket.addEventListener('message', (messageEvent) => {
     const incoming = parseJSON(messageEvent.data);
 
@@ -24,7 +39,7 @@ export const addOnMessageListener = () => (dispatch) => {
       return;
     }
     const {
-      id, type, name: nickname, text
+      clientId, type, nickname, text
     } = incoming;
 
     switch (type) {
@@ -32,18 +47,18 @@ export const addOnMessageListener = () => (dispatch) => {
         dispatch({ type: 'TYPING_OCCURS', nickname });
         break;
       case 'MESSAGE':
-        // TODO: replace by addMessage
         dispatch({
           type: 'MESSAGE_RECEIVED',
           message: {
-            id,
+            clientId,
             nickname,
             text
           }
         });
+        // TODO: append dispatch(addMessage(msg)) ?
         break;
       case 'SET_ID':
-        dispatch({ type: 'ID_RECEIVED', id });
+        dispatch({ type: 'CLIENT_ID_RECEIVED', clientId });
         break;
       case 'JOIN_CHAT':
         break;
@@ -57,137 +72,115 @@ export const addOnMessageListener = () => (dispatch) => {
   });
 };
 
-export const addOnErrorListener = () => (dispatch) => {
+export const listenWebsocketError = () => (dispatch) => {
   webSocket.addEventListener('error', (error) => {
     console.log(`webSocket Error: ${error.message}`);
-    // TODO: close
-    // if (this.websocket && this.websocket.readyState !== WebSocket.CLOSED) {
-    //   this.websocket.close();
-    // }
+    // TODO: add error message to store ???
     dispatch({
       type: 'WEBSOCKET_ERROR',
-      readyState: webSocket.readyState
+      status: 'ERROR'
     });
+    // TODO: close
+    if (webSocket && webSocket.websocketStatus !== WebSocket.CLOSED) {
+      dispatch({
+        type: 'WEBSOCKET_CLOSING',
+        status: 'CLOSING'
+      });
+      webSocket.close();
+    }
   });
 };
 
-export const addOnCloseListener = () => (dispatch) => {
+export const listenWebsocketClose = () => (dispatch) => {
   webSocket.addEventListener('close', (event) => {
-    // TODO: reopen
     console.log(`Closing wasClean: ${event.wasClean}`);
     console.log(`Close code: ${event.code}, reason: ${event.reason}`);
     dispatch({
-      type: 'WEBSOCKET_CLOSE',
-      readyState: webSocket.readyState
+      type: 'WEBSOCKET_CLOSED',
+      status: WS_CLOSED
     });
+    // TODO: reopen
   });
 };
 
-export const addOnOpenListener = () => (dispatch) => {
+export const listenWebsocketOpen = () => (dispatch, getState) => {
   webSocket.onopen = () => {
     dispatch({
       type: 'WEBSOCKET_OPEN',
-      readyState: webSocket.readyState
+      status: WS_OPEN
     });
-    // NOTE: if wrap into Promise can resolve with readyState
-  };
-  return webSocket;
-};
-// TODO: convert to thunk or use as usual function/action creator
-export const requestNewId = () => {
-  webSocket.send(JSON.stringify({
-    type: 'GET_ID'
-  }));
-  return {
-    type: 'ID_REQUESTED'
+    // TODO: request clientId
+    if (!getState().clientId) {
+      dispatch(requestNewId());
+    }
   };
 };
 
 export const setupWebsocket = () => (dispatch, getState) => {
-  // TODO: if already open, return existing ws
-  // webSocket = new WebSocket('ws://localhost:8787');
-  const { readyState } = getState();
-  if (readyState === 0 || readyState === 1) {
-    console.log('readyState of ws in setupWebSocket: ', readyState);
+  // TODO: replace next check out from here
+  const { websocketStatus } = getState();
+  if (websocketStatus === 'OPEN' || websocketStatus === 'CONNECTING') {
+    console.log('websocketStatus in setupWebSocket: ', websocketStatus);
     // this.websocket.close(1000, 'New connection opening is started');
-    return;
+    return webSocket;
   }
 
+  dispatch({
+    type: 'WEBSOCKET_CONNECTING',
+    status: 'CONNECTING'
+  });
   webSocket = new WebSocket('ws://localhost:8787');
 
-  // webSocket = createWebSocket({
-  //   openHandler: this.websocketOpenHandler,
-  //   closeHandler: this.websocketCloseHandler.bind(this),
-  //   errorHandler: this.websocketErrorHandler.bind(this),
-  //   saveClientId: this.incomingIdHandler.bind(this),
-  //   addMessageToState: this.incomingMessageHandler.bind(this),
-  //   addTypingDataToState: this.incomingTypingHandler.bind(this)
-  // });
-
-  // TODO: replace them to separate file and pass webSocket as param
-  dispatch(addOnMessageListener());
-  dispatch(addOnCloseListener());
-  dispatch(addOnErrorListener());
-  return dispatch(addOnOpenListener());
-  // .then(() => {
-  //   const { clientId } = getState();
-  //   if (!clientId) {
-  //     return dispatch(requestNewId());
-  //   }
-  //   return clientId;
-  // });
+  dispatch(listenWebsocketOpen());
+  dispatch(listenWebsocketMessage());
+  dispatch(listenWebsocketClose());
+  dispatch(listenWebsocketError());
+  return webSocket;
 };
 
-export const checkIfReadyToChat = () => (dispatch, getState) => {
-  const { readyState, clientId } = getState();
+export const checkWebsocketAndClientId = () => (dispatch, getState) => {
+  const { websocketStatus, clientId } = getState();
 
-  if (readyState !== WebSocket.OPEN) {
-    return false;
+  return websocketStatus === 'OPEN' && clientId;
+};
+
+export const prepareWebsocketAndClientId = () => (dispatch, getState) => {
+  const { websocketStatus, clientId } = getState();
+
+  if (websocketStatus !== 'OPEN' && websocketStatus !== 'CONNECTING') {
+    return dispatch(setupWebsocket());
   }
 
   if (!clientId) {
-    return false;
+    // TODO: return clientId or not ???
+    return dispatch(requestNewId());
   }
   return true;
 };
 
-export const getReadyToChat = () => (dispatch, getState) => {
-  const { readyState, clientId } = getState();
-
-  if (readyState !== WebSocket.OPEN) {
-    dispatch(setupWebsocket());
-    return false;
-  }
-
-  if (!clientId) {
-    dispatch(requestNewId());
-    return false;
-  }
-  return true;
-};
-
-// TODO: refactor to sendAndShowMessage
 export const sendAndShowMessage = (nickname, text) => (dispatch, getState) => {
   const { clientId } = getState();
   const message = {
     // TODO: add shortid (or timestamp in millisecs) here
-    id: clientId || null,
+    clientId: clientId || null,
+    nickname,
     text,
-    type: 'MESSAGE',
+    type: 'MESSAGE', // NOTE: why I add this ???
     status: 'UNSENT'
   };
 
-  if (dispatch(checkIfReadyToChat())) {
-    message.name = nickname;
+  // TODO: add nickname to store
+
+  if (dispatch(checkWebsocketAndClientId())) {
     message.status = 'SENT';
     // TODO: extract separate action creator ?
     webSocket.send(message);
     dispatch({ type: 'MESSAGE_SENT' }); // NOTE: probably unnecessary
   } else {
-    dispatch(addToUnsent(message)); // NOTE: must be before "getReadyToChat"
-    dispatch(getReadyToChat());
+    dispatch(addToUnsent(message));
+    dispatch(prepareWebsocketAndClientId());
   }
   // TODO: add "own" {Boolean} property
-  message.nickname = nickname;
+  message.nickname = 'Me';
   dispatch(addMessage(message));
 };

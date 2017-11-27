@@ -10,12 +10,13 @@ const initialState = {
   nickname: '',
   messages: [
     {
-      id: '32425gser27408908',
+      clientId: '32425gser27408908',
       nickname: 'test user',
       text: 'Sample test user message'
     }
   ],
-  whoIsTyping: []
+  whoIsTyping: [],
+  websocketStatus: 'CLOSED'
 };
 
 const store = configureStore(initialState);

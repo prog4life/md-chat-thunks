@@ -49,7 +49,7 @@ class WebsocketChat {
         break;
       case 'IS_TYPING':
 
-        // TODO: add block with timeout to prevent too frequent notifications
+        // TODO: add throttle with timeout to prevent too frequent notifications
 
         this.sendTypingNotification(ws, incoming);
         break;

@@ -4,16 +4,15 @@ import {
   clientIdReducer,
   messagesReducer,
   typingReducer,
-  readyStateReducer,
+  websocketStatusReducer,
   unsentReducer
 } from './reducers';
 
 export default combineReducers({
-  readyState: readyStateReducer,
+  websocketStatus: websocketStatusReducer,
   nickname: nicknameReducer,
   clientId: clientIdReducer,
   messages: messagesReducer,
   whoIsTyping: typingReducer,
-  // TODO: rename to unsentReducer
   unsent: unsentReducer
 });

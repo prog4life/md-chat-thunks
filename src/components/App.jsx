@@ -7,7 +7,9 @@ import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
 import TypingNotification from './TypingNotification';
 import createWebSocket from '../utils/websocket';
-import { getReadyToChat, sendAndShowMessage, addMessage } from '../actions';
+import {
+  prepareWebsocketAndClientId, setupWebsocket, sendAndShowMessage, addMessage
+} from '../actions';
 import typingNotifiConfig from '../config/typing-notification';
 
 export class App extends React.Component {
@@ -27,21 +29,20 @@ export class App extends React.Component {
     //   whoIsTyping: []
     // };
 
-    this.websocketOpenHandler = this.websocketOpenHandler.bind(this);
+    // this.websocketOpenHandler = this.websocketOpenHandler.bind(this);
     // this.handleClearTyping = this.handleClearTyping.bind(this);
     // this.handleTyping = this.handleTyping.bind(this);
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
   componentDidMount() {
-    // this.props.dispatch(getReadyToChat());
-    this.websocket = this.props.dispatch(setupWebSocket(this.websocket));
-    // TODO: get id onOpen
+    // TODO: think over dispatching checkWebsocketAndClientId first
+    this.websocket = this.props.dispatch(prepareWebsocketAndClientId());
     this.unsent = [];
     // TODO: resolve
     // this.monitorConnection();
   }
   componentDidUpdate(prevProps, prevState) {
-    this.props.dispatch(getReadyToChat());
+    // this.props.dispatch(prepareWebsocketAndClientId());
     // TODO: this.props.dispatch(sendPendingData());
 
     // TODO: check if it's better to place something into componentWillUpdate
@@ -54,23 +55,23 @@ export class App extends React.Component {
     // TODO: resolve
     // clearInterval(this.monitoringTimerId);
   }
-  setupWebSocket() {
-    const ws = this.websocket;
-    if (ws && (ws.readyState === 0 || ws.readyState === 1)) {
-      console.log('readyState of ws in setupWebSocket: ', ws.readyState);
-      // this.websocket.close(1000, 'New connection opening is started');
-      return;
-    }
-    this.websocket = createWebSocket({
-      // TODO: replace bindings to constructor
-      openHandler: this.websocketOpenHandler,
-      closeHandler: this.websocketCloseHandler.bind(this),
-      errorHandler: this.websocketErrorHandler.bind(this),
-      saveClientId: this.incomingIdHandler.bind(this),
-      addMessageToState: this.incomingMessageHandler.bind(this),
-      addTypingDataToState: this.incomingTypingHandler.bind(this)
-    });
-  }
+  // setupWebSocket() {
+  //   const ws = this.websocket;
+  //   if (ws && (ws.readyState === 0 || ws.readyState === 1)) {
+  //     console.log('readyState of ws in setupWebSocket: ', ws.readyState);
+  //     // this.websocket.close(1000, 'New connection opening is started');
+  //     return;
+  //   }
+  //   this.websocket = createWebSocket({
+  //     // TODO: replace bindings to constructor
+  //     openHandler: this.websocketOpenHandler,
+  //     closeHandler: this.websocketCloseHandler.bind(this),
+  //     errorHandler: this.websocketErrorHandler.bind(this),
+  //     saveClientId: this.incomingIdHandler.bind(this),
+  //     addMessageToState: this.incomingMessageHandler.bind(this),
+  //     addTypingDataToState: this.incomingTypingHandler.bind(this)
+  //   });
+  // }
   getNewClientId() {
     this.websocket.send(JSON.stringify({ type: 'GET_ID' }));
   }
@@ -182,32 +183,32 @@ export class App extends React.Component {
 
     this.handleSending(outgoingTypingNotification);
   }
-  websocketOpenHandler() {
-    console.log('WebSocket is open, readyState: ', this.websocket.readyState);
-    if (!this.clientId) {
-      this.getNewClientId();
-      return;
-    }
-    console.log(`Client has id: ${this.clientId}`);
-
-    this.websocket.send(JSON.stringify({
-      clientId: this.clientId,
-      type: 'HAS_ID'
-    }));
-
-    this.sendUnsent();
-  }
-  websocketCloseHandler(event) {
-    // TODO: recreate connection only at some user action or by monitorConnection
-    // TODO: remove this condition
-    if (event.code === 1006 || !event.wasClean) {
-      this.setupWebSocket();
-    }
-  }
-  websocketErrorHandler() {
-    // TODO: recreate connection only at some user action or by monitorConnection
-    // this.setupWebSocket();
-  }
+  // websocketOpenHandler() {
+  //   console.log('WebSocket is open, readyState: ', this.websocket.readyState);
+  //   if (!this.clientId) {
+  //     this.getNewClientId();
+  //     return;
+  //   }
+  //   console.log(`Client has id: ${this.clientId}`);
+  //
+  //   this.websocket.send(JSON.stringify({
+  //     clientId: this.clientId,
+  //     type: 'HAS_ID'
+  //   }));
+  //
+  //   this.sendUnsent();
+  // }
+  // websocketCloseHandler(event) {
+  //   // TODO: recreate connection only at some user action or by monitorConnection
+  //   // TODO: remove this condition
+  //   if (event.code === 1006 || !event.wasClean) {
+  //     this.setupWebSocket();
+  //   }
+  // }
+  // websocketErrorHandler() {
+  //   // TODO: recreate connection only at some user action or by monitorConnection
+  //   // this.setupWebSocket();
+  // }
   render() {
     return (
       <div className="chat-app wrapper">
@@ -230,7 +231,7 @@ export class App extends React.Component {
 }
 
 export default connect(state => ({
-  readyState: state.readyState,
+  websocketStatus: state.websocketStatus,
   nickname: state.nickname,
   clientId: state.clientId,
   messages: state.messages,

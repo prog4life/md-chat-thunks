@@ -1,9 +1,11 @@
-export const readyStateReducer = (state = null, action) => {
+export const websocketStatusReducer = (state = null, action) => {
   switch (action.type) {
     case 'WEBSOCKET_OPEN':
-    case 'WEBSOCKET_CLOSE':
+    case 'WEBSOCKET_CONNECTING':
+    case 'WEBSOCKET_CLOSING':
+    case 'WEBSOCKET_CLOSED':
     case 'WEBSOCKET_ERROR':
-      return action.readyState;
+      return action.status;
     default:
       return state;
   }
@@ -18,8 +20,8 @@ export const nicknameReducer = (state = '', action) => {
 
 export const clientIdReducer = (state = '', action) => {
   switch (action.type) {
-    case 'ID_RECEIVED':
-      return action.id;
+    case 'CLIENT_ID_RECEIVED':
+      return action.clientId;
     default:
       return state;
   }
