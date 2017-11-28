@@ -46,9 +46,10 @@ module.exports = {
           path.resolve(__dirname, 'node_modules')
         ],
         options: {
+          plugins: ['transform-class-properties'],
           presets: [
             ['env', {
-              // useBuiltIns: true,
+              // useBuiltIns: 'entry', // or 'usage'
               debug: true
             }],
             'react',
@@ -95,7 +96,8 @@ module.exports = {
   },
   devServer: {
     contentBase: path.resolve(__dirname, 'public'),
-    compress: true
+    compress: true,
+    historyApiFallback: true
     // port: 9000,
   },
   devtool: 'source-map'

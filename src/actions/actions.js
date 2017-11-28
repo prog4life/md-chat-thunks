@@ -2,34 +2,85 @@ import parseJSON from '../utils/json-parser';
 // NOTE: alternatively store it in App component and pass to thunks
 let webSocket;
 
-const WS_CLOSED = 'CLOSED';
-const WS_OPEN = 'OPEN';
-
 export const getWebsocketInstance = () => webSocket;
 
-export const addMessage = message => ({
-  type: 'MESSAGE_ADD',
+export const sendMessageAttempt = (message) => {
+  message.isMine = true;
+  message.status = 'UNSENT';
+  return {
+    type: 'SEND_MESSAGE_ATTEMPT',
+    message
+  };
+
+  // type: 'SEND_MESSAGE_ATTEMPT',
+  // message: {
+  //   ...message,
+  //   isMine: true,
+  //   status: 'UNSENT'
+  // }
+};
+
+export const sendMessageSuccess = (message) => {
+  // TODO: add message id?
+  message.isMine = true;
+  message.status = 'SENT';
+  return {
+    type: 'SEND_MESSAGE_SUCCESS',
+    message
+  };
+  // type: 'SEND_MESSAGE_SUCCESS',
+  // message: {
+  //   ...message,
+  //   isMine: true,
+  //   // TODO: think over adding 3 separate boolean props: sent, delivered, seen
+  //   status: 'SENT'
+  // }
+};
+
+export const sendMessageFail = message => ({
+  type: 'SEND_MESSAGE_FAIL',
   message
 });
 
-export const addToUnsent = data => ({
-  type: 'UNSENT_ADD',
-  data
+export const receiveMessage = message => ({
+  type: 'RECEIVE_MESSAGE',
+  message
+});
+
+
+export const removeFromUnsent = unsentData => ({
+  type: 'REMOVE_FROM_UNSENT',
+  unsentData
 });
 
 export const clearUnsent = () => ({
-  type: 'UNSENT_CLEAR'
+  type: 'CLEAR_UNSENT'
 });
 
-export const requestNewId = () => {
+export const getClientId = () => {
   webSocket.send(JSON.stringify({
     type: 'GET_ID'
   }));
   // next type is Redux action type, when above type is JSON websocket msg type
   return {
-    type: 'CLIENT_ID_REQUESTED'
+    type: 'GET_CLIENT_ID'
   };
 };
+
+export const setClientId = clientId => ({
+  type: 'SET_CLIENT_ID',
+  clientId
+});
+
+export const setNickname = nickname => ({
+  type: 'SET_NICKNAME',
+  nickname
+});
+
+export const receiveTyping = nickname => ({
+  type: 'RECEIVE_TYPING',
+  nickname
+});
 
 export const listenWebsocketMessage = () => (dispatch) => {
   webSocket.addEventListener('message', (messageEvent) => {
@@ -44,21 +95,18 @@ export const listenWebsocketMessage = () => (dispatch) => {
 
     switch (type) {
       case 'IS_TYPING':
-        dispatch({ type: 'TYPING_OCCURS', nickname });
+        dispatch(receiveTyping(nickname));
         break;
       case 'MESSAGE':
-        dispatch({
-          type: 'MESSAGE_RECEIVED',
-          message: {
-            clientId,
-            nickname,
-            text
-          }
-        });
-        // TODO: append dispatch(addMessage(msg)) ?
+        dispatch(receiveMessage({
+          clientId,
+          nickname,
+          text
+        }));
+        // TODO: append dispatch(sendMessageSuccess(msg)) ?
         break;
       case 'SET_ID':
-        dispatch({ type: 'CLIENT_ID_RECEIVED', clientId });
+        dispatch(setClientId(clientId));
         break;
       case 'JOIN_CHAT':
         break;
@@ -67,7 +115,7 @@ export const listenWebsocketMessage = () => (dispatch) => {
       case 'CHANGE_NAME':
         break;
       default:
-        console.warn('Unknown websocket message type, default case has fired');
+        console.warn('Unknown websocket incoming message type');
     }
   });
 };
@@ -97,7 +145,7 @@ export const listenWebsocketClose = () => (dispatch) => {
     console.log(`Close code: ${event.code}, reason: ${event.reason}`);
     dispatch({
       type: 'WEBSOCKET_CLOSED',
-      status: WS_CLOSED
+      status: 'CLOSED'
     });
     // TODO: reopen
   });
@@ -107,11 +155,11 @@ export const listenWebsocketOpen = () => (dispatch, getState) => {
   webSocket.onopen = () => {
     dispatch({
       type: 'WEBSOCKET_OPEN',
-      status: WS_OPEN
+      status: 'OPEN'
     });
     // TODO: request clientId
     if (!getState().clientId) {
-      dispatch(requestNewId());
+      dispatch(getClientId());
     }
   };
 };
@@ -138,11 +186,10 @@ export const setupWebsocket = () => (dispatch, getState) => {
   return webSocket;
 };
 
-export const checkWebsocketAndClientId = () => (dispatch, getState) => {
-  const { websocketStatus, clientId } = getState();
-
-  return websocketStatus === 'OPEN' && clientId;
-};
+// NOTE: Possibly excess
+export const checkWebsocketAndClientId = ({ websocketStatus, clientId }) => (
+  websocketStatus === 'OPEN' && clientId
+);
 
 export const prepareWebsocketAndClientId = () => (dispatch, getState) => {
   const { websocketStatus, clientId } = getState();
@@ -153,34 +200,30 @@ export const prepareWebsocketAndClientId = () => (dispatch, getState) => {
 
   if (!clientId) {
     // TODO: return clientId or not ???
-    return dispatch(requestNewId());
+    return dispatch(getClientId());
   }
   return true;
 };
 
-export const sendAndShowMessage = (nickname, text) => (dispatch, getState) => {
-  const { clientId } = getState();
+export const sendMessage = (nickname, text) => (dispatch, getState) => {
+  const { websocketStatus, clientId } = getState();
   const message = {
-    // TODO: add shortid (or timestamp in millisecs) here
-    clientId: clientId || null,
+    // TODO: add timestamp here?
     nickname,
-    text,
-    type: 'MESSAGE', // NOTE: why I add this ???
-    status: 'UNSENT'
+    text
   };
 
-  // TODO: add nickname to store
+  // TODO: replace to component handleSending method
+  dispatch(setNickname(nickname));
+  dispatch(sendMessageAttempt(message));
 
-  if (dispatch(checkWebsocketAndClientId())) {
-    message.status = 'SENT';
-    // TODO: extract separate action creator ?
+  if (websocketStatus === 'OPEN' && clientId) {
+    message.clientId = clientId;
+    dispatch(sendMessageSuccess(message));
+    message.type = 'MESSAGE';
     webSocket.send(message);
-    dispatch({ type: 'MESSAGE_SENT' }); // NOTE: probably unnecessary
   } else {
-    dispatch(addToUnsent(message));
+    dispatch(sendMessageFail(message));
     dispatch(prepareWebsocketAndClientId());
   }
-  // TODO: add "own" {Boolean} property
-  message.nickname = 'Me';
-  dispatch(addMessage(message));
 };

@@ -8,7 +8,7 @@ import ChatInput from './ChatInput';
 import TypingNotification from './TypingNotification';
 import createWebSocket from '../utils/websocket';
 import {
-  prepareWebsocketAndClientId, setupWebsocket, sendAndShowMessage, addMessage
+  prepareWebsocketAndClientId, setupWebsocket, sendMessage, addMessage
 } from '../actions';
 import typingNotifiConfig from '../config/typing-notification';
 
@@ -139,7 +139,7 @@ export class App extends React.Component {
     });
   }
   handleSendMessage(nickname, text) {
-    this.props.dispatch(sendAndShowMessage(nickname, text));
+    this.props.dispatch(sendMessage(nickname, text));
     // add message that is being sent to the state for rendering
     // this.setState(prevState => ({
     //   nickname,
