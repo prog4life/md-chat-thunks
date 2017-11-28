@@ -1,4 +1,4 @@
-export const websocketStatusReducer = (state = null, action) => {
+export const websocketStatus = (state = null, action) => {
   switch (action.type) {
     case 'WEBSOCKET_OPEN':
     case 'WEBSOCKET_CONNECTING':
@@ -11,42 +11,62 @@ export const websocketStatusReducer = (state = null, action) => {
   }
 };
 
-export const nicknameReducer = (state = '', action) => {
+export const nickname = (state = '', action) => {
   switch (action.type) {
+    case 'SET_NICKNAME':
+      return action.nickname;
     default:
       return state;
   }
 };
 
-export const clientIdReducer = (state = '', action) => {
+export const clientId = (state = '', action) => {
   switch (action.type) {
-    case 'CLIENT_ID_RECEIVED':
+    case 'SET_CLIENT_ID':
       return action.clientId;
     default:
       return state;
   }
 };
 
-export const messagesReducer = (state = [], action) => {
+export const messages = (state = [], action) => {
   switch (action.type) {
-    case 'MESSAGE_ADD':
-      return [...state, action.message];
+    case 'SEND_MESSAGE_ATTEMPT':
+      return [...state, {
+        ...action.message
+      }];
+    case 'SEND_MESSAGE_SUCCESS':
+      return state.map((msg) => {
+        if (msg.id === action.message.id) {
+          return {
+            ...msg,
+            status: 'SENT'
+          };
+        }
+        return msg;
+      });
+    case 'RECEIVE_MESSAGE':
+      return [...state, {
+        ...action.message
+      }];
+    // case 'SEND_MESSAGE_FAIL':
+      // return [...state, action.message];
     default:
       return state;
   }
 };
 
-export const typingReducer = (state = [], action) => {
+export const typing = (state = [], action) => {
   switch (action.type) {
     default:
       return state;
   }
 };
 
-export const unsentReducer = (state = [], action) => {
+export const unsent = (state = [], action) => {
   switch (action.type) {
-    case 'UNSENT_ADD':
-      return [...state, action.data];
+    // case 'SEND_MESSAGE_FAIL':
+    //   return [...state, action.message];
     case 'UNSENT_CLEAR':
       return [];
     default:

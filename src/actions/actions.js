@@ -1,41 +1,36 @@
+import shortid from 'shortid';
 import parseJSON from '../utils/json-parser';
 // NOTE: alternatively store it in App component and pass to thunks
 let webSocket;
 
+// shortid.generate()
+
 export const getWebsocketInstance = () => webSocket;
 
-export const sendMessageAttempt = (message) => {
-  message.isMine = true;
-  message.status = 'UNSENT';
-  return {
-    type: 'SEND_MESSAGE_ATTEMPT',
-    message
-  };
+export const sendMessageAttempt = ({ id, clientId, nickname, text }) => ({
+  type: 'SEND_MESSAGE_ATTEMPT',
+  message: {
+    id,
+    clientId,
+    nickname,
+    text,
+    isOwn: true,
+    status: 'UNSENT'
+  }
+});
 
-  // type: 'SEND_MESSAGE_ATTEMPT',
-  // message: {
-  //   ...message,
-  //   isMine: true,
-  //   status: 'UNSENT'
-  // }
-};
-
-export const sendMessageSuccess = (message) => {
-  // TODO: add message id?
-  message.isMine = true;
-  message.status = 'SENT';
-  return {
-    type: 'SEND_MESSAGE_SUCCESS',
-    message
-  };
-  // type: 'SEND_MESSAGE_SUCCESS',
-  // message: {
-  //   ...message,
-  //   isMine: true,
-  //   // TODO: think over adding 3 separate boolean props: sent, delivered, seen
-  //   status: 'SENT'
-  // }
-};
+export const sendMessageSuccess = ({ id, clientId, nickname, text }) => ({
+  type: 'SEND_MESSAGE_SUCCESS',
+  message: {
+    id,
+    clientId,
+    nickname,
+    text,
+    isOwn: true,
+    // TODO: think over adding 3 separate boolean props: sent, delivered, seen
+    status: 'SENT'
+  }
+});
 
 export const sendMessageFail = message => ({
   type: 'SEND_MESSAGE_FAIL',
@@ -46,7 +41,6 @@ export const receiveMessage = message => ({
   type: 'RECEIVE_MESSAGE',
   message
 });
-
 
 export const removeFromUnsent = unsentData => ({
   type: 'REMOVE_FROM_UNSENT',
@@ -101,9 +95,9 @@ export const listenWebsocketMessage = () => (dispatch) => {
         dispatch(receiveMessage({
           clientId,
           nickname,
-          text
+          text,
+          isOwn: false
         }));
-        // TODO: append dispatch(sendMessageSuccess(msg)) ?
         break;
       case 'SET_ID':
         dispatch(setClientId(clientId));
@@ -161,6 +155,7 @@ export const listenWebsocketOpen = () => (dispatch, getState) => {
     if (!getState().clientId) {
       dispatch(getClientId());
     }
+    // TODO: send hasId
   };
 };
 
@@ -208,20 +203,22 @@ export const prepareWebsocketAndClientId = () => (dispatch, getState) => {
 export const sendMessage = (nickname, text) => (dispatch, getState) => {
   const { websocketStatus, clientId } = getState();
   const message = {
+    id: shortid.generate(),
     // TODO: add timestamp here?
+    clientId,
     nickname,
     text
   };
 
   // TODO: replace to component handleSending method
   dispatch(setNickname(nickname));
+
   dispatch(sendMessageAttempt(message));
 
   if (websocketStatus === 'OPEN' && clientId) {
-    message.clientId = clientId;
     dispatch(sendMessageSuccess(message));
     message.type = 'MESSAGE';
-    webSocket.send(message);
+    webSocket.send(JSON.stringify(message));
   } else {
     dispatch(sendMessageFail(message));
     dispatch(prepareWebsocketAndClientId());

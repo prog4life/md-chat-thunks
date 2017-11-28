@@ -47,7 +47,7 @@ class ChatInput extends React.Component {
     });
     // IDEA: typeof onTyping === 'function'
     if (name === 'messageText') {
-      onTyping();
+      // onTyping();
     }
   }
   // handleNicknameFocusToggle(e) {

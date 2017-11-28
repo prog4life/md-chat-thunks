@@ -6,10 +6,7 @@ import { connect } from 'react-redux';
 import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
 import TypingNotification from './TypingNotification';
-import createWebSocket from '../utils/websocket';
-import {
-  prepareWebsocketAndClientId, setupWebsocket, sendMessage, addMessage
-} from '../actions';
+import { prepareWebsocketAndClientId, sendMessage } from '../actions';
 import typingNotifiConfig from '../config/typing-notification';
 
 export class App extends React.Component {

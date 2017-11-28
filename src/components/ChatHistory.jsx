@@ -28,7 +28,6 @@ class ChatHistory extends React.Component {
     const { messages } = this.props;
 
     return messages.map(message => (
-      // TODO: replace key value by client id from message
       <ChatMessage key={shortid.generate()} {...message} />
     ));
   }

@@ -1,18 +1,18 @@
 import { combineReducers } from 'redux';
 import {
-  nicknameReducer,
-  clientIdReducer,
-  messagesReducer,
-  typingReducer,
-  websocketStatusReducer,
-  unsentReducer
+  nickname,
+  clientId,
+  messages,
+  typing,
+  websocketStatus,
+  unsent
 } from './reducers';
 
 export default combineReducers({
-  websocketStatus: websocketStatusReducer,
-  nickname: nicknameReducer,
-  clientId: clientIdReducer,
-  messages: messagesReducer,
-  whoIsTyping: typingReducer,
-  unsent: unsentReducer
+  websocketStatus,
+  nickname,
+  clientId,
+  messages,
+  typing,
+  unsent
 });
