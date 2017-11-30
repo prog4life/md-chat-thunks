@@ -160,7 +160,7 @@ export const listenWebsocketOpen = () => (dispatch, getState) => {
 };
 
 export const setupWebsocket = () => (dispatch, getState) => {
-  // TODO: replace next check out from here
+  // TODO: replace next check out from here ?
   const { websocketStatus } = getState();
   if (websocketStatus === 'OPEN' || websocketStatus === 'CONNECTING') {
     console.log('websocketStatus in setupWebSocket: ', websocketStatus);
@@ -212,7 +212,6 @@ export const sendMessage = (nickname, text) => (dispatch, getState) => {
 
   // TODO: replace to component handleSending method
   dispatch(setNickname(nickname));
-
   dispatch(sendMessageAttempt(message));
 
   if (websocketStatus === 'OPEN' && clientId) {

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TextFieldMaterial from './TextFieldMaterial';
+import TextFieldGoogle from './TextFieldGoogle';
 
 class ChatInput extends React.Component {
   constructor(props) {
@@ -65,12 +66,15 @@ class ChatInput extends React.Component {
         className="chat-input"
         onSubmit={this.handleSubmit}
       >
-        <TextFieldMaterial
+        <TextFieldGoogle
+          placeholder={'Input field with bottom border animation'}
+        />
+        {/* <TextFieldMaterial
           // onChange={this.handleInputChange}
           placeholder={'Your nickname (from 2 to 30 characters)'}
           // value={nickname}
           // wrongInputMsg={'sample wrong input message'}
-        />
+        /> */}
         {/* <TextFieldMaterialDumb
           isFocused={isNicknameFocused}
           onChange={this.handleInputChange}

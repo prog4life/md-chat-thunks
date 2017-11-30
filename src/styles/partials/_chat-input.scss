@@ -1,0 +1,77 @@
+// TODO: replace to text-field's partials
+.nickname {
+  // padding: 0.5rem 0;
+  margin: 0.5rem 0;
+  position: relative;
+}
+
+.nickname-field {
+  border: none;
+  // border-bottom: 1px solid rgba(0, 0, 0, 0.26);
+  // border-bottom: 1px solid rgb(224, 224, 224);
+  // border-bottom: 1px solid #9e9e9e;
+  box-sizing: border-box;
+  color: rgba(0, 0, 0, 0.87);
+  min-height: 1.4rem;
+  width: 100%;
+  font-size: 1rem;
+  // padding: 0 0.4rem;
+  // margin: 0 0 0.5rem;
+  // transition: all 0.5s;
+}
+
+.nickname-field:focus {
+  // border-bottom: 2px solid #f19090;
+}
+
+textarea,
+textarea:hover,
+textarea:focus,
+textarea:active {
+  font: inherit;
+  outline: none;
+  box-shadow: none; /* for sake FF behavior */
+}
+
+.chat-input {
+  /* border-top: none; */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+
+  *:focus {
+    outline: none;
+  }
+
+  input {
+    padding: 0.3rem 0;
+  }
+}
+
+// [contenteditable="true"]:focus {
+//     outline: none;
+// }
+
+.message-field {
+  border: none;
+  // border: 1px solid rgba(228, 181, 181, 0.9);
+  // padding: 0.2rem 0.4rem;
+  padding: 0rem;
+  width: 100%;
+  resize: vertical;
+  min-height: 3rem;
+}
+
+.send-button {
+  font-size: 1rem;
+  background: #f1abab;
+  border: 1px solid rgb(250, 250, 250);
+  border-radius: 2px;
+  color: #fcfcfc;
+  text-shadow: 0 0 4px #fb2c2c;
+
+  &:active {
+    background: #f19090;
+    border: 1px solid #f19090;
+  }
+}

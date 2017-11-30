@@ -1,0 +1,21 @@
+.chat-history {
+  border: 1px solid rgba(228, 181, 181, 0.9);
+  min-height: 10rem;
+  max-height: 4rem;
+  overflow-y: auto;
+  overflow-x: visible;
+  overflow-wrap: break-word;
+  font-size: 0.9rem;
+}
+
+.chat-history-msg {
+  padding: 0.1rem 0.4rem;
+}
+
+.author {
+  color: #f19090;
+}
+
+.myself {
+  color: #bfbfbf;
+}

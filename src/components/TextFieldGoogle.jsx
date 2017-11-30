@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-class TextFieldMaterial extends Component {
+class TextFieldGoogle extends Component {
   constructor(props) {
     super(props);
 
@@ -49,14 +49,16 @@ class TextFieldMaterial extends Component {
           type="text"
           value={typeof value === 'string' ? value : undefined}
         />
-        <div className="underliner">
-          <hr className="underline" />
+        {/* <div className="bottomliner">
+          <hr className="bottomline" />
           <hr className={isFocused
-              ? 'underline on'
-              : 'underline off'
+              ? 'bottomline on'
+              : 'bottomline off'
             }
           />
-        </div>
+        </div> */}
+        <div className="bottomline-base" />
+        <div className={isFocused ? 'bottomline on' : 'bottomline'} />
         <div className="wrong-nickname-spacer">
           <span className="wrong-input-hint">
             {wrongInputMsg}
@@ -67,18 +69,18 @@ class TextFieldMaterial extends Component {
   }
 }
 
-TextFieldMaterial.propTypes = {
+TextFieldGoogle.propTypes = {
   onChange: PropTypes.func,
   placeholder: PropTypes.string,
   value: PropTypes.string,
   wrongInputMsg: PropTypes.string
 };
 
-TextFieldMaterial.defaultProps = {
+TextFieldGoogle.defaultProps = {
   onChange: undefined,
   placeholder: '',
   value: undefined,
   wrongInputMsg: 'Enter from 2 to 30 characters please'
 };
 
-export default TextFieldMaterial;
+export default TextFieldGoogle;

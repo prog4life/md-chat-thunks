@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 const ChatMessage = ({nickname, text}) => {
   return (
-    <div className="chat-message">
+    <div className="chat-history-msg">
       <span className={nickname === 'Me' ? 'myself' : 'author'}>
         {nickname}:{' '}
       </span>

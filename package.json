@@ -45,8 +45,10 @@
   "devDependencies": {
     "autoprefixer": "^7.1.6",
     "file-loader": "^1.1.5",
+    "postcss": "^6.0.14",
     "postcss-loader": "^2.0.9",
     "postcss-normalize": "^4.0.0",
+    "postcss-sass": "^0.2.0",
     "postcss-scss": "^1.0.2",
     "redux-immutable-state-invariant": "^2.1.0",
     "resolve-url-loader": "^2.2.0",
@@ -71,15 +73,10 @@
       "stylelint-order"
     ],
     "rules": {
-      "plugin/no-unsupported-browser-features": [
-        true,
-        {
-          "severity": "warning",
-          "ignore": [
-            "rem"
-          ]
-        }
-      ]
+      "plugin/no-unsupported-browser-features": [true, {
+        "severity": "warning",
+        "ignore": ["rem"]
+      }]
     }
   },
   "author": "",
