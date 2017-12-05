@@ -2,7 +2,7 @@ const ws = require('ws');
 
 const DEF_PING_INTRVL = 10000;
 
-let onMessageHandler;
+let updatedMessageHandler;
 
 const enablePing = (wss, interval = DEF_PING_INTRVL) => {
   wss.checkInterval = setInterval(() => {
@@ -21,10 +21,12 @@ const enablePing = (wss, interval = DEF_PING_INTRVL) => {
 const disablePing = wss => clearInterval(wss.checkInterval);
 
 const setOnMessageHandler = (handler) => {
-  onMessageHandler = handler;
+  updatedMessageHandler = handler;
 };
 
-const handleConnection = wss => (websocket) => {
+const handleConnection = (wss, eventHandlers = {}) => (websocket) => {
+  const { messageHandler } = eventHandlers;
+
   websocket.isAlive = true;
   // heartbeat callback
   websocket.on('pong', () => {
@@ -34,7 +36,12 @@ const handleConnection = wss => (websocket) => {
 
   websocket.on('message', (incoming) => {
     console.log('Socket message received: %s', incoming);
-    onMessageHandler(websocket, incoming);
+
+    if (typeof updatedMessageHandler === 'function') {
+      updatedMessageHandler(websocket, incoming);
+    } else if (typeof messageHandler === 'function') {
+      messageHandler(websocket, incoming);
+    }
   });
 
   websocket.on('error', (error) => {
@@ -48,14 +55,14 @@ const handleConnection = wss => (websocket) => {
   });
 };
 
-const startServer = (httpServer, pingInterval) => {
+const startServer = (httpServer, websocketHandlers = {}, pingInterval) => {
   const wss = new ws.Server({
     server: httpServer // OR:
     // to use on different port than express server
     // port: 8484
   });
 
-  wss.on('connection', handleConnection(wss));
+  wss.on('connection', handleConnection(wss, websocketHandlers));
   wss.on('error', (error) => {
     console.error('Websocket Server error ', error);
     wss.close(() => {

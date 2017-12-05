@@ -28,8 +28,8 @@
     "express": "^4.16.2",
     "node-sass": "^4.7.2",
     "prop-types": "^15.6.0",
-    "react": "^16.1.1",
-    "react-dom": "^16.1.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
     "redux-logger": "^3.0.6",
@@ -40,11 +40,11 @@
     "shortid": "^2.2.8",
     "style-loader": "^0.19.0",
     "validator": "^9.1.2",
-    "webpack": "^3.8.1",
+    "webpack": "^3.10.0",
     "ws": "^3.3.2"
   },
   "devDependencies": {
-    "autoprefixer": "^7.1.6",
+    "autoprefixer": "^7.2.1",
     "file-loader": "^1.1.5",
     "postcss": "^6.0.14",
     "postcss-loader": "^2.0.9",
@@ -55,11 +55,11 @@
     "stylelint": "^8.3.1",
     "stylelint-config-standard": "^18.0.0",
     "stylelint-no-unsupported-browser-features": "^1.0.1",
-    "stylelint-order": "^0.7.0",
-    "stylelint-scss": "^2.1.0",
+    "stylelint-order": "^0.8.0",
+    "stylelint-scss": "^2.2.0",
     "url-loader": "^0.6.2",
-    "webpack-dev-middleware": "^1.12.1",
-    "webpack-dev-server": "^2.9.4"
+    "webpack-dev-middleware": "^1.12.2",
+    "webpack-dev-server": "^2.9.5"
   },
   "browserslist": [
     "> 0.3%",
@@ -73,10 +73,15 @@
       "stylelint-order"
     ],
     "rules": {
-      "plugin/no-unsupported-browser-features": [true, {
-        "severity": "warning",
-        "ignore": ["rem"]
-      }]
+      "plugin/no-unsupported-browser-features": [
+        true,
+        {
+          "severity": "warning",
+          "ignore": [
+            "rem"
+          ]
+        }
+      ]
     }
   },
   "author": "",
