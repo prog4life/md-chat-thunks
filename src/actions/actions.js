@@ -79,7 +79,7 @@ export const receiveTyping = nickname => ({
   nickname
 });
 
-export const listenWebsocketMessage = () => (dispatch) => {
+export const listenWebsocketMessage = () => (dispatch, getState) => {
   webSocket.addEventListener('message', (messageEvent) => {
     const incoming = parseJSON(messageEvent.data);
 
@@ -99,7 +99,7 @@ export const listenWebsocketMessage = () => (dispatch) => {
           clientId,
           nickname,
           text,
-          isOwn: false
+          isOwn: getState().clientId === clientId
         }));
         break;
       case 'SET_ID':
@@ -222,6 +222,7 @@ export const sendMessage = (nickname, text) => (dispatch, getState) => {
     message.type = 'MESSAGE';
     webSocket.send(JSON.stringify(message));
   } else {
+    // TODO: replace next one with postponeSending
     dispatch(sendMessageFail(message));
     dispatch(prepareWebsocketAndClientId());
   }

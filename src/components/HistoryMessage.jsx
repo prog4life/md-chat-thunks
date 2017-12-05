@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const ChatMessage = ({ nickname, text, isOwn }) => (
+const HistoryMessage = ({ nickname, text, isOwn }) => (
   <div className="chat-history-msg">
     <span className={isOwn ? 'myself' : 'author'}>
       {isOwn ? 'Me: ' : `${nickname}: `}
@@ -12,14 +12,14 @@ const ChatMessage = ({ nickname, text, isOwn }) => (
   </div>
 );
 
-ChatMessage.propTypes = {
+HistoryMessage.propTypes = {
   isOwn: PropTypes.bool,
   nickname: PropTypes.string.isRequired,
   text: PropTypes.string.isRequired
 };
 
-ChatMessage.defaultProps = {
+HistoryMessage.defaultProps = {
   isOwn: false
 };
 
-export default ChatMessage;
+export default HistoryMessage;
