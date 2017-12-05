@@ -65,9 +65,13 @@ export const typing = (state = [], action) => {
 
 export const unsent = (state = [], action) => {
   switch (action.type) {
-    // case 'SEND_MESSAGE_FAIL':
-    //   return [...state, action.message];
-    case 'UNSENT_CLEAR':
+    case 'SEND_MESSAGE_SUCCESS':
+      return state.filter(msg => action.message.id !== msg.id);
+    case 'SEND_MESSAGE_FAIL':
+      return [...state, {
+        ...action.message
+      }];
+    case 'CLEAR_UNSENT':
       return [];
     default:
       return state;

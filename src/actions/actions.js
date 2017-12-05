@@ -1,11 +1,7 @@
 import shortid from 'shortid';
-import parseJSON from '../utils/json-parser';
-// NOTE: alternatively store it in App component and pass to thunks
-let webSocket;
+import { getWebsocket, setupWebsocket } from './websocket';
 
 // shortid.generate()
-
-export const getWebsocketInstance = () => webSocket;
 
 export const sendMessageAttempt = ({ id, clientId, nickname, text }) => ({
   type: 'SEND_MESSAGE_ATTEMPT',
@@ -37,7 +33,7 @@ export const sendMessageFail = message => ({
   message
 });
 
-// TODO: to terminate displaying of typing notification if new message
+// TODO: terminate displaying of typing notification if new message
 // from same one is received
 export const receiveMessage = message => ({
   type: 'RECEIVE_MESSAGE',
@@ -54,7 +50,7 @@ export const clearUnsent = () => ({
 });
 
 export const getClientId = () => {
-  webSocket.send(JSON.stringify({
+  getWebsocket().send(JSON.stringify({
     type: 'GET_ID'
   }));
   // it's Redux action type, while above type is JSON websocket msg type
@@ -79,111 +75,6 @@ export const receiveTyping = nickname => ({
   nickname
 });
 
-export const listenWebsocketMessage = () => (dispatch, getState) => {
-  webSocket.addEventListener('message', (messageEvent) => {
-    const incoming = parseJSON(messageEvent.data);
-
-    if (!incoming) {
-      return;
-    }
-    const {
-      clientId, type, nickname, text
-    } = incoming;
-
-    switch (type) {
-      case 'IS_TYPING':
-        dispatch(receiveTyping(nickname));
-        break;
-      case 'MESSAGE':
-        dispatch(receiveMessage({
-          clientId,
-          nickname,
-          text,
-          isOwn: getState().clientId === clientId
-        }));
-        break;
-      case 'SET_ID':
-        dispatch(setClientId(clientId));
-        break;
-      case 'JOIN_CHAT':
-        break;
-      case 'LEAVE_CHAT':
-        break;
-      case 'CHANGE_NAME':
-        break;
-      default:
-        console.warn('Unknown websocket incoming message type');
-    }
-  });
-};
-
-export const listenWebsocketError = () => (dispatch) => {
-  webSocket.addEventListener('error', (error) => {
-    console.log(`webSocket Error: ${error.message}`);
-    // TODO: add error message to store ???
-    dispatch({
-      type: 'WEBSOCKET_ERROR',
-      status: 'ERROR'
-    });
-    // TODO: close
-    if (webSocket && webSocket.websocketStatus !== WebSocket.CLOSED) {
-      dispatch({
-        type: 'WEBSOCKET_CLOSING',
-        status: 'CLOSING'
-      });
-      webSocket.close();
-    }
-  });
-};
-
-export const listenWebsocketClose = () => (dispatch) => {
-  webSocket.addEventListener('close', (event) => {
-    console.log(`Closing wasClean: ${event.wasClean}`);
-    console.log(`Close code: ${event.code}, reason: ${event.reason}`);
-    dispatch({
-      type: 'WEBSOCKET_CLOSED',
-      status: 'CLOSED'
-    });
-    // TODO: reopen
-  });
-};
-
-export const listenWebsocketOpen = () => (dispatch, getState) => {
-  webSocket.onopen = () => {
-    dispatch({
-      type: 'WEBSOCKET_OPEN',
-      status: 'OPEN'
-    });
-    // TODO: request clientId
-    if (!getState().clientId) {
-      dispatch(getClientId());
-    }
-    // TODO: send hasId and unsent data
-  };
-};
-
-export const setupWebsocket = () => (dispatch, getState) => {
-  // TODO: replace next check out from here ?
-  const { websocketStatus } = getState();
-  if (websocketStatus === 'OPEN' || websocketStatus === 'CONNECTING') {
-    console.log('websocketStatus in setupWebSocket: ', websocketStatus);
-    // this.websocket.close(1000, 'New connection opening is started');
-    return webSocket;
-  }
-
-  dispatch({
-    type: 'WEBSOCKET_CONNECTING',
-    status: 'CONNECTING'
-  });
-  webSocket = new WebSocket('ws://localhost:8787');
-
-  dispatch(listenWebsocketOpen());
-  dispatch(listenWebsocketMessage());
-  dispatch(listenWebsocketClose());
-  dispatch(listenWebsocketError());
-  return webSocket;
-};
-
 // NOTE: Possibly excess
 export const checkWebsocketAndClientId = ({ websocketStatus, clientId }) => (
   websocketStatus === 'OPEN' && clientId
@@ -203,6 +94,22 @@ export const prepareWebsocketAndClientId = () => (dispatch, getState) => {
   return true;
 };
 
+export const sendUnsent = () => (dispatch, getState) => {
+  const { unsent } = getState();
+
+  unsent.forEach((unsentItem) => {
+    const { websocketStatus, clientId } = getState();
+
+    if (websocketStatus === 'OPEN' && clientId) {
+      dispatch(sendMessageSuccess(unsentItem));
+      getWebsocket().send(JSON.stringify(unsentItem));
+      // dispatch(removeFromUnsent(unsentItem));
+    } else {
+      dispatch(prepareWebsocketAndClientId());
+    }
+  });
+};
+
 export const sendMessage = (nickname, text) => (dispatch, getState) => {
   const { websocketStatus, clientId } = getState();
   const message = {
@@ -210,7 +117,8 @@ export const sendMessage = (nickname, text) => (dispatch, getState) => {
     // TODO: add timestamp here?
     clientId,
     nickname,
-    text
+    text,
+    type: 'MESSAGE'
   };
 
   // TODO: replace to component handleSending method
@@ -219,8 +127,7 @@ export const sendMessage = (nickname, text) => (dispatch, getState) => {
 
   if (websocketStatus === 'OPEN' && clientId) {
     dispatch(sendMessageSuccess(message));
-    message.type = 'MESSAGE';
-    webSocket.send(JSON.stringify(message));
+    getWebsocket().send(JSON.stringify(message));
   } else {
     // TODO: replace next one with postponeSending
     dispatch(sendMessageFail(message));
