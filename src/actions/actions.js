@@ -37,6 +37,8 @@ export const sendMessageFail = message => ({
   message
 });
 
+// TODO: to terminate displaying of typing notification if new message
+// from same one is received
 export const receiveMessage = message => ({
   type: 'RECEIVE_MESSAGE',
   message
@@ -55,12 +57,13 @@ export const getClientId = () => {
   webSocket.send(JSON.stringify({
     type: 'GET_ID'
   }));
-  // next type is Redux action type, when above type is JSON websocket msg type
+  // it's Redux action type, while above type is JSON websocket msg type
   return {
     type: 'GET_CLIENT_ID'
   };
 };
 
+// TODO: need to check and send stored unsent data after receiving of new id
 export const setClientId = clientId => ({
   type: 'SET_CLIENT_ID',
   clientId
@@ -155,7 +158,7 @@ export const listenWebsocketOpen = () => (dispatch, getState) => {
     if (!getState().clientId) {
       dispatch(getClientId());
     }
-    // TODO: send hasId
+    // TODO: send hasId and unsent data
   };
 };
 

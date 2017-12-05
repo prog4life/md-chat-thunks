@@ -7,7 +7,7 @@ import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
 import TypingNotification from './TypingNotification';
 import { prepareWebsocketAndClientId, sendMessage } from '../actions';
-import typingNotifiConfig from '../config/typing-notification';
+import typingNotifConfig from '../config/typing-notification';
 
 export class App extends React.Component {
   constructor(props) {
@@ -43,34 +43,10 @@ export class App extends React.Component {
     // TODO: this.props.dispatch(sendPendingData());
 
     // TODO: check if it's better to place something into componentWillUpdate
-    // TODO: check if calling it here is overkill
-    // this.prepareConnection(() => console.log('componentDidUpdate conn ready'));
   }
   componentWillUnmount() {
     // TODO: doublecheck, resolve
-    // clearInterval(this.websocketIntervalId);
-    // TODO: resolve
     // clearInterval(this.monitoringTimerId);
-  }
-  // setupWebSocket() {
-  //   const ws = this.websocket;
-  //   if (ws && (ws.readyState === 0 || ws.readyState === 1)) {
-  //     console.log('readyState of ws in setupWebSocket: ', ws.readyState);
-  //     // this.websocket.close(1000, 'New connection opening is started');
-  //     return;
-  //   }
-  //   this.websocket = createWebSocket({
-  //     // TODO: replace bindings to constructor
-  //     openHandler: this.websocketOpenHandler,
-  //     closeHandler: this.websocketCloseHandler.bind(this),
-  //     errorHandler: this.websocketErrorHandler.bind(this),
-  //     saveClientId: this.incomingIdHandler.bind(this),
-  //     addMessageToState: this.incomingMessageHandler.bind(this),
-  //     addTypingDataToState: this.incomingTypingHandler.bind(this)
-  //   });
-  // }
-  getNewClientId() {
-    this.websocket.send(JSON.stringify({ type: 'GET_ID' }));
   }
   postponeSending(outgoingData) {
     this.unsent = outgoingData.type === 'MESSAGE'
@@ -106,35 +82,6 @@ export class App extends React.Component {
   //     this.prepareConnection(() => console.log('Monitoring: connection ready'));
   //   }, 3000);
   // }
-  // TODO: pass simply id, message and whoIsTyping instead of extractedData
-  incomingIdHandler(extractedData) {
-    this.clientId = extractedData.clientId;
-    console.log('New clientId: ', this.clientId);
-
-    this.sendUnsent();
-  }
-  incomingMessageHandler(extractedData) {
-    const { message } = extractedData;
-
-    this.setState(prevState => ({
-      messages: message
-        ? prevState.messages.concat(message)
-        : prevState.messages,
-      // to terminate displaying of typing notification if new message
-      // from same one is received
-      whoIsTyping: prevState.whoIsTyping[0] === message.nickname
-        ? []
-        : prevState.whoIsTyping
-    }));
-  }
-  incomingTypingHandler(extractedData) {
-    this.setState(prevState => ({
-      // FIXME: will be array anyway, need to check its item
-      whoIsTyping: extractedData.whoIsTyping || prevState.whoIsTyping
-    }), () => {
-      console.log('---------Incoming Typing Notification-----------');
-    });
-  }
   handleSendMessage(nickname, text) {
     this.props.dispatch(sendMessage(nickname, text));
     // add message that is being sent to the state for rendering
@@ -214,7 +161,7 @@ export class App extends React.Component {
         </h3>
         <ChatHistory messages={this.props.messages} />
         {/* <TypingNotification
-          config={typingNotifiConfig}
+          config={typingNotifConfig}
           onStop={this.handleClearTyping}
           whoIsTyping={this.props.whoIsTyping}
         /> */}
