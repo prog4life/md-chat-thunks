@@ -13,44 +13,42 @@ export const getInitialWebsocketEventHandler = eventName => (
 );
 
 // returns wrapped event handler function that will be used in listener
-export const createMessageEventHandler = (dispatch, getState) => (
-  (messageEvent) => {
-    const incoming = parseJSON(messageEvent.data);
+const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
+  const incoming = parseJSON(messageEvent.data);
 
-    if (!incoming) {
-      return;
-    }
-    const {
-      clientId, type, nickname, text
-    } = incoming;
-
-    switch (type) {
-      case 'IS_TYPING':
-        dispatch(receiveTyping(nickname));
-        break;
-      case 'MESSAGE':
-        dispatch(receiveMessage({
-          clientId,
-          nickname,
-          text,
-          isOwn: getState().clientId === clientId
-        }));
-        break;
-      case 'SET_ID':
-        dispatch(setClientId(clientId));
-        dispatch(sendUnsent()); // TODO: add condition ?
-        break;
-      case 'JOIN_CHAT':
-        break;
-      case 'LEAVE_CHAT':
-        break;
-      case 'CHANGE_NAME':
-        break;
-      default:
-        console.warn('Unknown websocket incoming message type');
-    }
+  if (!incoming) {
+    return;
   }
-);
+  const {
+    clientId, type, nickname, text
+  } = incoming;
+
+  switch (type) {
+    case 'IS_TYPING':
+      dispatch(receiveTyping(nickname));
+      break;
+    case 'MESSAGE':
+      dispatch(receiveMessage({
+        clientId,
+        nickname,
+        text,
+        isOwn: getState().clientId === clientId
+      }));
+      break;
+    case 'SET_ID':
+      dispatch(setClientId(clientId));
+      dispatch(sendUnsent()); // TODO: add condition ?
+      break;
+    case 'JOIN_CHAT':
+      break;
+    case 'LEAVE_CHAT':
+      break;
+    case 'CHANGE_NAME':
+      break;
+    default:
+      console.warn('Unknown websocket incoming message type');
+  }
+};
 
 export const createOpenEventHandler = (dispatch, getState) => () => {
   dispatch({
@@ -127,3 +125,5 @@ export const setupWebsocket = () => (dispatch, getState) => {
 
   return webSocket;
 };
+
+export { createMessageEventHandler };

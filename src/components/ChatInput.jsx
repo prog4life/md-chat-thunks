@@ -40,6 +40,7 @@ class ChatInput extends React.Component {
     this.props.onSendMessage(nickname.value, messageText.value);
   }
   handleInputChange(e) {
+    // TODO: change to currentTarget ?
     const { name, value } = e.target;
     const { onTyping } = this.props;
 
@@ -48,15 +49,15 @@ class ChatInput extends React.Component {
     });
     // IDEA: typeof onTyping === 'function'
     if (name === 'messageText') {
-      // onTyping();
+      onTyping();
     }
   }
   // handleNicknameFocusToggle(e) {
-    // e.preventDefault();
-
-    // this.setState(prevState => ({
-    //   isNicknameFocused: !prevState.isNicknameFocused
-    // }));
+  //   e.preventDefault();
+  //
+  //   this.setState(prevState => ({
+  //     isNicknameFocused: !prevState.isNicknameFocused
+  //   }));
   // }
   render() {
     const { nickname, messageText } = this.state;

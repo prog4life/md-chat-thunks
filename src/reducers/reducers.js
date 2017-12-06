@@ -58,6 +58,8 @@ export const messages = (state = [], action) => {
 
 export const typing = (state = [], action) => {
   switch (action.type) {
+    case 'RECEIVE_TYPING':
+      return [action.nickname];
     default:
       return state;
   }

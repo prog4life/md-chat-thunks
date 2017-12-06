@@ -3,11 +3,13 @@ import { connect } from 'react-redux';
 
 // TODO: try to import files relative to src/, without .., as src is added
 // to modules in webpack's resolve
+import {
+  prepareWebsocketAndClientId, sendMessage, sendTyping
+} from 'actions';
+import typingNotifConfig from 'config/typing-notification';
 import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
 import TypingNotification from './TypingNotification';
-import { prepareWebsocketAndClientId, sendMessage } from '../actions';
-import typingNotifConfig from '../config/typing-notification';
 
 import {
   getInitialWebsocketEventHandler, getWebsocket
@@ -32,18 +34,18 @@ export class App extends React.Component {
 
     // this.websocketOpenHandler = this.websocketOpenHandler.bind(this);
     // this.handleClearTyping = this.handleClearTyping.bind(this);
-    // this.handleTyping = this.handleTyping.bind(this);
+    this.handleTyping = this.handleTyping.bind(this);
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
   componentDidMount() {
     // TODO: think over dispatching checkWebsocketAndClientId first
-    this.websocket = this.props.dispatch(prepareWebsocketAndClientId());
+    this.websocket = this.props.dispatch(prepareWebsocketAndClientId);
     this.unsent = [];
     // TODO: resolve
     // this.monitorConnection();
   }
   componentDidUpdate(prevProps, prevState) {
-    // this.props.dispatch(prepareWebsocketAndClientId());
+    // this.props.dispatch(prepareWebsocketAndClientId);
     // TODO: this.props.dispatch(sendPendingData());
 
     // TODO: check if it's better to place something into componentWillUpdate
@@ -88,26 +90,6 @@ export class App extends React.Component {
   // }
   handleSendMessage(nickname, text) {
     this.props.dispatch(sendMessage(nickname, text));
-    // add message that is being sent to the state for rendering
-    // this.setState(prevState => ({
-    //   nickname,
-    //   messages: prevState.messages.concat({
-    //     clientId: this.clientId,
-    //     nickname: 'Me',
-    //     text
-    //   })
-    // }));
-    //
-    // // TODO: replace further part of this method into ChatInput component by
-    // // passing clientId and handleSending to it
-    // const outgoingMessage = {
-    //   clientId: this.clientId,
-    //   nickname,
-    //   text,
-    //   type: 'MESSAGE'
-    // };
-    //
-    // this.handleSending(outgoingMessage);
   }
   handleClearTyping() {
     // remove one, whose typing notification was shown, after showing it
@@ -116,20 +98,12 @@ export class App extends React.Component {
     });
   }
   handleTyping() {
-    // TODO: replace all this method into ChatInput component by
-    // passing clientId, handleSending and nickname to it
-    const { nickname } = this.state;
+    // TODO: replace into actionCreator ?
+    const { nickname, dispatch } = this.props;
     if (nickname.length < 2) {
       return;
     }
-
-    const outgoingTypingNotification = {
-      clientId: this.clientId,
-      nickname,
-      type: 'IS_TYPING'
-    };
-
-    this.handleSending(outgoingTypingNotification);
+    dispatch(sendTyping);
   }
   // websocketOpenHandler() {
   //   console.log('WebSocket is open, readyState: ', this.websocket.readyState);
@@ -164,14 +138,14 @@ export class App extends React.Component {
           { 'Lil Chat' }
         </h3>
         <ChatHistory messages={this.props.messages} />
-        {/* <TypingNotification
+        <TypingNotification
           config={typingNotifConfig}
           onStop={this.handleClearTyping}
           whoIsTyping={this.props.whoIsTyping}
-        /> */}
+        />
         <ChatInput
-          // onTyping={this.handleTyping}
           onSendMessage={this.handleSendMessage}
+          onTyping={this.handleTyping}
         />
         <button
           onClick={() => {

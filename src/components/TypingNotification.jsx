@@ -5,14 +5,17 @@ import FadeInOutText from './FadeInOutText';
 
 export default class TypingNotification extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
-    console.log(`TypingNotif scu nextProps === this.props: ${nextProps === this.props} ---------------------------------TypingNotif scu START`);
-    console.log('TypingNotif scu this.props: ', this.props);
-    console.log('TypingNotif scu nextProps: ', nextProps);
+    // console.log(`TypingNotif scu nextProps === this.props:
+    // ${nextProps === this.props} ---------------------TypingNotif scu START`);
+    // console.log('TypingNotif scu this.props: ', this.props);
+    // console.log('TypingNotif scu nextProps: ', nextProps);
     // if (this.props.whoIsTyping[0] === nextProps.whoIsTyping[0]) {
-    //   console.log(`--------------------------------------------------------------------- TypingNotif scu END false`);
+    //   console.log(`---------------------------------------------------------
+    //                ---------------------------- TypingNotif scu END false`);
     //   return false;
     // }
-    console.log(`------------------------------------------------------------------------ TypingNotif scu END true`);
+    // console.log(`-----------------------------------------------------------
+    //              -------------------------------- TypingNotif scu END true`);
     return true;
   }
   renderNotification() {
@@ -27,11 +30,11 @@ export default class TypingNotification extends React.Component {
     // };
 
     const updatedConfig = {};
-
     Object.assign(updatedConfig, config);
 
     if (whoIsTyping) {
-      console.log(`--------------------------------------------------------------------------- TypingNotif RENDER ANIMATION`);
+      // console.log(`---------------------------------------------------------
+      //              -------------------------- TypingNotif RENDER ANIMATION`);
       updatedConfig.textToShow = `${whoIsTyping} is typing`;
       return (
         <FadeInOutText

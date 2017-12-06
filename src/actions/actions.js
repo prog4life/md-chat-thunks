@@ -1,8 +1,6 @@
 import shortid from 'shortid';
 import { getWebsocket, setupWebsocket } from './websocket';
 
-// shortid.generate()
-
 export const sendMessageAttempt = ({ id, clientId, nickname, text }) => ({
   type: 'SEND_MESSAGE_ATTEMPT',
   message: {
@@ -59,7 +57,6 @@ export const getClientId = () => {
   };
 };
 
-// TODO: need to check and send stored unsent data after receiving of new id
 export const setClientId = clientId => ({
   type: 'SET_CLIENT_ID',
   clientId
@@ -80,34 +77,49 @@ export const checkWebsocketAndClientId = ({ websocketStatus, clientId }) => (
   websocketStatus === 'OPEN' && clientId
 );
 
-export const prepareWebsocketAndClientId = () => (dispatch, getState) => {
+export const prepareWebsocketAndClientId = (dispatch, getState) => {
   const { websocketStatus, clientId } = getState();
 
   if (websocketStatus !== 'OPEN' && websocketStatus !== 'CONNECTING') {
-    return dispatch(setupWebsocket());
+    dispatch(setupWebsocket());
+    return;
   }
 
   if (!clientId) {
-    // TODO: return clientId or not ???
-    return dispatch(getClientId());
+    dispatch(getClientId());
   }
-  return true;
+};
+
+export const tryToSend = outgoingData => (dispatch, getState) => {
+  const { websocketStatus, clientId } = getState();
+
+  if (websocketStatus === 'OPEN' && clientId) {
+    getWebsocket().send(JSON.stringify(outgoingData));
+    return true;
+  }
+  dispatch(prepareWebsocketAndClientId);
+  return false;
 };
 
 export const sendUnsent = () => (dispatch, getState) => {
   const { unsent } = getState();
 
   unsent.forEach((unsentItem) => {
-    const { websocketStatus, clientId } = getState();
-
-    if (websocketStatus === 'OPEN' && clientId) {
+    if (dispatch(tryToSend(unsentItem))) {
       dispatch(sendMessageSuccess(unsentItem));
-      getWebsocket().send(JSON.stringify(unsentItem));
       // dispatch(removeFromUnsent(unsentItem));
-    } else {
-      dispatch(prepareWebsocketAndClientId());
     }
   });
+};
+
+export const sendTyping = (dispatch, getState) => {
+  const { clientId, nickname } = getState();
+  const outgoingTypingNotification = {
+    clientId,
+    nickname,
+    type: 'IS_TYPING'
+  };
+  dispatch(tryToSend(outgoingTypingNotification));
 };
 
 export const sendMessage = (nickname, text) => (dispatch, getState) => {
@@ -125,12 +137,13 @@ export const sendMessage = (nickname, text) => (dispatch, getState) => {
   dispatch(setNickname(nickname));
   dispatch(sendMessageAttempt(message));
 
+  // TODO: replace by tryToSend
   if (websocketStatus === 'OPEN' && clientId) {
-    dispatch(sendMessageSuccess(message));
     getWebsocket().send(JSON.stringify(message));
+    dispatch(sendMessageSuccess(message));
   } else {
     // TODO: replace next one with postponeSending
     dispatch(sendMessageFail(message));
-    dispatch(prepareWebsocketAndClientId());
+    dispatch(prepareWebsocketAndClientId);
   }
 };

@@ -42,11 +42,11 @@ export default class FadeInOutText extends React.Component {
   //   return Boolean(nextProps.textToShow);
   // }
   componentDidUpdate(prevProps, prevState) {
-    console.log('cDU ------------------------------------------------- START ');
-    console.log('cDU state ', this.state);
-    console.log('cDU prevState ', prevState);
-    console.log('cDU this.state.isActive: ', this.state.isActive);
-    console.log(`cDU this.props === prevProps: ${this.props === prevProps}`);
+    // console.log('cDU ------------------------------------------------- START ');
+    // console.log('cDU state ', this.state);
+    // console.log('cDU prevState ', prevState);
+    // console.log('cDU this.state.isActive: ', this.state.isActive);
+    // console.log(`cDU this.props === prevProps: ${this.props === prevProps}`);
 
     // NOTE: alternative condition - whole fade-in/out animation has ended on
     // prev render, single additional exit:
@@ -54,18 +54,18 @@ export default class FadeInOutText extends React.Component {
 
     // TODO: consider replacing of 2nd reversed condition into next block
     if (this.state.isActive || this.props === prevProps) {
-      console.log('cDU ------------------------------------------------- RETURN due to ACTIVE || this.props === prevProps');
+      // console.log('cDU ------------------------------------------------- RETURN due to ACTIVE || this.props === prevProps');
       return;
     }
 
     // TODO: log warning on empty textToShow
     if (this.props.textToShow) {
-      console.log('cDU ------------------------------------------------- START ANIMATION, props.textToShow === true');
+      // console.log('cDU ------------------------------------------------- START ANIMATION, props.textToShow === true');
       this.startAnimation();
     }
   }
   componentWillUnmount() {
-    console.log('----------------------------------------------------- UNMOUNT');
+    // console.log('----------------------------------------------------- UNMOUNT');
     clearInterval(this.animationTimerId);
   }
   setAnimationTimer(repeats, duration, isBidirectional) {

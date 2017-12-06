@@ -14,10 +14,11 @@ const initialState = {
       id: 'first',
       clientId: '32425gser27408908',
       nickname: 'test user',
-      text: 'Sample test user message'
+      text: 'Sample test user message',
+      isOwn: false
     }
   ],
-  // whoIsTyping: [],
+  typing: [],
   websocketStatus: 'CLOSED'
 };
 
