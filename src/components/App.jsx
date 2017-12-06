@@ -9,6 +9,10 @@ import TypingNotification from './TypingNotification';
 import { prepareWebsocketAndClientId, sendMessage } from '../actions';
 import typingNotifConfig from '../config/typing-notification';
 
+import {
+  getInitialWebsocketEventHandler, getWebsocket
+} from 'actions/websocket';
+
 export class App extends React.Component {
   constructor(props) {
     super(props);
@@ -169,6 +173,29 @@ export class App extends React.Component {
           // onTyping={this.handleTyping}
           onSendMessage={this.handleSendMessage}
         />
+        <button
+          onClick={() => {
+            const handler = this.messageEventHandlers.length > 0
+              ? this.messageEventHandlers.pop()
+              : getInitialWebsocketEventHandler('messageEventHandler');
+            getWebsocket().removeEventListener('message', handler);
+          }}
+          type="button"
+        >
+          {'REMOVE'}
+        </button>
+        <button
+          onClick={() => {
+            this.messageEventHandlers = [];
+            const handler =
+              getInitialWebsocketEventHandler('messageEventHandler');
+            this.messageEventHandlers.push(handler);
+            getWebsocket().addEventListener('message', handler);
+          }}
+          type="button"
+        >
+          {'ADD'}
+        </button>
       </div>
     );
   }

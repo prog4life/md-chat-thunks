@@ -4,11 +4,17 @@ import {
 } from './actions';
 
 let webSocket;
-
 export const getWebsocket = () => webSocket;
 
-export const listenWebsocketMessage = () => (dispatch, getState) => {
-  webSocket.addEventListener('message', (messageEvent) => {
+// for removing initial listeners from the outside
+const initialWebsocketEventHandlers = {};
+export const getInitialWebsocketEventHandler = eventName => (
+  initialWebsocketEventHandlers[eventName]
+);
+
+// returns wrapped event handler function that will be used in listener
+export const createMessageEventHandler = (dispatch, getState) => (
+  (messageEvent) => {
     const incoming = parseJSON(messageEvent.data);
 
     if (!incoming) {
@@ -43,63 +49,57 @@ export const listenWebsocketMessage = () => (dispatch, getState) => {
       default:
         console.warn('Unknown websocket incoming message type');
     }
+  }
+);
+
+export const createOpenEventHandler = (dispatch, getState) => () => {
+  dispatch({
+    type: 'WEBSOCKET_OPEN',
+    status: 'OPEN'
   });
+
+  if (!getState().clientId) {
+    dispatch(getClientId());
+  } else {
+    // TODO: send hasId
+    // TODO: add condition ?
+    dispatch(sendUnsent());
+  }
 };
 
-export const listenWebsocketError = () => (dispatch) => {
-  webSocket.addEventListener('error', (error) => {
-    console.log(`webSocket Error: ${error.message}`);
-    // TODO: add error message to store ???
-    dispatch({
-      type: 'WEBSOCKET_ERROR',
-      status: 'ERROR'
-    });
-    // TODO: close
-    if (webSocket && webSocket.websocketStatus !== WebSocket.CLOSED) {
-      dispatch({
-        type: 'WEBSOCKET_CLOSING',
-        status: 'CLOSING'
-      });
-      webSocket.close();
-    }
+export const createCloseEventHandler = () => dispatch => (closeEvent) => {
+  console.log(`Closing wasClean: ${closeEvent.wasClean}`);
+  console.log(`Close code: ${closeEvent.code}, reason: ${closeEvent.reason}`);
+  dispatch({
+    type: 'WEBSOCKET_CLOSED',
+    status: 'CLOSED'
   });
+  // TODO: reopen
 };
 
-export const listenWebsocketClose = () => (dispatch) => {
-  webSocket.addEventListener('close', (event) => {
-    console.log(`Closing wasClean: ${event.wasClean}`);
-    console.log(`Close code: ${event.code}, reason: ${event.reason}`);
-    dispatch({
-      type: 'WEBSOCKET_CLOSED',
-      status: 'CLOSED'
-    });
-    // TODO: reopen
+export const createErrorEventHandler = (dispatch, getState) => (errorEvent) => {
+  console.log(`webSocket Error: ${errorEvent.message}`);
+  // TODO: add error message to store ???
+  dispatch({
+    type: 'WEBSOCKET_ERROR',
+    status: 'ERROR'
   });
-};
 
-export const listenWebsocketOpen = () => (dispatch, getState) => {
-  webSocket.addEventListener('open', (event) => {
+  if (webSocket && getState().websocketStatus !== 'CLOSED') {
     dispatch({
-      type: 'WEBSOCKET_OPEN',
-      status: 'OPEN'
+      type: 'WEBSOCKET_CLOSING',
+      status: 'CLOSING'
     });
-
-    if (!getState().clientId) {
-      dispatch(getClientId());
-    } else {
-      // TODO: send hasId
-      // TODO: add condition ?
-      dispatch(sendUnsent());
-    }
-  });
+    webSocket.close();
+  }
 };
 
 export const setupWebsocket = () => (dispatch, getState) => {
-  // TODO: replace next check out from here ?
+  // TODO: close and reopen new one ?
   const { websocketStatus } = getState();
+
   if (websocketStatus === 'OPEN' || websocketStatus === 'CONNECTING') {
     console.log('websocketStatus in setupWebSocket: ', websocketStatus);
-    // this.websocket.close(1000, 'New connection opening is started');
     return webSocket;
   }
 
@@ -109,9 +109,21 @@ export const setupWebsocket = () => (dispatch, getState) => {
   });
   webSocket = new WebSocket('ws://localhost:8787');
 
-  dispatch(listenWebsocketOpen());
-  dispatch(listenWebsocketMessage());
-  dispatch(listenWebsocketClose());
-  dispatch(listenWebsocketError());
+  // dispatching thunk that returns wrapped event handler function
+  const openEventHandler = dispatch(createOpenEventHandler);
+  const messageEventHandler = dispatch(createMessageEventHandler);
+  const closeEventHandler = dispatch(createCloseEventHandler);
+  const errorEventHandler = dispatch(createErrorEventHandler);
+
+  webSocket.addEventListener('open', openEventHandler);
+  webSocket.addEventListener('message', messageEventHandler);
+  webSocket.addEventListener('close', closeEventHandler);
+  webSocket.addEventListener('error', errorEventHandler);
+
+  initialWebsocketEventHandlers.openEventHandler = openEventHandler;
+  initialWebsocketEventHandlers.messageEventHandler = messageEventHandler;
+  initialWebsocketEventHandlers.closeEventHandler = closeEventHandler;
+  initialWebsocketEventHandlers.errorEventHandler = errorEventHandler;
+
   return webSocket;
 };
