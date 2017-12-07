@@ -1,6 +1,11 @@
 import parseJSON from '../utils/json-parser';
 import {
-  receiveTyping, receiveMessage, setClientId, getClientId, sendUnsent
+  receiveTyping,
+  receiveMessage,
+  setClientId,
+  getClientId,
+  sendUnsent,
+  stopTypingNotification
 } from './actions';
 
 let webSocket;
@@ -32,8 +37,13 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
         clientId,
         nickname,
         text,
-        isOwn: getState().clientId === clientId
+        isOwn: false
       }));
+      // to terminate displaying of typing notification if new message
+      // from same one is received
+      if (getState().whoIsTyping === nickname) {
+        dispatch(stopTypingNotification());
+      }
       break;
     case 'SET_ID':
       dispatch(setClientId(clientId));

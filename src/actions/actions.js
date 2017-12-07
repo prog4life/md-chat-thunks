@@ -31,8 +31,6 @@ export const sendMessageFail = message => ({
   message
 });
 
-// TODO: terminate displaying of typing notification if new message
-// from same one is received
 export const receiveMessage = message => ({
   type: 'RECEIVE_MESSAGE',
   message
@@ -70,6 +68,10 @@ export const setNickname = nickname => ({
 export const receiveTyping = nickname => ({
   type: 'RECEIVE_TYPING',
   nickname
+});
+
+export const stopTypingNotification = () => ({
+  type: 'STOP_TYPING_NOTIFICATION'
 });
 
 // NOTE: Possibly excess

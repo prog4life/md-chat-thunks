@@ -9,7 +9,7 @@ export default class TypingNotification extends React.Component {
     // ${nextProps === this.props} ---------------------TypingNotif scu START`);
     // console.log('TypingNotif scu this.props: ', this.props);
     // console.log('TypingNotif scu nextProps: ', nextProps);
-    // if (this.props.whoIsTyping[0] === nextProps.whoIsTyping[0]) {
+    // if (this.props.whoIsTyping === nextProps.whoIsTyping) {
     //   console.log(`---------------------------------------------------------
     //                ---------------------------- TypingNotif scu END false`);
     //   return false;
@@ -20,30 +20,38 @@ export default class TypingNotification extends React.Component {
   }
   renderNotification() {
     const {
-      whoIsTyping: [whoIsTyping],
+      whoIsTyping,
       config
     } = this.props;
+
+    return (
+      <FadeInOutText
+        onAnimationEnd={this.props.onNotificationEnd}
+        textToShow={whoIsTyping ? `${whoIsTyping} is typing` : ''}
+        {...config}
+      />
+    );
 
     // TODO: use next variant, temporarily Object.assign is used instead
     // const updatedConfig = {
     //   ...this.props.config
     // };
 
-    const updatedConfig = {};
-    Object.assign(updatedConfig, config);
+    // const updatedConfig = {};
+    // Object.assign(updatedConfig, config);
 
-    if (whoIsTyping) {
-      // console.log(`---------------------------------------------------------
-      //              -------------------------- TypingNotif RENDER ANIMATION`);
-      updatedConfig.textToShow = `${whoIsTyping} is typing`;
-      return (
-        <FadeInOutText
-          onAnimationEnd={this.props.onStop}
-          {...updatedConfig}
-        />
-      );
-    }
-    return config.placeholderText;
+    // if (whoIsTyping) {
+    //   // console.log(`---------------------------------------------------------
+    //   //              -------------------------- TypingNotif RENDER ANIMATION`);
+    //   updatedConfig.textToShow = `${whoIsTyping} is typing`;
+    //   return (
+    //     <FadeInOutText
+    //       onAnimationEnd={this.props.onNotificationEnd}
+    //       {...updatedConfig}
+    //     />
+    //   );
+    // }
+    // return config.placeholderText;
   }
   render() {
     return (
@@ -57,11 +65,10 @@ export default class TypingNotification extends React.Component {
 TypingNotification.propTypes = {
   config: PropTypes.shape({
     placeholderText: PropTypes.string,
-    textToShow: PropTypes.string,
     repeats: PropTypes.number,
     duration: PropTypes.number,
     bidirectional: PropTypes.bool
   }).isRequired,
-  onStop: PropTypes.func.isRequired,
-  whoIsTyping: PropTypes.arrayOf(PropTypes.string).isRequired
+  onNotificationEnd: PropTypes.func.isRequired,
+  whoIsTyping: PropTypes.string.isRequired
 };

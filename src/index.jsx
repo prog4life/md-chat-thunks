@@ -18,7 +18,7 @@ const initialState = {
       isOwn: false
     }
   ],
-  typing: [],
+  whoIsTyping: '',
   websocketStatus: 'CLOSED'
 };
 

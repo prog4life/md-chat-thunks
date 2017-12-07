@@ -3,7 +3,7 @@ import {
   nickname,
   clientId,
   messages,
-  typing,
+  whoIsTyping,
   websocketStatus,
   unsent
 } from './reducers';
@@ -13,6 +13,6 @@ export default combineReducers({
   nickname,
   clientId,
   messages,
-  typing,
+  whoIsTyping,
   unsent
 });

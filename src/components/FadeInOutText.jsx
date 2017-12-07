@@ -107,6 +107,7 @@ export default class FadeInOutText extends React.Component {
     this.setAnimationTimer(repeats, duration, isBidirectional);
   }
   render() {
+    // TODO: render placeholder as separate div
     return (
       <div
         // className={this.state.cssClass}

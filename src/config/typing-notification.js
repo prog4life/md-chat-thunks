@@ -1,7 +1,5 @@
 export default {
-  placeholderText: 'No one is typing',
-  // TODO: try: `${whoIsTyping[0]} is typing` or getter
-  textToShow: '',
+  placeholder: 'No one is typing',
   repeats: 3,
   // interval to change opacity from 0 to 1 or back
   duration: 500,

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 // TODO: try to import files relative to src/, without .., as src is added
 // to modules in webpack's resolve
 import {
-  prepareWebsocketAndClientId, sendMessage, sendTyping
+  prepareWebsocketAndClientId, sendMessage, sendTyping, stopTypingNotification
 } from 'actions';
 import typingNotifConfig from 'config/typing-notification';
 import ChatHistory from './ChatHistory';
@@ -29,11 +29,10 @@ export class App extends React.Component {
     //       text: 'Sample test user message'
     //     }
     //   ],
-    //   whoIsTyping: []
+    //   whoIsTyping: ''
     // };
 
-    // this.websocketOpenHandler = this.websocketOpenHandler.bind(this);
-    // this.handleClearTyping = this.handleClearTyping.bind(this);
+    this.handleTypingNotifEnd = this.handleTypingNotifEnd.bind(this);
     this.handleTyping = this.handleTyping.bind(this);
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
@@ -53,6 +52,7 @@ export class App extends React.Component {
   componentWillUnmount() {
     // TODO: doublecheck, resolve
     // clearInterval(this.monitoringTimerId);
+    // TODO: terminate websocket
   }
   postponeSending(outgoingData) {
     this.unsent = outgoingData.type === 'MESSAGE'
@@ -91,11 +91,9 @@ export class App extends React.Component {
   handleSendMessage(nickname, text) {
     this.props.dispatch(sendMessage(nickname, text));
   }
-  handleClearTyping() {
+  handleTypingNotifEnd() {
     // remove one, whose typing notification was shown, after showing it
-    this.setState({
-      whoIsTyping: []
-    });
+    this.props.dispatch(stopTypingNotification());
   }
   handleTyping() {
     // TODO: replace into actionCreator ?
@@ -140,7 +138,7 @@ export class App extends React.Component {
         <ChatHistory messages={this.props.messages} />
         <TypingNotification
           config={typingNotifConfig}
-          onStop={this.handleClearTyping}
+          onNotificationEnd={this.handleTypingNotifEnd}
           whoIsTyping={this.props.whoIsTyping}
         />
         <ChatInput

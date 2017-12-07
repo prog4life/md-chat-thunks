@@ -46,6 +46,7 @@ export const messages = (state = [], action) => {
         return msg;
       });
     case 'RECEIVE_MESSAGE':
+      // TODO: check if such message already exist by comparing message ids
       return [...state, {
         ...action.message
       }];
@@ -56,10 +57,12 @@ export const messages = (state = [], action) => {
   }
 };
 
-export const typing = (state = [], action) => {
+export const whoIsTyping = (state = '', action) => {
   switch (action.type) {
     case 'RECEIVE_TYPING':
-      return [action.nickname];
+      return action.nickname;
+    case 'STOP_TYPING_NOTIFICATION':
+      return '';
     default:
       return state;
   }
