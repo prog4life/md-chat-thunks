@@ -75,7 +75,7 @@ export const createOpenEventHandler = (dispatch, getState) => () => {
   }
 };
 
-export const createCloseEventHandler = () => dispatch => (closeEvent) => {
+export const createCloseEventHandler = dispatch => (closeEvent) => {
   console.log(`Closing wasClean: ${closeEvent.wasClean}`);
   console.log(`Close code: ${closeEvent.code}, reason: ${closeEvent.reason}`);
   dispatch({
@@ -127,6 +127,13 @@ export const setupWebsocket = () => (dispatch, getState) => {
   webSocket.addEventListener('message', messageEventHandler);
   webSocket.addEventListener('close', closeEventHandler);
   webSocket.addEventListener('error', errorEventHandler);
+
+  webSocket.addEventListener('close', (e) => {
+    console.log('Close event', e);
+  });
+  webSocket.addEventListener('error', (e) => {
+    console.log('Error event', e);
+  });
 
   initialWebsocketEventHandlers.openEventHandler = openEventHandler;
   initialWebsocketEventHandlers.messageEventHandler = messageEventHandler;

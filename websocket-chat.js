@@ -1,11 +1,18 @@
 const websocket = require('ws');
 const shortid = require('shortid');
+const throttle = require('lodash/throttle');
+
+const THROTTLE_WAIT = 1000;
 
 let chatInstance = null;
 
 class WebsocketChat {
   constructor(websocketServer) {
     this.setWebsocketServer(websocketServer);
+    // has cancel method
+    this.throttledBroadcast = this.throttleBroadcast(THROTTLE_WAIT);
+    this.lap = Date.now();
+    this.sendLap = Date.now();
 
     if (!chatInstance) {
       chatInstance = this;
@@ -35,6 +42,8 @@ class WebsocketChat {
       return;
     }
     const { clientId, type } = incoming;
+    // TODO: remove
+    const thisMoment = Date.now();
 
     switch (type) {
       case 'GET_ID':
@@ -48,10 +57,11 @@ class WebsocketChat {
         this.resendMessageToAll(ws, incoming);
         break;
       case 'IS_TYPING':
-
-        // TODO: add throttle with timeout to prevent too frequent notifications
-
-        this.sendTypingNotification(ws, incoming);
+        console.log('Typing notification interval: ', thisMoment - this.lap);
+        this.lap = thisMoment;
+        // this.sendTypingNotification(ws, incoming);
+        // throttle(this.broadcast, THROTTLE_WAIT)(ws, JSON.stringify(incoming));
+        this.throttledBroadcast(ws, JSON.stringify(incoming));
         break;
       case 'JOIN_CHAT':
         break;
@@ -80,6 +90,10 @@ class WebsocketChat {
 
   // broadcast to everyone else
   broadcast(ws, outgoing) {
+    const thisMoment = Date.now();
+    console.log('Sending: ', thisMoment - this.sendLap);
+    this.sendLap = thisMoment;
+
     this.wss.clients.forEach((client) => {
       if (client === ws) {
         console.log('Same clients item, clients size: ', this.wss.clients.size);
@@ -91,6 +105,10 @@ class WebsocketChat {
         console.log('Unable to send data, websocket readyState is not open');
       }
     });
+  }
+
+  throttleBroadcast(wait, options = { leading: true, trailing: false }) {
+    return throttle(this.broadcast, wait, options);
   }
 
   resendMessageToAll(ws, incoming) {

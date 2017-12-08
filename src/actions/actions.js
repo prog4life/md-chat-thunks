@@ -75,14 +75,15 @@ export const stopTypingNotification = () => ({
 });
 
 // NOTE: Possibly excess
-export const checkWebsocketAndClientId = ({ websocketStatus, clientId }) => (
-  websocketStatus === 'OPEN' && clientId
+export const checkWebsocketAndClientId = ({ clientId }) => (
+  getWebsocket().readyState === WebSocket.OPEN && clientId
 );
 
 export const prepareWebsocketAndClientId = (dispatch, getState) => {
-  const { websocketStatus, clientId } = getState();
+  const { clientId } = getState();
+  const ws = getWebsocket();
 
-  if (websocketStatus !== 'OPEN' && websocketStatus !== 'CONNECTING') {
+  if (!ws || (ws.readyState !== 1 && ws.readyState !== 0)) {
     dispatch(setupWebsocket());
     return;
   }
@@ -93,10 +94,11 @@ export const prepareWebsocketAndClientId = (dispatch, getState) => {
 };
 
 export const tryToSend = outgoingData => (dispatch, getState) => {
-  const { websocketStatus, clientId } = getState();
+  const { clientId } = getState();
+  const ws = getWebsocket();
 
-  if (websocketStatus === 'OPEN' && clientId) {
-    getWebsocket().send(JSON.stringify(outgoingData));
+  if (ws.readyState === WebSocket.OPEN && clientId) {
+    ws.send(JSON.stringify(outgoingData));
     return true;
   }
   dispatch(prepareWebsocketAndClientId);
@@ -125,7 +127,7 @@ export const sendTyping = (dispatch, getState) => {
 };
 
 export const sendMessage = (nickname, text) => (dispatch, getState) => {
-  const { websocketStatus, clientId } = getState();
+  const { clientId } = getState();
   const message = {
     id: shortid.generate(),
     // TODO: add timestamp here?
@@ -140,8 +142,9 @@ export const sendMessage = (nickname, text) => (dispatch, getState) => {
   dispatch(sendMessageAttempt(message));
 
   // TODO: replace by tryToSend
-  if (websocketStatus === 'OPEN' && clientId) {
-    getWebsocket().send(JSON.stringify(message));
+  const ws = getWebsocket();
+  if (ws.readyState === WebSocket.OPEN && clientId) {
+    ws.send(JSON.stringify(message));
     dispatch(sendMessageSuccess(message));
   } else {
     // TODO: replace next one with postponeSending

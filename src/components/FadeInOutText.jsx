@@ -42,6 +42,7 @@ export default class FadeInOutText extends React.Component {
   //   return Boolean(nextProps.textToShow);
   // }
   componentDidUpdate(prevProps, prevState) {
+    // TODO: terminate on empty textToShow
     // console.log('cDU ------------------------------------------------- START ');
     // console.log('cDU state ', this.state);
     // console.log('cDU prevState ', prevState);

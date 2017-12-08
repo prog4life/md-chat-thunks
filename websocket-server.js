@@ -35,7 +35,7 @@ const handleConnection = (wss, eventHandlers = {}) => (websocket) => {
   });
 
   websocket.on('message', (incoming) => {
-    console.log('Socket message received: %s', incoming);
+    // console.log('Socket message received: %s', incoming);
 
     if (typeof updatedMessageHandler === 'function') {
       updatedMessageHandler(websocket, incoming);
