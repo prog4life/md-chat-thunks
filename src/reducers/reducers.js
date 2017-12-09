@@ -11,6 +11,23 @@ export const websocketStatus = (state = null, action) => {
   }
 };
 
+export const connectionMonitoring = (state = {}, action) => {
+  switch (action.type) {
+    case 'START_PING':
+      return;
+    case 'STOP_PING':
+      return;
+    case 'PING':
+      return;
+    case 'PONG':
+      return;
+    case 'REOPENING':
+      return;
+    default:
+      return state;
+  }
+}
+
 export const nickname = (state = '', action) => {
   switch (action.type) {
     case 'SET_NICKNAME':
