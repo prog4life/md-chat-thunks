@@ -4,13 +4,23 @@ const throttle = require('lodash.throttle');
 
 const THROTTLE_WAIT = 1000;
 
+const validateIncomingData = (dataToCheck) => {
+  // TODO: complete it later, temporary return as is
+  // NOTE: validator, xss-filters, DOMPurify
+  return dataToCheck;
+};
+
 let chatInstance = null;
 
 class WebsocketChat {
   constructor(websocketServer) {
     this.setWebsocketServer(websocketServer);
     // has cancel method
-    this.throttledBroadcast = this.throttleBroadcast(THROTTLE_WAIT);
+    this.throttledBroadcast = throttle(
+      this.broadcast,
+      THROTTLE_WAIT,
+      { leading: true, trailing: false }
+    );
     this.lap = Date.now();
     this.sendLap = Date.now();
 
@@ -21,16 +31,17 @@ class WebsocketChat {
   }
 
   setWebsocketServer(wss) {
-    if (!this.wss) {
-      this.wss = wss;
-      return;
+    if (this.wss) {
+      this.wss.close(() => {
+        console.log('websocket server was closed');
+      });
     }
-    this.wss.close(() => {
-      this.wss = wss;
-    });
+    this.wss = wss;
   }
 
-  handleIncomingData(ws, rawIncoming) {
+  handleIncomingData(ws = this.client, rawIncoming) {
+    this.client = ws;
+
     let incoming = null;
     try {
       incoming = JSON.parse(rawIncoming);
@@ -38,58 +49,66 @@ class WebsocketChat {
       console.error('Failed to parse incoming json ', e);
     }
 
-    if (!incoming || !WebsocketChat.validateIncomingData(incoming)) {
+    if (!incoming || !validateIncomingData(incoming)) {
       return;
     }
-    const { clientId, type } = incoming;
-    // TODO: remove
-    const thisMoment = Date.now();
+    const { type } = incoming;
 
     switch (type) {
       case 'GET_ID':
-        // TODO: change back to WebsocketChat
-        this.constructor.assignNewId(ws);
+        this.assignNewId(ws);
         break;
-      case 'HAS_ID':
-        console.log('Has clientId: ', clientId);
-        break;
+      // case 'HAS_ID':
+      //   console.log('Has clientId: ', clientId);
+      //   break;
       case 'MESSAGE':
         this.resendMessageToAll(ws, incoming);
         break;
       case 'IS_TYPING':
-        console.log('Typing notification interval: ', thisMoment - this.lap);
-        this.lap = thisMoment;
-        // this.sendTypingNotification(ws, incoming);
-        // throttle(this.broadcast, THROTTLE_WAIT)(ws, JSON.stringify(incoming));
-        this.throttledBroadcast(ws, JSON.stringify(incoming));
+        this.sendTypingNotification(ws, incoming);
+        break;
+      case 'PING':
+        this.sendPong(ws);
+        break;
+      case 'CHANGE_NAME':
         break;
       case 'JOIN_CHAT':
         break;
       case 'LEAVE_CHAT':
-        break;
-      case 'CHANGE_NAME':
         break;
       default:
         console.error('Unknown type of incoming message');
     }
   }
 
-  static assignNewId(ws) {
+  assignNewId(ws = this.client) {
     const clientId = shortid.generate();
 
-    ws.send(JSON.stringify({
+    this.sendToOne(ws, {
       clientId,
       type: 'SET_ID'
-    }), (e) => {
-      if (e) {
-        console.log('clientId sending error: ', e);
-      }
-      console.log('new clientId sent: ', clientId);
     });
   }
 
-  // broadcast to everyone else
-  broadcast(ws, outgoing) {
+  sendPong(ws = this.client) {
+    console.log('get ping from client, send pong');
+    this.sendToOne(ws, {
+      type: 'PONG'
+    });
+  }
+
+  sendToOne(ws = this.client, dataToSend) {
+    ws.send(JSON.stringify(dataToSend), (e) => {
+      if (e) {
+        console.log('Failed to send data to one client: ', e);
+      }
+      console.log('Next data was sent to one client: ', dataToSend);
+    });
+  }
+
+  // send to everyone else
+  broadcast(ws = this.client, outgoing) {
+    // TODO: remove
     const thisMoment = Date.now();
     console.log('Sending: ', thisMoment - this.sendLap);
     this.sendLap = thisMoment;
@@ -107,13 +126,8 @@ class WebsocketChat {
     });
   }
 
-  throttleBroadcast(wait, options = { leading: true, trailing: false }) {
-    return throttle(this.broadcast, wait, options);
-  }
-
-  resendMessageToAll(ws, incoming) {
-    // NOTE: this method is added for future case of resending not
-    // whole incoming, but some part of it
+  resendMessageToAll(ws = this.client, incoming) {
+    // NOTE: this method is added for further additional processing of incoming
     const { clientId, nickname, text, type } = incoming;
 
     const outgoing = JSON.stringify({
@@ -126,25 +140,24 @@ class WebsocketChat {
     this.broadcast(ws, outgoing);
   }
 
-  sendTypingNotification(ws, incoming) {
-    // NOTE: this method is added for future case of resending not
-    // whole incoming, but some part of it
-    const { clientId, nickname, type } = incoming;
+  sendTypingNotification(ws = this.client, incoming) {
+    // NOTE: this method is added for further additional processing of incoming
+    // const { clientId, nickname, type } = incoming;
+    //
+    // const outgoing = JSON.stringify({
+    //   clientId,
+    //   nickname,
+    //   type
+    // });
+    //
+    // this.broadcast(ws, outgoing);
 
-    const outgoing = JSON.stringify({
-      clientId,
-      nickname,
-      type
-    });
+    // TODO: remove
+    const thisMoment = Date.now();
 
-    this.broadcast(ws, outgoing);
-  }
-
-  static validateIncomingData(dataToCheck) {
-    // TODO: complete it later, temporary return as is
-    return dataToCheck;
-
-    // NOTE: validator, xss-filters, DOMPurify
+    console.log('Typing notification interval: ', thisMoment - this.lap);
+    this.lap = thisMoment;
+    this.throttledBroadcast(ws, JSON.stringify(incoming));
   }
 }
 

@@ -4,16 +4,17 @@ import { connect } from 'react-redux';
 // TODO: try to import files relative to src/, without .., as src is added
 // to modules in webpack's resolve
 import {
-  prepareWebsocketAndClientId, sendMessage, sendTyping, stopTypingNotification
+  prepareWebsocketAndClientId,
+  sendMessage,
+  sendTyping,
+  stopTypingNotification,
+  startMonitoring,
+  stopPing
 } from 'actions';
 import typingNotifConfig from 'config/typing-notification';
 import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
 import TypingNotification from './TypingNotification';
-
-import {
-  getInitialWebsocketEventHandler, getWebsocket
-} from 'actions/websocket';
 
 export class App extends React.Component {
   constructor(props) {
@@ -41,7 +42,7 @@ export class App extends React.Component {
     this.websocket = this.props.dispatch(prepareWebsocketAndClientId);
     this.unsent = [];
     // TODO: resolve
-    // this.monitorConnection();
+    this.props.dispatch(startMonitoring);
   }
   componentDidUpdate(prevProps, prevState) {
     // this.props.dispatch(prepareWebsocketAndClientId);
@@ -51,7 +52,7 @@ export class App extends React.Component {
   }
   componentWillUnmount() {
     // TODO: doublecheck, resolve
-    // clearInterval(this.monitoringTimerId);
+    this.props.dispatch(stopPing);
     // TODO: terminate websocket
   }
   postponeSending(outgoingData) {
@@ -80,14 +81,6 @@ export class App extends React.Component {
     }
     this.websocket.send(JSON.stringify(outgoingData));
   }
-  // NOTE: perhaps reopening connection on close is enough
-  // monitorConnection() {
-  //   // set timer that will track connection open state each ~ 5 sec and
-  //   // will reopen it if needed
-  //   this.monitoringTimerId = setInterval(() => {
-  //     this.prepareConnection(() => console.log('Monitoring: connection ready'));
-  //   }, 3000);
-  // }
   handleSendMessage(nickname, text) {
     this.props.dispatch(sendMessage(nickname, text));
   }
@@ -145,29 +138,6 @@ export class App extends React.Component {
           onSendMessage={this.handleSendMessage}
           onTyping={this.handleTyping}
         />
-        <button
-          onClick={() => {
-            const handler = this.messageEventHandlers.length > 0
-              ? this.messageEventHandlers.pop()
-              : getInitialWebsocketEventHandler('messageEventHandler');
-            getWebsocket().removeEventListener('message', handler);
-          }}
-          type="button"
-        >
-          {'REMOVE'}
-        </button>
-        <button
-          onClick={() => {
-            this.messageEventHandlers = [];
-            const handler =
-              getInitialWebsocketEventHandler('messageEventHandler');
-            this.messageEventHandlers.push(handler);
-            getWebsocket().addEventListener('message', handler);
-          }}
-          type="button"
-        >
-          {'ADD'}
-        </button>
       </div>
     );
   }

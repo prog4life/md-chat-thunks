@@ -30,7 +30,7 @@ const handleConnection = (wss, eventHandlers = {}) => (websocket) => {
   websocket.isAlive = true;
   // heartbeat callback
   websocket.on('pong', () => {
-    console.log('heartbeat pong!');
+    console.log('pong from client');
     websocket.isAlive = true;
   });
 

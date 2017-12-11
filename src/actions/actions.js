@@ -37,22 +37,18 @@ export const receiveMessage = message => ({
   message
 });
 
-export const removeFromUnsent = unsentData => ({
-  type: 'REMOVE_FROM_UNSENT',
-  unsentData
-});
+// export const removeFromUnsent = unsentData => ({
+//   type: 'REMOVE_FROM_UNSENT',
+//   unsentData
+// });
 
-export const clearUnsent = () => ({
-  type: 'CLEAR_UNSENT'
-});
-
-export const getClientId = (webSocket) => {
+export const requestClientId = (webSocket) => {
   webSocket.send(JSON.stringify({
     type: 'GET_ID'
   }));
   // it's Redux action type, while above type is JSON websocket msg type
   return {
-    type: 'GET_CLIENT_ID'
+    type: 'REQUEST_CLIENT_ID'
   };
 };
 

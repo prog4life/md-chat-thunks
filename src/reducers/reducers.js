@@ -11,22 +11,26 @@ export const websocketStatus = (state = null, action) => {
   }
 };
 
-// export const connectionMonitoring = (state = {}, action) => {
-//   switch (action.type) {
-//     case 'START_PING':
-//       return;
-//     case 'STOP_PING':
-//       return;
-//     case 'PING':
-//       return;
-//     case 'PONG':
-//       return;
-//     case 'REOPENING':
-//       return;
-//     default:
-//       return state;
-//   }
-// }
+export const connectionMonitoring = (state = { heartbeat: true }, action) => {
+  switch (action.type) {
+    case 'START_PING':
+    case 'STOP_PING':
+      return {
+        ...state,
+        intervalId: action.intervalId,
+        heartbeat: action.heartbeat
+      };
+    case 'PING':
+    case 'PONG':
+    case 'RECONNECT':
+      return {
+        ...state,
+        heartbeat: action.heartbeat
+      };
+    default:
+      return state;
+  }
+};
 
 export const nickname = (state = '', action) => {
   switch (action.type) {
@@ -67,8 +71,6 @@ export const messages = (state = [], action) => {
       return [...state, {
         ...action.message
       }];
-    // case 'SEND_MESSAGE_FAIL':
-      // return [...state, action.message];
     default:
       return state;
   }
@@ -93,8 +95,6 @@ export const unsent = (state = [], action) => {
       return [...state, {
         ...action.message
       }];
-    case 'CLEAR_UNSENT':
-      return [];
     default:
       return state;
   }

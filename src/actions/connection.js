@@ -1,7 +1,6 @@
-import { getWebsocket, setupWebsocket } from './websocket';
-import { getClientId } from './actions';
+import { getWebsocket, setupWebsocket, requestClientId } from 'actions';
 
-const MONITORING_INTRVL = 5000;
+const MONITORING_INTRVL = 10000;
 
 // NOTE: Possibly excess
 export const checkWebsocketAndClientId = ({ clientId }) => (
@@ -18,7 +17,7 @@ export const prepareWebsocketAndClientId = (dispatch, getState) => {
   }
 
   if (!clientId) {
-    dispatch(getClientId(ws));
+    dispatch(requestClientId(ws));
   }
 };
 
@@ -39,7 +38,7 @@ export const tryToSend = (outgoing, actions = {}) => (dispatch, getState) => {
     if (failAction) {
       dispatch(failAction);
     }
-    dispatch(getClientId(ws));
+    dispatch(requestClientId(ws));
     return;
   }
   ws.send(JSON.stringify(outgoing));
@@ -48,38 +47,53 @@ export const tryToSend = (outgoing, actions = {}) => (dispatch, getState) => {
   }
 };
 
-export const startPing = (dispatch, getState) => {
+export const ping = () => ({
+  type: 'PING',
+  heartbeat: false
+});
+
+export const pong = () => ({
+  type: 'PONG',
+  heartbeat: true
+});
+
+export const reconnect = () => ({
+  type: 'RECONNECT',
+  heartbeat: true
+});
+
+export const startPing = intervalId => ({
+  type: 'START_PING',
+  intervalId,
+  heartbeat: true
+});
+
+export const startMonitoring = (dispatch, getState) => {
+  const { intervalId } = getState().connectionMonitoring;
+  clearInterval(intervalId);
+
   const monitoringIntervalId = setInterval(() => {
     if (getState().connectionMonitoring.heartbeat === false) {
-      // admit heartbeat as true for single next check
-      dispatch({
-        type: 'REOPENING',
-        heartbeat: true
-      });
-      this.setupWebSocket();
+      // TODO: change websocketStatus to something like 'BROKEN' ?
+      // assume heartbeat as true for single next check
+      dispatch(reconnect());
+      dispatch(setupWebsocket());
       return;
     }
-    dispatch({
-      type: 'PING',
-      heartbeat: false
-    });
-    // TODO: replace by tryToSend ?
-    getWebsocket().send(JSON.stringify({
+    dispatch(ping());
+    dispatch(tryToSend({
       type: 'PING'
     }));
   }, MONITORING_INTRVL);
 
-  return {
-    type: 'START_PING',
-    monitoringIntervalId,
-    heartbeat: true
-  };
+  dispatch(startPing(monitoringIntervalId));
 };
 
-export const stopPing = (intervalId) => {
-  clearInterval(intervalId);
+export const stopPing = (dispatch, getState) => {
+  clearInterval(getState().connectionMonitoring.intervalId);
   return {
     type: 'STOP_PING',
-    intervalId
+    intervalId: null,
+    heartbeat: false
   };
 };

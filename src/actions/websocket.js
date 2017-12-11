@@ -1,12 +1,13 @@
-import parseJSON from '../utils/json-parser';
+import parseJSON from 'utils/json-parser';
 import {
   receiveTyping,
   receiveMessage,
+  pong,
   setClientId,
-  getClientId,
+  requestClientId,
   sendUnsent,
   stopTypingNotification
-} from './actions';
+} from 'actions';
 
 let webSocket;
 export const getWebsocket = () => webSocket;
@@ -39,7 +40,7 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
         text,
         isOwn: false
       }));
-      // to terminate displaying of typing notification if new message
+      // to terminate showing typing notification if new message
       // from same one is received
       if (getState().whoIsTyping === nickname) {
         dispatch(stopTypingNotification());
@@ -53,6 +54,9 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
       }
       break;
     case 'PONG':
+      dispatch(pong());
+      break;
+    case 'CHANGE_NAME':
       break;
     case 'JOIN_CHAT':
       break;
@@ -76,7 +80,7 @@ export const createOpenEventHandler = (dispatch, getState) => () => {
   // }));
 
   if (!getState().clientId) {
-    dispatch(getClientId(webSocket));
+    dispatch(requestClientId(webSocket));
     return;
   }
   // TODO: send hasId
@@ -86,8 +90,8 @@ export const createOpenEventHandler = (dispatch, getState) => () => {
 };
 
 export const createCloseEventHandler = dispatch => (closeEvent) => {
-  console.log(`Closing wasClean: ${closeEvent.wasClean}`);
-  console.log(`Close code: ${closeEvent.code}, reason: ${closeEvent.reason}`);
+  // console.log(`Closing wasClean: ${closeEvent.wasClean}`);
+  console.log('webSocket close event: ', closeEvent);
   dispatch({
     type: 'WEBSOCKET_CLOSED',
     status: 'CLOSED'
@@ -96,7 +100,7 @@ export const createCloseEventHandler = dispatch => (closeEvent) => {
 };
 
 export const createErrorEventHandler = dispatch => (errorEvent) => {
-  console.log(`webSocket Error: ${errorEvent.message}`);
+  console.log('webSocket error event: ', errorEvent);
   // TODO: add error message to store ???
   dispatch({
     type: 'WEBSOCKET_ERROR',
@@ -147,6 +151,14 @@ export const setupWebsocket = () => (dispatch) => {
   initialWebsocketEventHandlers.errorEventHandler = errorEventHandler;
 
   return webSocket;
+};
+
+export const closeWebsocket = () => {
+  webSocket.close();
+  return {
+    type: 'WEBSOCKET_CLOSING',
+    status: 'CLOSING'
+  };
 };
 
 export { createMessageEventHandler };

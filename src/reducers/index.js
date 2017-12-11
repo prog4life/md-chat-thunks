@@ -5,6 +5,7 @@ import {
   messages,
   whoIsTyping,
   websocketStatus,
+  connectionMonitoring,
   unsent
 } from './reducers';
 
@@ -14,5 +15,6 @@ export default combineReducers({
   clientId,
   messages,
   whoIsTyping,
+  connectionMonitoring,
   unsent
 });
