@@ -1,5 +1,5 @@
 import shortid from 'shortid';
-import { getWebsocket, setupWebsocket } from './websocket';
+import { tryToSend } from './connection';
 
 export const sendMessageAttempt = ({ id, clientId, nickname, text }) => ({
   type: 'SEND_MESSAGE_ATTEMPT',
@@ -13,6 +13,7 @@ export const sendMessageAttempt = ({ id, clientId, nickname, text }) => ({
   }
 });
 
+// will also remove message from unsent
 export const sendMessageSuccess = ({ id, clientId, nickname, text }) => ({
   type: 'SEND_MESSAGE_SUCCESS',
   message: {
@@ -45,8 +46,8 @@ export const clearUnsent = () => ({
   type: 'CLEAR_UNSENT'
 });
 
-export const getClientId = () => {
-  getWebsocket().send(JSON.stringify({
+export const getClientId = (webSocket) => {
+  webSocket.send(JSON.stringify({
     type: 'GET_ID'
   }));
   // it's Redux action type, while above type is JSON websocket msg type
@@ -74,45 +75,17 @@ export const stopTypingNotification = () => ({
   type: 'STOP_TYPING_NOTIFICATION'
 });
 
-// NOTE: Possibly excess
-export const checkWebsocketAndClientId = ({ clientId }) => (
-  getWebsocket().readyState === WebSocket.OPEN && clientId
-);
-
-export const prepareWebsocketAndClientId = (dispatch, getState) => {
-  const { clientId } = getState();
-  const ws = getWebsocket();
-
-  if (!ws || (ws.readyState !== 1 && ws.readyState !== 0)) {
-    dispatch(setupWebsocket());
-    return;
-  }
-
-  if (!clientId) {
-    dispatch(getClientId());
-  }
-};
-
-export const tryToSend = outgoingData => (dispatch, getState) => {
-  const { clientId } = getState();
-  const ws = getWebsocket();
-
-  if (ws.readyState === WebSocket.OPEN && clientId) {
-    ws.send(JSON.stringify(outgoingData));
-    return true;
-  }
-  dispatch(prepareWebsocketAndClientId);
-  return false;
-};
-
 export const sendUnsent = () => (dispatch, getState) => {
   const { unsent } = getState();
 
   unsent.forEach((unsentItem) => {
-    if (dispatch(tryToSend(unsentItem))) {
-      dispatch(sendMessageSuccess(unsentItem));
-      // dispatch(removeFromUnsent(unsentItem));
-    }
+    // if (dispatch(tryToSend(unsentItem))) {
+    //   dispatch(sendMessageSuccess(unsentItem));
+    //   // dispatch(removeFromUnsent(unsentItem));
+    // }
+    dispatch(tryToSend(unsentItem, {
+      success: sendMessageSuccess(unsentItem)
+    }));
   });
 };
 
@@ -137,18 +110,32 @@ export const sendMessage = (nickname, text) => (dispatch, getState) => {
     type: 'MESSAGE'
   };
 
-  // TODO: replace to component handleSending method
+  // TODO: replace to component handleSending method - NOT
   dispatch(setNickname(nickname));
   dispatch(sendMessageAttempt(message));
 
-  // TODO: replace by tryToSend
-  const ws = getWebsocket();
-  if (ws.readyState === WebSocket.OPEN && clientId) {
-    ws.send(JSON.stringify(message));
-    dispatch(sendMessageSuccess(message));
-  } else {
-    // TODO: replace next one with postponeSending
-    dispatch(sendMessageFail(message));
-    dispatch(prepareWebsocketAndClientId);
-  }
+  // // TODO: replace by tryToSend
+  // const ws = getWebsocket();
+  // if (ws.readyState === WebSocket.OPEN && clientId) {
+  //   ws.send(JSON.stringify(message));
+  //   dispatch(sendMessageSuccess(message));
+  // } else {
+  //   dispatch(sendMessageFail(message));
+  //   dispatch(prepareWebsocketAndClientId);
+  // }
+  //
+  // const onFailAction = sendMessageFail(message);
+  //
+  // if (dispatch(tryToSend(message, onFailAction))) {
+  //
+  //   dispatch(sendMessageSuccess(message));
+  // } else {
+  //   // TODO: replace next one with postponeSending
+  //   dispatch();
+  // }
+
+  dispatch(tryToSend(message, {
+    success: sendMessageSuccess(message),
+    fail: sendMessageFail(message)
+  }));
 };

@@ -8,8 +8,6 @@ import {
   stopTypingNotification
 } from './actions';
 
-const MONITORING_INTRVL = 5000;
-
 let webSocket;
 export const getWebsocket = () => webSocket;
 
@@ -18,41 +16,6 @@ const initialWebsocketEventHandlers = {};
 export const getInitialWebsocketEventHandler = eventName => (
   initialWebsocketEventHandlers[eventName]
 );
-
-export const startPing = (dispatch, getState) => {
-  const monitoringIntervalId = setInterval(() => {
-    if (getState().connectionMonitoring.heartbeat === false) {
-      // admit heartbeat as true for single next check
-      dispatch({
-        type: 'REOPENING',
-        heartbeat: true
-      });
-      this.setupWebSocket();
-      return;
-    }
-    dispatch({
-      type: 'PING',
-      heartbeat: false
-    });
-    webSocket.send(JSON.stringify({
-      type: 'PING'
-    }));
-  }, MONITORING_INTRVL);
-
-  return {
-    type: 'START_PING',
-    monitoringIntervalId,
-    heartbeat: true
-  };
-};
-
-export const stopPing = (intervalId) => {
-  clearInterval(intervalId);
-  return {
-    type: 'STOP_PING',
-    intervalId
-  };
-};
 
 // returns wrapped event handler function that will be used in listener
 const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
@@ -84,7 +47,10 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
       break;
     case 'SET_ID':
       dispatch(setClientId(clientId));
-      dispatch(sendUnsent()); // TODO: add condition ?
+
+      if (getState().unsent.length > 0) {
+        dispatch(sendUnsent());
+      }
       break;
     case 'PONG':
       break;
@@ -110,10 +76,11 @@ export const createOpenEventHandler = (dispatch, getState) => () => {
   // }));
 
   if (!getState().clientId) {
-    dispatch(getClientId());
-  } else {
-    // TODO: send hasId
-    // TODO: add condition ?
+    dispatch(getClientId(webSocket));
+    return;
+  }
+  // TODO: send hasId
+  if (getState().unsent.length > 0) {
     dispatch(sendUnsent());
   }
 };

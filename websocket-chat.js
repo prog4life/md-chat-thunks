@@ -1,6 +1,6 @@
 const websocket = require('ws');
 const shortid = require('shortid');
-const throttle = require('lodash/throttle');
+const throttle = require('lodash.throttle');
 
 const THROTTLE_WAIT = 1000;
 
