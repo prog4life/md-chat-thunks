@@ -1,11 +1,18 @@
-import parseJSON from 'utils/json-parser';
+import {
+  WEBSOCKET_CLOSING,
+  WEBSOCKET_OPEN,
+  WEBSOCKET_CLOSED,
+  WEBSOCKET_ERROR,
+  WEBSOCKET_CONNECTING
+} from 'constants/action-types';
+
 import {
   receiveTyping,
   receiveMessage,
   pong,
   setClientId,
   requestClientId,
-  sendUnsent,
+  sendUnsentMessages,
   stopTypingNotification
 } from 'actions';
 
@@ -18,13 +25,19 @@ export const getInitialWebsocketEventHandler = eventName => (
   initialWebsocketEventHandlers[eventName]
 );
 
+export const closeWebsocket = () => {
+  webSocket.close();
+  return {
+    type: WEBSOCKET_CLOSING,
+    status: 'CLOSING'
+  };
+};
+
 // returns wrapped event handler function that will be used in listener
 const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
-  const incoming = parseJSON(messageEvent.data);
+  // TODO: start sending "unsent" from here too ?
+  const incoming = JSON.parse(messageEvent.data);
 
-  if (!incoming) {
-    return;
-  }
   const {
     clientId, type, nickname, text
   } = incoming;
@@ -40,18 +53,15 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
         text,
         isOwn: false
       }));
-      // to terminate showing typing notification if new message
-      // from same one is received
+      // to terminate showing typing notification if new message is received
+      // from one whose typing notification is showing
       if (getState().whoIsTyping === nickname) {
         dispatch(stopTypingNotification());
       }
       break;
     case 'SET_ID':
       dispatch(setClientId(clientId));
-
-      if (getState().unsent.length > 0) {
-        dispatch(sendUnsent());
-      }
+      dispatch(sendUnsentMessages());
       break;
     case 'PONG':
       dispatch(pong());
@@ -67,9 +77,10 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
   }
 };
 
-export const createOpenEventHandler = (dispatch, getState) => () => {
+export const createOpenEventHandler = (dispatch, getState) => (openEvent) => {
+  const { clientId, unsent } = getState();
   dispatch({
-    type: 'WEBSOCKET_OPEN',
+    type: WEBSOCKET_OPEN,
     status: 'OPEN'
   });
 
@@ -79,21 +90,19 @@ export const createOpenEventHandler = (dispatch, getState) => () => {
   //   type: 'PING'
   // }));
 
-  if (!getState().clientId) {
-    dispatch(requestClientId(webSocket));
+  if (!clientId) {
+    dispatch(requestClientId());
     return;
   }
   // TODO: send hasId
-  if (getState().unsent.length > 0) {
-    dispatch(sendUnsent());
-  }
+  dispatch(sendUnsentMessages());
 };
 
 export const createCloseEventHandler = dispatch => (closeEvent) => {
   // console.log(`Closing wasClean: ${closeEvent.wasClean}`);
   console.log('webSocket close event: ', closeEvent);
   dispatch({
-    type: 'WEBSOCKET_CLOSED',
+    type: WEBSOCKET_CLOSED,
     status: 'CLOSED'
   });
   // TODO: reopen ?
@@ -101,35 +110,25 @@ export const createCloseEventHandler = dispatch => (closeEvent) => {
 
 export const createErrorEventHandler = dispatch => (errorEvent) => {
   console.log('webSocket error event: ', errorEvent);
-  // TODO: add error message to store ???
   dispatch({
-    type: 'WEBSOCKET_ERROR',
+    type: WEBSOCKET_ERROR,
     status: 'ERROR'
   });
 
   if (webSocket && webSocket.readyState !== WebSocket.CLOSED) {
-    dispatch({
-      type: 'WEBSOCKET_CLOSING',
-      status: 'CLOSING'
-    });
-    // TODO: looks like closing will be done by websocket itself in case
+    // NOTE: looks like closing will be done by websocket itself in case
     // of connection error
-    webSocket.close();
+    dispatch(closeWebsocket());
   }
 };
 
 export const setupWebsocket = () => (dispatch) => {
-  // NOTE: can be unreliable, so reopen anyway
-  // if (webSocket.readyState === 1 || webSocket.readyState === 0) {
-  //   return webSocket;
-  // }
-
   if (webSocket) {
     webSocket.close();
   }
 
   dispatch({
-    type: 'WEBSOCKET_CONNECTING',
+    type: WEBSOCKET_CONNECTING,
     status: 'CONNECTING'
   });
   webSocket = new WebSocket('ws://localhost:8787');
@@ -151,14 +150,6 @@ export const setupWebsocket = () => (dispatch) => {
   initialWebsocketEventHandlers.errorEventHandler = errorEventHandler;
 
   return webSocket;
-};
-
-export const closeWebsocket = () => {
-  webSocket.close();
-  return {
-    type: 'WEBSOCKET_CLOSING',
-    status: 'CLOSING'
-  };
 };
 
 export { createMessageEventHandler };

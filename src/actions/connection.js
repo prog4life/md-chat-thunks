@@ -1,3 +1,11 @@
+import {
+  PING,
+  PONG,
+  RECONNECT,
+  START_PING,
+  STOP_PING
+} from 'constants/action-types';
+
 import { getWebsocket, setupWebsocket, requestClientId } from 'actions';
 
 const MONITORING_INTRVL = 10000;
@@ -7,7 +15,7 @@ export const checkWebsocketAndClientId = ({ clientId }) => (
   getWebsocket().readyState === WebSocket.OPEN && clientId
 );
 
-export const prepareWebsocketAndClientId = (dispatch, getState) => {
+export const prepareWebsocketAndClientId = () => (dispatch, getState) => {
   const { clientId } = getState();
   const ws = getWebsocket();
 
@@ -17,30 +25,34 @@ export const prepareWebsocketAndClientId = (dispatch, getState) => {
   }
 
   if (!clientId) {
-    dispatch(requestClientId(ws));
+    dispatch(requestClientId());
   }
 };
 
 export const tryToSend = (outgoing, actions = {}) => (dispatch, getState) => {
+  // IDEA: const clientId = outgoing.clientId || getState().clientId
   const { clientId } = getState();
   const ws = getWebsocket();
   const { success: successAction, fail: failAction } = actions;
 
-  if (ws.readyState !== WebSocket.OPEN) {
-    if (failAction) {
-      dispatch(failAction);
-    }
-    dispatch(setupWebsocket());
-    return;
-  }
+  // if (ws.readyState !== WebSocket.OPEN) {
+  //   if (failAction) {
+  //     dispatch(failAction);
+  //   }
+  //   dispatch(setupWebsocket());
+  //   return; // TODO: throw ?
+  // }
 
-  if (!clientId) {
-    if (failAction) {
-      dispatch(failAction);
-    }
-    dispatch(requestClientId(ws));
-    return;
-  }
+  // TODO: looks like this check is excess, remove it
+  // if (!clientId) {
+  //   if (failAction) {
+  //     dispatch(failAction);
+  //   }
+  //   dispatch(requestClientId());
+  //   return; // TODO: throw ?
+  // }
+
+  // TODO: try-catch
   ws.send(JSON.stringify(outgoing));
   if (successAction) {
     dispatch(successAction);
@@ -48,27 +60,36 @@ export const tryToSend = (outgoing, actions = {}) => (dispatch, getState) => {
 };
 
 export const ping = () => ({
-  type: 'PING',
+  type: PING,
   heartbeat: false
 });
 
 export const pong = () => ({
-  type: 'PONG',
+  type: PONG,
   heartbeat: true
 });
 
 export const reconnect = () => ({
-  type: 'RECONNECT',
+  type: RECONNECT,
   heartbeat: true
 });
 
 export const startPing = intervalId => ({
-  type: 'START_PING',
+  type: START_PING,
   intervalId,
   heartbeat: true
 });
 
-export const startMonitoring = (dispatch, getState) => {
+export const stopPing = () => (dispatch, getState) => {
+  clearInterval(getState().connectionMonitoring.intervalId);
+  return {
+    type: STOP_PING,
+    intervalId: null,
+    heartbeat: false
+  };
+};
+
+export const startMonitoring = () => (dispatch, getState) => {
   const { intervalId } = getState().connectionMonitoring;
   clearInterval(intervalId);
 
@@ -87,13 +108,4 @@ export const startMonitoring = (dispatch, getState) => {
   }, MONITORING_INTRVL);
 
   dispatch(startPing(monitoringIntervalId));
-};
-
-export const stopPing = (dispatch, getState) => {
-  clearInterval(getState().connectionMonitoring.intervalId);
-  return {
-    type: 'STOP_PING',
-    intervalId: null,
-    heartbeat: false
-  };
 };

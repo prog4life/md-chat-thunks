@@ -1,6 +1,10 @@
 node_modules/
 # config/
 
+# production
+build
+# public
+
 **/.idea/
 
 public/bundle.js
@@ -8,4 +12,7 @@ public/bundle.js.map
 
 # .eslintrc.json
 # .eslintignore
+
+# misc
+.DS_Store
 npm-debug.log

@@ -128,9 +128,12 @@ class WebsocketChat {
 
   resendMessageToAll(ws = this.client, incoming) {
     // NOTE: this method is added for further additional processing of incoming
-    const { clientId, nickname, text, type } = incoming;
+    const {
+      id, clientId, nickname, text, type
+    } = incoming;
 
     const outgoing = JSON.stringify({
+      id,
       clientId,
       nickname,
       text,
