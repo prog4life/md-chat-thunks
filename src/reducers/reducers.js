@@ -89,7 +89,7 @@ export const messages = (state = [], action) => {
         return msg;
       });
     case at.RECEIVE_MESSAGE:
-      // TODO: check if such message already exist by comparing message ids
+      // TODO: check if such message already exists by comparing message ids
       return [...state, {
         ...action.message
       }];

@@ -39,7 +39,7 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
   const incoming = JSON.parse(messageEvent.data);
 
   const {
-    clientId, type, nickname, text
+    id, clientId, type, nickname, text
   } = incoming;
 
   switch (type) {
@@ -48,6 +48,7 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
       break;
     case 'MESSAGE':
       dispatch(receiveMessage({
+        id,
         clientId,
         nickname,
         text,
@@ -78,7 +79,7 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
 };
 
 export const createOpenEventHandler = (dispatch, getState) => (openEvent) => {
-  const { clientId, unsent } = getState();
+  const { clientId } = getState();
   dispatch({
     type: WEBSOCKET_OPEN,
     status: 'OPEN'

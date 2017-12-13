@@ -49,19 +49,13 @@ export const receiveMessage = message => ({
   message
 });
 
-// export const removeFromUnsent = unsentData => ({
-//   type: 'REMOVE_FROM_UNSENT',
-//   unsentData
-// });
-
-export const requestClientId = () => {
-  tryToSend({
-    type: 'GET_ID'
-  });
+export const requestClientId = () => (dispatch) => {
+  const outgoing = { type: 'GET_ID' };
+  dispatch(tryToSend({ outgoing }));
   // it's Redux action type, while above type is JSON websocket msg type
-  return {
+  dispatch({
     type: REQUEST_CLIENT_ID
-  };
+  });
 };
 
 export const setClientId = clientId => ({
@@ -84,6 +78,8 @@ export const stopTypingNotification = () => ({
 });
 
 // TODO: limit sending to last * messages
+// TODO: consider complete removing unsent array from store by iterating over
+// messages and checking their status
 export const sendUnsentMessages = () => (dispatch, getState) => {
   const { unsent, clientId, nickname } = getState();
 
@@ -97,19 +93,17 @@ export const sendUnsentMessages = () => (dispatch, getState) => {
   }
 
   unsent.forEach((unsentMessage) => {
-    const msgToSend = {
+    const outgoing = {
       ...unsentMessage,
       clientId: unsentMessage.clientId || clientId,
       nickname: unsentMessage.nickname || nickname
     };
-    // if (!unsentMessage.clientId) {
-    //   unsentMessage.clientId = clientId;
-    // }
-    // if (!unsentMessage.nickname) {
-    //   unsentMessage.nickname = nickname;
-    // }
-    dispatch(tryToSend(msgToSend, {
-      success: sendMessageSuccess(unsentMessage)
+
+    dispatch(tryToSend({
+      outgoing,
+      actions: {
+        success: sendMessageSuccess(outgoing)
+      }
     }));
   });
 };
@@ -120,13 +114,17 @@ export const sendTyping = (nickname, clientId) => (dispatch) => {
     return;
   }
 
-  const outgoingTypingNotification = {
+  if (!nickname || nickname.length < 2) {
+    return;
+  }
+
+  const outgoing = {
     clientId,
     nickname,
     type: 'IS_TYPING'
   };
 
-  dispatch(tryToSend(outgoingTypingNotification));
+  dispatch(tryToSend({ outgoing }));
 };
 
 export const sendMessage = (nickname, text) => (dispatch, getState) => {
@@ -140,10 +138,12 @@ export const sendMessage = (nickname, text) => (dispatch, getState) => {
     type: 'MESSAGE'
   };
 
-  // TODO: replace to component handleSending method - NOT
+  // TEMP replace it later to connected ChatInput or elsewhere,
+  // TODO: dispatch CHANGE_NICKNAME action, and send notification
   if (nickname !== existingNickname) {
     dispatch(setNickname(nickname));
   }
+
   dispatch(sendMessageAttempt(message));
 
   if (!clientId) {
@@ -158,8 +158,11 @@ export const sendMessage = (nickname, text) => (dispatch, getState) => {
     return;
   }
 
-  dispatch(tryToSend(message, {
-    success: sendMessageSuccess(message),
-    fail: sendMessageFail(message)
+  dispatch(tryToSend({
+    outgoing: message,
+    actions: {
+      success: sendMessageSuccess(message),
+      fail: sendMessageFail(message)
+    }
   }));
 };

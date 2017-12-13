@@ -29,31 +29,19 @@ export const prepareWebsocketAndClientId = () => (dispatch, getState) => {
   }
 };
 
-export const tryToSend = (outgoing, actions = {}) => (dispatch, getState) => {
-  // IDEA: const clientId = outgoing.clientId || getState().clientId
-  const { clientId } = getState();
-  const ws = getWebsocket();
+export const tryToSend = ({ outgoing, actions = {} }) => (dispatch) => {
   const { success: successAction, fail: failAction } = actions;
+  const webSocket = getWebsocket();
 
-  // if (ws.readyState !== WebSocket.OPEN) {
-  //   if (failAction) {
-  //     dispatch(failAction);
-  //   }
-  //   dispatch(setupWebsocket());
-  //   return; // TODO: throw ?
-  // }
+  if (webSocket.readyState !== WebSocket.OPEN) {
+    if (failAction) {
+      dispatch(failAction);
+    }
+    dispatch(setupWebsocket());
+    return;
+  }
 
-  // TODO: looks like this check is excess, remove it
-  // if (!clientId) {
-  //   if (failAction) {
-  //     dispatch(failAction);
-  //   }
-  //   dispatch(requestClientId());
-  //   return; // TODO: throw ?
-  // }
-
-  // TODO: try-catch
-  ws.send(JSON.stringify(outgoing));
+  webSocket.send(JSON.stringify(outgoing));
   if (successAction) {
     dispatch(successAction);
   }
@@ -103,7 +91,7 @@ export const startMonitoring = () => (dispatch, getState) => {
     }
     dispatch(ping());
     dispatch(tryToSend({
-      type: 'PING'
+      outgoing: { type: 'PING' }
     }));
   }, MONITORING_INTRVL);
 

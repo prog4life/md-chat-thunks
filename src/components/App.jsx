@@ -31,7 +31,7 @@ export class App extends React.Component {
     // TODO: think over dispatching checkWebsocketAndClientId first
     this.websocket = this.props.prepareWebsocketAndClientId();
     // TODO: resolve
-    this.props.startMonitoring();
+    // this.props.startMonitoring();
   }
   // TEMP
   shouldComponentUpdate(nextProps) {
@@ -60,7 +60,7 @@ export class App extends React.Component {
     const { messages, whoIsTyping } = this.props;
     return (
       <div className="chat-app wrapper">
-        <h3>
+        <h3 className="chat-header">
           { 'LIL CHAT' }
         </h3>
         <ChatHistory messages={messages} />
@@ -103,16 +103,5 @@ const mapDispatchToProps = dispatch => (
     stopPing
   }, dispatch)
 );
-
-// const mapDispatchToProps = dispatch => ({
-//   prepareWebsocketAndClientId: () => dispatch(prepareWebsocketAndClientId),
-//   startMonitoring: () => dispatch(startMonitoring),
-//   sendTyping: () => dispatch(sendTyping),
-//   stopPing: () => dispatch(stopPing),
-//   ...bindActionCreators({
-//     sendMessage,
-//     stopTypingNotification
-//   }, dispatch)
-// });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
