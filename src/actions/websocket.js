@@ -11,7 +11,7 @@ import {
   receiveMessage,
   pong,
   setClientId,
-  requestClientId,
+  getClientId,
   sendUnsentMessages,
   stopTypingNotification
 } from 'actions';
@@ -92,7 +92,8 @@ export const createOpenEventHandler = (dispatch, getState) => (openEvent) => {
   // }));
 
   if (!clientId) {
-    dispatch(requestClientId());
+    webSocket.send(JSON.stringify({ type: 'GET_ID' }));
+    dispatch(getClientId());
     return;
   }
   // TODO: send hasId

@@ -3,16 +3,18 @@ import PropTypes from 'prop-types';
 
 const HistoryMessage = ({ nickname, text, isOwn, status }) => (
   <div className="chat-history-msg">
-    <span className={isOwn ? 'myself' : 'author'}>
+    <span className={isOwn ? 'msg-author-own' : 'msg-author'}>
       {isOwn ? 'Me: ' : `${nickname}: `}
     </span>
     <span>
       {text}
     </span>
-    {status &&
+    {
+      status &&
       <div style={{ textAlign: 'right' }}>
         {status.toLowerCase()}
-      </div>}
+      </div>
+    }
   </div>
 );
 
@@ -25,7 +27,7 @@ HistoryMessage.propTypes = {
 
 HistoryMessage.defaultProps = {
   isOwn: false,
-  status: ''
+  status: null
 };
 
 export default HistoryMessage;

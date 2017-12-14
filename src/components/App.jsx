@@ -14,6 +14,8 @@ import {
   stopPing
 } from 'actions';
 
+import { processMessages } from 'selectors/messages';
+
 import typingNotifConfig from 'config/typing-notification';
 import ChatHistory from './ChatHistory';
 import ChatInput from './ChatInput';
@@ -28,8 +30,8 @@ export class App extends React.Component {
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
   componentDidMount() {
-    // TODO: think over dispatching checkWebsocketAndClientId first
-    this.websocket = this.props.prepareWebsocketAndClientId();
+    const { prepareWebsocketAndClientId } = this.props;
+    prepareWebsocketAndClientId();
     // TODO: resolve
     // this.props.startMonitoring();
   }
@@ -38,8 +40,8 @@ export class App extends React.Component {
     return true;
   }
   componentWillUnmount() {
-    // TODO: doublecheck, resolve
-    this.props.stopPing();
+    const { stopPing } = this.props;
+    stopPing();
     // TODO: terminate websocket
   }
   handleSendMessage(nickname, text) {
@@ -47,8 +49,9 @@ export class App extends React.Component {
     sendMessage(nickname, text);
   }
   handleTypingNotifEnd() {
+    const { stopTypingNotification } = this.props;
     // cleares whoIsTyping, after notification was shown
-    this.props.stopTypingNotification();
+    stopTypingNotification();
   }
   // NOTE: handleTyping(nickname) {
   handleTyping() {
@@ -89,7 +92,7 @@ const mapStateToProps = state => ({
   websocketStatus: state.websocketStatus,
   nickname: state.nickname,
   clientId: state.clientId,
-  messages: state.messages,
+  messages: processMessages(state.messages),
   whoIsTyping: state.whoIsTyping
 });
 

@@ -4,7 +4,7 @@ import {
   SEND_MESSAGE_SUCCESS,
   SEND_MESSAGE_FAIL,
   RECEIVE_MESSAGE,
-  REQUEST_CLIENT_ID,
+  GET_CLIENT_ID,
   SET_CLIENT_ID,
   SET_NICKNAME,
   RECEIVE_TYPING,
@@ -49,13 +49,15 @@ export const receiveMessage = message => ({
   message
 });
 
+export const getClientId = () => ({
+  type: GET_CLIENT_ID
+});
+
 export const requestClientId = () => (dispatch) => {
   const outgoing = { type: 'GET_ID' };
   dispatch(tryToSend({ outgoing }));
   // it's Redux action type, while above type is JSON websocket msg type
-  dispatch({
-    type: REQUEST_CLIENT_ID
-  });
+  dispatch(getClientId());
 };
 
 export const setClientId = clientId => ({

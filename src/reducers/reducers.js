@@ -21,6 +21,7 @@
 
 import * as at from 'constants/action-types';
 
+// TEMP: optional
 export const websocketStatus = (state = null, action) => {
   switch (action.type) {
     case at.WEBSOCKET_OPEN:
@@ -73,6 +74,7 @@ export const clientId = (state = '', action) => {
   }
 };
 
+// NOTE: think over storing messages as obj with id as property names
 export const messages = (state = [], action) => {
   switch (action.type) {
     case at.SEND_MESSAGE_ATTEMPT:
