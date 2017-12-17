@@ -1,23 +1,9 @@
-@import "partials/chat-history";
-@import "partials/typing-notification";
-@import "partials/chat-input";
-@import "partials/text-field-material";
-@import "partials/text-field-google";
-
-#app {
-  display: flex;
-  justify-content: center;
-
-  /* -moz-appearance: none; */
-}
-
-.chat-app {
-  min-width: 400px;
-  width: 30%;
-  font-family: Helvetica, Verdana, sans-serif;
-}
-
-// TODO: extract into chat header
-.chat-app h3 {
-  text-align: center;
-}
+@import "base/settings";
+@import "base/container";
+@import "base/base";
+@import "components/chat-history";
+@import "components/history-message";
+@import "components/typing-notification";
+@import "components/chat-form";
+@import "components/text-field-material";
+@import "components/text-field-google";

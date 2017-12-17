@@ -18,7 +18,7 @@ import { processMessages } from 'selectors/messages';
 
 import typingNotifConfig from 'config/typing-notification';
 import ChatHistory from './ChatHistory';
-import ChatInput from './ChatInput';
+import ChatForm from './ChatForm';
 import TypingNotification from './TypingNotification';
 
 export class App extends React.Component {
@@ -62,8 +62,8 @@ export class App extends React.Component {
   render() {
     const { messages, whoIsTyping } = this.props;
     return (
-      <div className="chat-app wrapper">
-        <h3 className="chat-header">
+      <div className="chat container">
+        <h3 className="chat__header">
           { 'LIL CHAT' }
         </h3>
         <ChatHistory messages={messages} />
@@ -72,7 +72,7 @@ export class App extends React.Component {
           onNotificationEnd={this.handleTypingNotifEnd}
           whoIsTyping={whoIsTyping}
         />
-        <ChatInput
+        <ChatForm
           onSendMessage={this.handleSendMessage}
           onTyping={this.handleTyping}
         />

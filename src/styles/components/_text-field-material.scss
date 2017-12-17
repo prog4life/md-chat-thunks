@@ -1,0 +1,56 @@
+// TODO: replace to text-field's partials
+.nickname {
+  // padding: 0.5rem 0;
+  margin: 0.5rem 0;
+  position: relative;
+}
+
+.nickname__input {
+  border: none;
+  // border-bottom: 1px solid rgba(0, 0, 0, 0.26);
+  // border-bottom: 1px solid rgb(224, 224, 224);
+  // border-bottom: 1px solid #9e9e9e;
+  box-sizing: border-box;
+  color: rgba(0, 0, 0, 0.87);
+  min-height: 1.4rem;
+  width: 100%;
+  font-size: 1rem;
+  // padding: 0 0.4rem;
+  // margin: 0 0 0.5rem;
+  // transition: all 0.5s;
+}
+
+.nickname__input:focus {
+  // border-bottom: 2px solid #f19090;
+}
+
+.nickname__bottomline {
+  background-color: rgba(0, 0, 0, 0.12);
+  width: 100%;
+  height: 1px;
+  position: absolute;
+  bottom: 18px;
+  left: 0px;
+}
+
+.nickname__bottomline_hidden {
+  background-color: #f19090;
+  position: absolute;
+  bottom: 18px;
+  left: 0px;
+  width: 100%;
+  height: 2px;
+  transform: scaleX(0);
+  opacity: 0;
+}
+
+.nickname__bottomline_focused {
+  transition: transform cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+  transform: scaleX(1);
+  opacity: 1;
+}
+
+.nickname__hint-text {
+  color: rgb(212, 55, 55);
+  font-size: 0.85rem;
+}

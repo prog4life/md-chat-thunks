@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-class TextFieldGoogle extends Component {
+class TextFieldMaterialUI extends Component {
   constructor(props) {
     super(props);
 
@@ -40,7 +40,7 @@ class TextFieldGoogle extends Component {
     return (
       <div className="nickname">
         <input
-          className="nickname-field"
+          className="nickname__input"
           name="nickname"
           onBlur={this.handleFocusToggle}
           onChange={this.handleValueChange}
@@ -49,18 +49,16 @@ class TextFieldGoogle extends Component {
           type="text"
           value={typeof value === 'string' ? value : undefined}
         />
-        {/* <div className="bottomliner">
-          <hr className="bottomline" />
+        <div className="underliner">
+          <hr className="underline" />
           <hr className={isFocused
-              ? 'bottomline on'
-              : 'bottomline off'
+              ? 'underline on'
+              : 'underline off'
             }
           />
-        </div> */}
-        <div className="bottomline-base" />
-        <div className={isFocused ? 'bottomline on' : 'bottomline'} />
-        <div className="wrong-nickname-spacer">
-          <span className="wrong-input-hint">
+        </div>
+        <div className="nickname__hint">
+          <span className="nickname__hint-text">
             {wrongInputMsg}
           </span>
         </div>
@@ -69,18 +67,18 @@ class TextFieldGoogle extends Component {
   }
 }
 
-TextFieldGoogle.propTypes = {
+TextFieldMaterialUI.propTypes = {
   onChange: PropTypes.func,
   placeholder: PropTypes.string,
   value: PropTypes.string,
   wrongInputMsg: PropTypes.string
 };
 
-TextFieldGoogle.defaultProps = {
+TextFieldMaterialUI.defaultProps = {
   onChange: undefined,
   placeholder: '',
   value: undefined,
   wrongInputMsg: 'Enter from 2 to 30 characters please'
 };
 
-export default TextFieldGoogle;
+export default TextFieldMaterialUI;

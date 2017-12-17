@@ -40,7 +40,7 @@ class TextFieldMaterial extends Component {
     return (
       <div className="nickname">
         <input
-          className="nickname-field"
+          className="nickname__input"
           name="nickname"
           onBlur={this.handleFocusToggle}
           onChange={this.handleValueChange}
@@ -49,16 +49,13 @@ class TextFieldMaterial extends Component {
           type="text"
           value={typeof value === 'string' ? value : undefined}
         />
-        <div className="underliner">
-          <hr className="underline" />
-          <hr className={isFocused
-              ? 'underline on'
-              : 'underline off'
-            }
-          />
-        </div>
-        <div className="wrong-nickname-spacer">
-          <span className="wrong-input-hint">
+        <div className="nickname__bottomline" />
+        <div className={isFocused
+          ? 'nickname__bottomline_focused'
+          : 'nickname__bottomline_hidden'}
+        />
+        <div className="nickname__hint">
+          <span className="nickname__hint-text">
             {wrongInputMsg}
           </span>
         </div>

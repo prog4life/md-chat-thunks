@@ -74,27 +74,39 @@ export const clientId = (state = '', action) => {
   }
 };
 
+export const message = (state, action) => {
+  switch (action.type) {
+    case at.SEND_MESSAGE_ATTEMPT:
+      return {
+        ...action.message
+      };
+    case at.SEND_MESSAGE_SUCCESS:
+      if (state.id === action.message.id) {
+        return {
+          ...state,
+          status: action.message.status
+        };
+      }
+      return state;
+    case at.RECEIVE_MESSAGE:
+      return {
+        ...action.message
+      };
+    default:
+      return state;
+  }
+};
+
 // NOTE: think over storing messages as obj with id as property names
 export const messages = (state = [], action) => {
   switch (action.type) {
     case at.SEND_MESSAGE_ATTEMPT:
-      return [...state, {
-        ...action.message
-      }];
+      return [...state, message(undefined, action)];
     case at.SEND_MESSAGE_SUCCESS:
-      return state.map((msg) => {
-        if (msg.id === action.message.id) {
-          return {
-            ...action.message
-          };
-        }
-        return msg;
-      });
+      return state.map(msg => message(msg, action));
     case at.RECEIVE_MESSAGE:
       // TODO: check if such message already exists by comparing message ids
-      return [...state, {
-        ...action.message
-      }];
+      return [...state, message(undefined, action)];
     default:
       return state;
   }

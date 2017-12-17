@@ -1,10 +1,9 @@
 import { createStore, compose, applyMiddleware } from 'redux';
-// import createSagaMiddleware from 'redux-saga';
 import thunk from 'redux-thunk';
 // import logger from 'redux-logger'; // to get logger mw with default options
 import immutabilityWatcher from 'redux-immutable-state-invariant';
 import { createLogger } from 'redux-logger';
-import mainReducer from '../reducers';
+import topReducer from 'reducers';
 
 // must be the last middleware in chain
 const logger = createLogger({
@@ -13,16 +12,14 @@ const logger = createLogger({
 
 const middleware = process.env.NODE_ENV === 'development'
   ? [immutabilityWatcher(), thunk, logger]
-  : [thunk, logger];
+  : [thunk];
 
 const configureStore = (initialState = {}) => {
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ||
     compose;
 
-  // const sagaMiddleware = createSagaMiddleware();
-
   return createStore(
-    mainReducer,
+    topReducer,
     initialState,
     // composeEnhancers(applyMiddleware(sagaMiddleware, logger))
     composeEnhancers(applyMiddleware(...middleware))

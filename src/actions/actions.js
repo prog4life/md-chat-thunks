@@ -140,7 +140,7 @@ export const sendMessage = (nickname, text) => (dispatch, getState) => {
     type: 'MESSAGE'
   };
 
-  // TEMP replace it later to connected ChatInput or elsewhere,
+  // TEMP replace it later to connected ChatForm or elsewhere,
   // TODO: dispatch CHANGE_NICKNAME action, and send notification
   if (nickname !== existingNickname) {
     dispatch(setNickname(nickname));

@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import TextFieldMaterial from './TextFieldMaterial';
-import TextFieldGoogle from './TextFieldGoogle';
+// import TextFieldMaterialUI from './TextFieldMaterialUI';
 
-class ChatInput extends React.Component {
+class ChatForm extends React.Component {
   constructor(props) {
     super(props);
 
@@ -64,19 +64,19 @@ class ChatInput extends React.Component {
 
     return (
       <form
-        className="chat-input"
+        className="chat-form"
         onSubmit={this.handleSubmit}
       >
-        <TextFieldGoogle
+        <TextFieldMaterial
           placeholder={'Input field with bottom border animation'}
         />
-        {/* <TextFieldMaterial
+        {/* <TextFieldMaterialUI
           // onChange={this.handleInputChange}
           placeholder={'Your nickname (from 2 to 30 characters)'}
           // value={nickname}
           // wrongInputMsg={'sample wrong input message'}
         /> */}
-        {/* <TextFieldMaterialDumb
+        {/* <TextFieldMaterialUIDumb
           isFocused={isNicknameFocused}
           onChange={this.handleInputChange}
           onFocusToggle={this.handleNicknameFocusToggle}
@@ -84,9 +84,9 @@ class ChatInput extends React.Component {
           value={nickname}
           wrongInputMsg={'sample wrong input message'}
         /> */}
-        <div className="message">
+        <div className="chat-form__message">
           <textarea
-            className="message-field"
+            className="chat-form__msg-textarea"
             name="messageText"
             onChange={this.handleInputChange}
             placeholder="Write your message here"
@@ -96,10 +96,10 @@ class ChatInput extends React.Component {
           />
         </div>
         <button
-          className="send-button"
+          className="chat-form__send-button"
           type="submit"
         >
-          { 'SEND' }
+          {'SEND'}
         </button>
       </form>
     );
@@ -107,9 +107,9 @@ class ChatInput extends React.Component {
 }
 
 // TODO: add default empty handler for onTyping
-ChatInput.propTypes = {
+ChatForm.propTypes = {
   onSendMessage: PropTypes.func.isRequired,
   onTyping: PropTypes.func.isRequired
 };
 
-export default ChatInput;
+export default ChatForm;

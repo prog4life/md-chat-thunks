@@ -2,8 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const HistoryMessage = ({ nickname, text, isOwn, status }) => (
-  <div className="chat-history-msg">
-    <span className={isOwn ? 'msg-author-own' : 'msg-author'}>
+  <div className="history-msg">
+    <span className={isOwn
+      ? 'history-msg__own-nickname'
+      : 'history-msg__nickname'
+    }
+    >
       {isOwn ? 'Me: ' : `${nickname}: `}
     </span>
     <span>
