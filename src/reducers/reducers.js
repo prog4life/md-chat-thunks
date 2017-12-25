@@ -74,6 +74,7 @@ export const clientId = (state = '', action) => {
   }
 };
 
+// TODO: add queued/postponed status
 export const message = (state, action) => {
   switch (action.type) {
     case at.SEND_MESSAGE_ATTEMPT:

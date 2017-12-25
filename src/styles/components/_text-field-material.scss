@@ -12,42 +12,42 @@
   // border-bottom: 1px solid #9e9e9e;
   box-sizing: border-box;
   color: rgba(0, 0, 0, 0.87);
-  min-height: 1.4rem;
-  width: 100%;
-  font-size: 1rem;
-  // padding: 0 0.4rem;
+  font-size: 1.5rem;
   // margin: 0 0 0.5rem;
+  min-height: 1.4rem;
+  // padding: 0 0.4rem;
   // transition: all 0.5s;
+  width: 100%;
 }
 
 .nickname__input:focus {
   // border-bottom: 2px solid #f19090;
 }
 
-.nickname__bottomline {
+.nickname__base-bottomline {
   background-color: rgba(0, 0, 0, 0.12);
-  width: 100%;
-  height: 1px;
-  position: absolute;
   bottom: 18px;
-  left: 0px;
+  height: 1px;
+  left: 0;
+  position: absolute;
+  width: 100%;
 }
 
 .nickname__bottomline_hidden {
   background-color: #f19090;
-  position: absolute;
   bottom: 18px;
-  left: 0px;
-  width: 100%;
   height: 2px;
-  transform: scaleX(0);
+  left: 0;
   opacity: 0;
+  position: absolute;
+  transform: scaleX(0);
+  width: 100%;
 }
 
 .nickname__bottomline_focused {
-  transition: transform cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
-  transform: scaleX(1);
   opacity: 1;
+  transform: scaleX(1);
+  transition: transform cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
 }
 
 .nickname__hint-text {

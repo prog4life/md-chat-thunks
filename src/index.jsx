@@ -1,10 +1,12 @@
+import 'babel-polyfill';
 import React from 'react';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import App from 'App';
-import configureStore from './store/configureStore';
+import configureStore from 'store/configureStore';
 
-import './styles/main.scss';
+import 'normalize.css/normalize.css';
+import 'styles/main.scss';
 
 const initialState = {
   clientId: '',
@@ -23,6 +25,8 @@ const initialState = {
 };
 
 const store = configureStore(initialState);
+
+console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
 
 // store.subscribe(() => console.log('New state from store: ', store.getState()));
 

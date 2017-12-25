@@ -1,3 +1,4 @@
+// TODO: replace this functionality to reducer ?
 const filterMessageStatuses = messages => (
   messages.reduce((accum, current) => {
     const [last] = accum.slice(-1);

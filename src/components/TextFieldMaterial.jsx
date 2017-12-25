@@ -49,7 +49,7 @@ class TextFieldMaterial extends Component {
           type="text"
           value={typeof value === 'string' ? value : undefined}
         />
-        <div className="nickname__bottomline" />
+        <div className="nickname__base-bottomline" />
         <div className={isFocused
           ? 'nickname__bottomline_focused'
           : 'nickname__bottomline_hidden'}

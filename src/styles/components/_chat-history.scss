@@ -1,9 +1,9 @@
 .chat-history {
   border: 1px solid rgba(228, 181, 181, 0.9);
-  min-height: 10rem;
-  max-height: 4rem;
-  overflow-y: auto;
+  font-size: 1.5rem;
+  max-height: 50rem;
+  min-height: 25rem;
   overflow-x: visible;
+  overflow-y: auto;
   overflow-wrap: break-word;
-  font-size: 0.9rem;
 }

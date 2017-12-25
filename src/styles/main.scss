@@ -1,9 +1,9 @@
 @import "base/settings";
-@import "base/container";
 @import "base/base";
+@import "base/container";
+@import "components/chat-form";
 @import "components/chat-history";
 @import "components/history-message";
-@import "components/typing-notification";
-@import "components/chat-form";
 @import "components/text-field-material";
-@import "components/text-field-google";
+@import "components/text-field-materialui";
+@import "components/typing-notification";

@@ -1,15 +1,18 @@
 {
   "name": "md-chat-thunks",
   "version": "1.0.0",
-  "description": "",
+  "description": "Chat app built with React, Redux, NodeJS, websocket and styled using Material Design elements",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run build && node server.js",
-    "build": "webpack --color --progress",
-    "watch": "node_modules/.bin/webpack -w --color --progress",
-    "serve": "webpack -w --progress --color",
+    "build": "webpack -p --color --progress",
+    "cbuild": "cross-env NODE_ENV=production webpack -p --color --progress",
+    "build-dev": "webpack --color --progress",
+    "build-prod": "webpack -p --env production --color --progress",
+    "watch": "webpack -w --color --progress",
     "srv": "webpack-dev-server --progress --color",
+    "srv-prod": "webpack-dev-server -p --env production --progress --color",
     "up": "node server.js",
     "mon": "nodemon server.js",
     "debug": "node --inspect-brk=9229 server.js",
@@ -28,6 +31,7 @@
     "express": "^4.16.2",
     "lodash.throttle": "^4.1.1",
     "node-sass": "^4.7.2",
+    "normalize.css": "^7.0.0",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
@@ -46,10 +50,10 @@
   },
   "devDependencies": {
     "autoprefixer": "^7.2.3",
+    "cross-env": "^5.1.3",
     "file-loader": "^1.1.6",
     "postcss": "^6.0.14",
     "postcss-loader": "^2.0.9",
-    "postcss-normalize": "^4.0.0",
     "postcss-sass": "^0.2.0",
     "postcss-scss": "^1.0.2",
     "redux-immutable-state-invariant": "^2.1.0",
@@ -59,7 +63,7 @@
     "stylelint-order": "^0.8.0",
     "stylelint-scss": "^2.2.0",
     "url-loader": "^0.6.2",
-    "webpack-dev-middleware": "^2.0.1",
+    "webpack-dev-middleware": "^2.0.2",
     "webpack-dev-server": "^2.9.7"
   },
   "browserslist": [
@@ -86,5 +90,6 @@
     }
   },
   "author": "",
+  "repository": "https://github.com/j-cong/md-chat-thunks",
   "license": "ISC"
 }
