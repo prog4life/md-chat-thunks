@@ -13,7 +13,7 @@ class AppBar extends Component {
     return (
       <header className="app-bar">
         <button
-          className="sidenav-button app-bar__open-sidenav"
+          className="icon-button app-bar__open-sidenav"
           onClick={() => {
             this.setState({ isNavBarOpened: true });
           }}
@@ -28,9 +28,23 @@ class AppBar extends Component {
             this.setState({ isNavBarOpened: false })
           )}
         />
+        <div className="app-bar__toolbar">
+          <button
+            className="icon-button app-bar__auth-button"
+            type="button"
+          >
+            {'SIGN IN'}
+          </button>
+          <button
+            className="icon-button app-bar__options-button"
+            type="button"
+          >
+            {'OPTIONS'}
+          </button>
+        </div>
       </header>
     );
-  };
-};
+  }
+}
 
 export default AppBar;
