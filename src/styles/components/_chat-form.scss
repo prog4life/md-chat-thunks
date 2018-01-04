@@ -7,11 +7,6 @@
 //   box-shadow: none; /* to disable red shadows on reqired inputs in FF */
 // }
 
-textarea {
-  box-shadow: none; /* to disable red shadows on reqired inputs in FF */
-  outline: none;
-}
-
 .chat-form {
   /* border-top: none; */
   display: flex;
@@ -22,9 +17,18 @@ textarea {
   //   outline: none;
   // }
 
+  button {
+    outline: none;
+  }
+
   input {
     outline: none;
     padding: 0.3rem 0;
+  }
+
+  textarea {
+    box-shadow: none; /* to disable red shadows on reqired inputs in FF */
+    outline: none;
   }
 }
 

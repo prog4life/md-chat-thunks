@@ -2,13 +2,20 @@ node_modules/
 # config/
 
 # production
-build
-# public
+# build/
+build/dist/
+build/assets/
+
+# public/
+public/dist/
+public/assets/
 
 **/.idea/
 
 public/bundle.js
 public/bundle.js.map
+public/*.css
+public/*.css.map
 
 # .eslintrc.json
 # .eslintignore

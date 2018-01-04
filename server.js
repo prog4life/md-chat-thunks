@@ -18,7 +18,9 @@ const wss = websocketServer.start(server);
 const chat = websocketChat.create(wss);
 websocketServer.setWebsocketMsgHandler(chat.handleIncomingData.bind(chat));
 
-const port = 8787;
+const port = process.env.PORT || 8787;
+// can be something like: path.join(__dirname, '..', 'public')
+const publicPath = path.join(__dirname, 'public');
 
 app.set('port', port);
 
@@ -29,11 +31,15 @@ app.set('port', port);
 //   }
 // }));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(publicPath));
 
 app.get('/favicon.ico', (req, res) => {
   res.set('Content-Type', 'image/x-icon');
   res.status(200).end();
+});
+
+app.get('*', (req, res, next) => {
+  res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 app.use((req, res, next) => {
@@ -53,5 +59,3 @@ server.listen(port);
 server.on('listening', () => {
   console.log(`Up & running at ${server.address().port} port`);
 });
-
-server.on('error', error => console.error('Server error: ', error));

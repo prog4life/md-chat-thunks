@@ -6,7 +6,7 @@ import App from 'App';
 import configureStore from 'store/configureStore';
 
 import 'normalize.css/normalize.css';
-import 'styles/main.scss';
+import 'styles/styles.scss';
 
 const initialState = {
   clientId: '',

@@ -1,0 +1,23 @@
+.app-bar {
+  align-items: center;
+  background-color: #e2e2e2;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
+  display: flex;
+  justify-content: space-between;
+  min-height: 4.5rem;
+
+  h1 {
+    // align-self: center;
+    flex: 2;
+    margin: 0;
+  }
+}
+
+.app-bar__open-sidenav {
+  align-self: center;
+  flex: 2;
+}
+
+.app-bar__toolbar {
+  flex: 2;
+}

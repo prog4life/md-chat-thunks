@@ -21,7 +21,7 @@ const configureStore = (initialState = {}) => {
   return createStore(
     topReducer,
     initialState,
-    // composeEnhancers(applyMiddleware(sagaMiddleware, logger))
+    // composeEnhancers(applyMiddleware(thunk, logger))
     composeEnhancers(applyMiddleware(...middleware))
   );
 };

@@ -21,3 +21,14 @@ body {
 .chat__header {
   text-align: center;
 }
+
+// hamburger button
+.icon-button {
+  background: transparent center center no-repeat;
+  background-size: 24px 24px;
+  border: none;
+  cursor: pointer;
+  margin: 0 0.4rem;
+  pading: 0;
+  outline: none;
+}
