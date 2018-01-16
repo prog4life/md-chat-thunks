@@ -1,0 +1,23 @@
+.chats-page {
+  background-color: #eee;
+  margin-bottom: 0;
+  position: fixed;
+  height: calc(100% - 1px); // TEMP
+  width: 100%;
+  z-index: -1;
+}
+
+.chats-list {
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow:
+    0 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0 4px 5px 0 rgba(0, 0, 0, 0.14),
+    0 1px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.chats-list__delimeter {
+  border: none;
+  border-top: 1px solid #eaeaea;
+  margin: 0 1rem;
+}

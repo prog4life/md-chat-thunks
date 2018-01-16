@@ -2,6 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 // const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const scssSyntax = require('postcss-scss');
 // const cssnano = require('cssnano');
@@ -41,7 +42,11 @@ module.exports = (env) => {
           // looks like not needed anymore if -p flag was used
           NODE_ENV: JSON.stringify(env)
         }
-      })
+      }),
+      new CleanWebpackPlugin(
+        ['public'], // OR 'build' OR 'dist', removes folder
+        { exclude: ['assets', 'index.html'] }
+      )
     ],
     resolve: {
       alias: {

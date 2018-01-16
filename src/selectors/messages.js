@@ -10,8 +10,8 @@ const filterMessageStatuses = messages => (
   }, [])
 );
 
-const processMessages = messages => (
+const filterMessages = messages => (
   filterMessageStatuses(messages)
 );
 
-export { filterMessageStatuses, processMessages };
+export { filterMessageStatuses, filterMessages };

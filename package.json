@@ -19,7 +19,7 @@
     "mondeb": "nodemon --inspect=9229 server.js"
   },
   "dependencies": {
-    "autoprefixer": "^7.2.4",
+    "autoprefixer": "^7.2.5",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-class-properties": "^6.24.1",
@@ -56,7 +56,7 @@
     "url-loader": "^0.6.2",
     "validator": "^9.2.0",
     "webpack": "^3.10.0",
-    "ws": "^3.3.3"
+    "ws": "^4.0.0"
   },
   "devDependencies": {
     "redux-immutable-state-invariant": "^2.1.0",
@@ -65,7 +65,7 @@
     "stylelint-no-unsupported-browser-features": "^2.0.0",
     "stylelint-order": "^0.8.0",
     "stylelint-scss": "^2.2.0",
-    "webpack-dev-server": "^2.10.0"
+    "webpack-dev-server": "^2.11.0"
   },
   "browserslist": [
     "> 0.3%",

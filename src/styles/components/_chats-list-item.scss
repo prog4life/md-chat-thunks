@@ -1,0 +1,47 @@
+.avatar-wrapper {
+  min-width: 10rem;
+  // width: 10rem; // OR
+  flex: 2; // TODO: clarify
+  position: relative;
+}
+
+.avatar_small {
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: 0 auto;
+  height: 65%;
+  width: 65%;
+}
+
+// centering or positioning (using margin or distances) of an image
+// .avatar_small {
+//   position: absolute;
+//   top: 0;
+//   right: 0;
+//   bottom: 0;
+//   left: 0;
+//   margin: auto; // OR margin 0 auto;
+//   height: 65%;
+//   width: 65%;
+// }
+
+.chat-list__item {
+  display: flex;
+  height: 10rem;
+  padding: 1rem;
+}
+
+.chat-list__item-wrapper {
+}
+
+.chat-list__item-info {
+  width: 100%;
+}
+
+.item-info__summary {
+  display: flex;
+}

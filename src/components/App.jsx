@@ -14,7 +14,7 @@ import {
   stopPing
 } from 'actions';
 
-import { processMessages } from 'selectors/messages';
+import { filterMessages } from 'selectors/messages';
 
 import typingNotifConfig from 'config/typing-notification';
 import ChatHistory from './ChatHistory';
@@ -92,7 +92,7 @@ const mapStateToProps = state => ({
   websocketStatus: state.websocketStatus,
   nickname: state.nickname,
   clientId: state.clientId,
-  messages: processMessages(state.messages),
+  messages: filterMessages(state.messages),
   whoIsTyping: state.whoIsTyping
 });
 
