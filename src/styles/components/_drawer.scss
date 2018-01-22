@@ -1,0 +1,46 @@
+.drawer {
+  background-color: #fdecece3;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  left: 0;
+  // max-width: 80%;
+  // position: absolute;
+  position: fixed;
+  top: 0;
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 1, 1),
+    box-shadow 0.28s cubic-bezier(0.4, 0, 1, 1);
+  width: 80%;
+}
+
+.drawer_opened {
+  box-shadow:
+    0 16px 24px 2px rgba(0, 0, 0, 0.14),
+    0 6px 30px 5px rgba(0, 0, 0, 0.12),
+    0 8px 10px -5px rgba(0, 0, 0, 0.4);
+  transform: translateX(0);
+}
+
+.drawer_closed {
+  transform: translateX(-100%);
+}
+
+.drawer__cover {
+
+}
+
+.drawer__navbar {
+
+}
+
+.drawer__header {
+  border-bottom: 1px solid #e0e0e0;
+  line-height: 4.5rem; // set equaly to block height to align text vertically
+  min-height: 4.5rem;
+  text-align: right;
+}
+
+.drawer__close-btn {
+
+}

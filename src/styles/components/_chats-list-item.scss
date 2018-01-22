@@ -1,5 +1,9 @@
+// TODO avatar block width must be same as chat list item height, define them
+// with same var, same for padding of chat list item and item info side paddings
+// padding must be in 4.5 times smaller than height, use func/calc
+
 .avatar-wrapper {
-  min-width: 10rem;
+  min-width: 7.2rem;
   // width: 10rem; // OR
   flex: 2; // TODO: clarify
   position: relative;
@@ -12,9 +16,10 @@
   right: 0;
   bottom: 0;
   left: 0;
-  margin: 0 auto;
-  height: 65%;
-  width: 65%;
+  // margin: 0 auto; // for middle-top layout
+  margin: auto;
+  height: 100%;
+  width: 100%;
 }
 
 // centering or positioning (using margin or distances) of an image
@@ -29,19 +34,44 @@
 //   width: 65%;
 // }
 
-.chat-list__item {
+.chats-list__item {
   display: flex;
-  height: 10rem;
-  padding: 1rem;
+  height: 7.2rem;
+  padding: 1.6rem;
 }
 
-.chat-list__item-wrapper {
+.chats-list__item-wrapper {
 }
 
-.chat-list__item-info {
+.chats-list__item-info {
+  display: flex;
+  justify-content: space-between;
+  // padding: 0 1.6rem;
+
+  p,
+  h4 {
+    margin: 0;
+  }
+}
+
+.item-info__preview {
+  // flex: 4;
+  margin: auto;
+  padding: 0 1.6rem;
   width: 100%;
 }
 
+// .item-info__name {
+//   margin: 0;
+// }
+
+.item-info__last-message {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .item-info__summary {
-  display: flex;
+  // flex: 2;
+  margin: auto;
 }

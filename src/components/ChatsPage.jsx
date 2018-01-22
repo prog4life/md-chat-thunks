@@ -15,6 +15,7 @@ const ChatsPage = props => (
         <ChatsListItem />
       </div>
     </div>
+    <div className="test-picture" />
   </div>
 );
 

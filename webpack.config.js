@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
+// const HTMLWebpackPlugin = require('html-webpack-plugin');
 // const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
@@ -15,19 +16,24 @@ module.exports = (env) => {
   console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
 
   return {
-    entry: [
-      // 'babel-polyfill', // can load specific core-js polyfills separately
-      './src/index.jsx'
-    ],
+    entry: {
+      bundle: [
+        'babel-polyfill',
+        // 'normalize.css/normalize.css',
+        // './src/styles/index.scss',
+        './src/index.jsx'
+      ]
+    },
     output: {
-      filename: 'bundle.js',
+      filename: '[name].js', // 'js/[name].js'; [name].[chunkhash].js in PROD
       path: path.resolve(__dirname, 'public'),
-      publicPath: '/' // for webpack-dev-middleware
+      publicPath: '/'
     },
     plugins: [
       new ExtractTextPlugin({
-        // filename: '[name].css',
-        filename: 'styles.css',
+        filename: getPath => (
+          getPath('[name].css').replace('bundle', 'styles') // 'css/styles'
+        ),
         allChunks: true,
         // inline loading in development is recommended for HMR and build speed
         disable: env === 'development' // OR:
@@ -45,18 +51,26 @@ module.exports = (env) => {
       }),
       new CleanWebpackPlugin(
         ['public'], // OR 'build' OR 'dist', removes folder
-        { exclude: ['assets', 'index.html'] }
+        { exclude: ['index.html'] }
       )
+      // new HTMLWebpackPlugin({
+      //   title: 'Local Wall',
+      //   favicon: '/images/favicon.png'
+      //   // filename: 'assets/custom.html'
+      //   // append webpack compilation hash to all included js and css files,
+      //   // hash: true // usefull for cache busting
+      // })
     ],
     resolve: {
       alias: {
         App: path.resolve(__dirname, 'src/components/App.jsx')
       },
       modules: [
+        // TODO: add "src/components", e.t.c
         path.resolve(__dirname, 'src'),
         'node_modules'
       ],
-      extensions: ['.js', '.json', '.jsx', '.css', '.scss', '*']
+      extensions: ['.js', '.json', '.jsx', '*']
     },
     module: {
       rules: [
@@ -83,11 +97,21 @@ module.exports = (env) => {
         },
         {
           test: /\.(scss|css)$/,
+          // TODO: add include here ?
+          include: [
+            path.resolve(__dirname, 'src'),
+            path.resolve(__dirname, 'node_modules')
+          ],
           use: ExtractTextPlugin.extract({
             use: [
-              {
+              { // not translates url() that start with "/"
                 loader: 'css-loader',
-                options: { importLoaders: 2, sourceMap: true }
+                options: {
+                  importLoaders: 3,
+                  // url: false, // enable/disable url() resolving
+                  // minimize: true, // OR { /* cssnano config */ } OR w postcss
+                  sourceMap: true
+                }
               },
               {
                 loader: 'postcss-loader',
@@ -101,12 +125,46 @@ module.exports = (env) => {
                   sourceMap: true
                 }
               },
-              'resolve-url-loader',
+              // w/o it css-loader can only resolve url() relative to index.scss
+              // 'resolve-url-loader',
               { loader: 'sass-loader', options: { sourceMap: true } }
             ],
             fallback: 'style-loader'
           })
+        },
+        {
+          test: /\.(png|jpe?g|gif|svg)$/,
+          // TODO: add include here ?
+          include: path.resolve(__dirname, 'src'),
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                name: '[name].[ext]', // '[name].[hash].[ext]'
+                outputPath: 'assets/img/' // custom output path
+              }
+            }
+            // {
+            //   loader: 'image-webpack-loader',
+            //   query: {
+            //     progressive: true,
+            //     optimizationLevel: 7,
+            //     interlaced: false,
+            //     pngquant: {
+            //       quality: '65-90',
+            //       speed: 4
+            //     }
+            //   }
+            // }
+          ]
         }
+        // {
+        //   test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/,
+        //   loader: 'url-loader',
+        //   options: {
+        //     limit: 10000
+        //   }
+        // }
       ]
     },
     devServer: {

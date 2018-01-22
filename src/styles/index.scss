@@ -1,3 +1,6 @@
+// this import must work or check postcss-import manner
+// @import '../node_modules/normalize.css/normalize.css';
+
 @import "base/settings";
 @import "base/base";
 @import "base/container";
@@ -6,6 +9,7 @@
 @import "components/chat-history";
 @import "components/chats-page";
 @import "components/chats-list-item";
+@import "components/drawer";
 @import "components/history-message";
 @import "components/nav-bar";
 @import "components/text-field-material";
