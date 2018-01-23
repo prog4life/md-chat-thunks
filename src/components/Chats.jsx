@@ -1,8 +1,8 @@
 import React from 'react';
 import ChatsListItem from './ChatsListItem';
 
-const ChatsPage = props => (
-  <div className="chats-page">
+const Chats = props => (
+  <div className="chats">
     <div className="container">
       {/* <h3 className="chat__header">
         {'Chats Page'}
@@ -19,4 +19,4 @@ const ChatsPage = props => (
   </div>
 );
 
-export default ChatsPage;
+export default Chats;

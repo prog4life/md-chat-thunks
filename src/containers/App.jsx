@@ -2,10 +2,10 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import AppBar from 'components/AppBar';
-import WallPage from 'components/WallPage';
-import MapPage from 'components/MapPage';
-import ChatsPage from 'components/ChatsPage';
-import NotFoundPage from 'components/NotFoundPage';
+import Chats from 'components/Chats';
+import Profile from 'components/Profile';
+import Settings from 'components/Settings';
+import NotFound from 'components/NotFound';
 import configureStore from 'store/configureStore';
 
 const initialState = {
@@ -33,19 +33,19 @@ const routes = (
     <div>
       <AppBar />
       <Switch>
-        <Route component={WallPage} exact path="/" />
-        <Route component={MapPage} path="/map" />
-        <Route component={ChatsPage} path="/chats" />
-        <Route component={NotFoundPage} />
+        <Route component={Chats} exact path="/" />
+        <Route component={Profile} path="/profile" />
+        <Route component={Settings} path="/settings" />
+        <Route component={NotFound} />
       </Switch>
     </div>
   </Router>
 );
 
-const Top = props => (
+const App = props => (
   <Provider store={store}>
     {routes}
   </Provider>
 );
 
-export default Top;
+export default App;

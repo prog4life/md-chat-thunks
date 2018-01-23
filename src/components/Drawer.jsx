@@ -28,17 +28,17 @@ const Drawer = ({ isOpened, onClose }) => (
       <ul className="navbar__list">
         <li>
           <NavLink activeClassName="navbar__navlink_active" exact to="/">
-            {'Wall'}
-          </NavLink>
-        </li>
-        <li>
-          <NavLink activeClassName="navbar__navlink_active" to="/map">
-            {'Map'}
-          </NavLink>
-        </li>
-        <li>
-          <NavLink activeClassName="navbar__navlink_active" to="/chats">
             {'Chats'}
+          </NavLink>
+        </li>
+        <li>
+          <NavLink activeClassName="navbar__navlink_active" to="/profile">
+            {'Profile'}
+          </NavLink>
+        </li>
+        <li>
+          <NavLink activeClassName="navbar__navlink_active" to="/settings">
+            {'Settings'}
           </NavLink>
         </li>
       </ul>

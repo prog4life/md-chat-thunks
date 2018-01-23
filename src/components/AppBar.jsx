@@ -31,7 +31,7 @@ class AppBar extends Component {
           <Link className="app-bar__logo-link" to="/" >
             <img className="app-bar__logo" src={appLogo} alt="app-logo" />
           </Link>
-          <h1>{'Local Wall'}</h1>
+          <h1>{'Lil Chat'}</h1>
         </div>
         <Drawer
           isOpened={this.state.isDrawerOpened}

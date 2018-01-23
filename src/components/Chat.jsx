@@ -21,7 +21,7 @@ import ChatHistory from './ChatHistory';
 import ChatForm from './ChatForm';
 import TypingNotification from './TypingNotification';
 
-export class App extends React.Component {
+export class Chat extends React.Component {
   constructor(props) {
     super(props);
 
@@ -81,7 +81,7 @@ export class App extends React.Component {
   }
 }
 
-App.propTypes = {
+Chat.propTypes = {
   clientId: PropTypes.string.isRequired,
   messages: PropTypes.arrayOf(PropTypes.object).isRequired,
   nickname: PropTypes.string.isRequired,
@@ -107,4 +107,4 @@ const mapDispatchToProps = dispatch => (
   }, dispatch)
 );
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(Chat);
