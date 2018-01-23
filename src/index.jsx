@@ -1,6 +1,6 @@
-import 'babel-polyfill';
+// import 'babel-polyfill';
 import React from 'react';
-import { render } from 'react-dom';
+import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import App from 'App';
 import configureStore from 'store/configureStore';
@@ -30,7 +30,7 @@ console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
 
 // store.subscribe(() => console.log('New state from store: ', store.getState()));
 
-render(
+ReactDOM.render(
   <Provider store={store}>
     <App />
   </Provider>,

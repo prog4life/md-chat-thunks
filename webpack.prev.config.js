@@ -24,17 +24,20 @@ module.exports = {
   },
   plugins: [
     new ExtractTextPlugin({
-      filename: '[name].css',
+      // filename: '[name].css',
+      filename: 'styles.css',
+      allChunks: true,
+      // inline loading in development is recommended for HMR and build speed
       disable: nodeEnv === 'development' // OR !isProduction
     }),
-    // new webpack.optimize.UglifyJsPlugin({ // OR new UglifyJsPlugin
+    // new UglifyJsPlugin({ // OR old webpack.optimize.UglifyJsPlugin
     //   sourceMap: true,
-    //   parallel: 4
+    //   parallel: true, // default === os.cpus().length -1
     // }),
     new webpack.DefinePlugin({
       'process.env': {
         // looks like not needed anymore if -p flag was used
-        NODE_ENV: nodeEnv
+        NODE_ENV: JSON.stringify(nodeEnv)
       }
     })
   ],
@@ -131,6 +134,7 @@ module.exports = {
     ]
   },
   devServer: {
+    progress: true,
     contentBase: path.resolve(__dirname, 'public'),
     compress: true,
     historyApiFallback: true

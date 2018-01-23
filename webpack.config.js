@@ -28,12 +28,13 @@ module.exports = (env) => {
         // filename: '[name].css',
         filename: 'styles.css',
         allChunks: true,
+        // inline loading in development is recommended for HMR and build speed
         disable: env === 'development' // OR:
         // disable: !isProduction
       }),
-      // new webpack.optimize.UglifyJsPlugin({ // OR new UglifyJsPlugin
+      // new UglifyJsPlugin({ // OR old webpack.optimize.UglifyJsPlugin
       //   sourceMap: true,
-      //   parallel: 4
+      //   parallel: true, // default === os.cpus().length -1
       // }),
       new webpack.DefinePlugin({
         'process.env': {
@@ -104,6 +105,7 @@ module.exports = (env) => {
       ]
     },
     devServer: {
+      progress: true,
       contentBase: path.resolve(__dirname, 'public'),
       compress: true,
       historyApiFallback: true
