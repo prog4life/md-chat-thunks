@@ -1,11 +1,11 @@
 // TODO avatar block width must be same as chat list item height, define them
-// with same var, same for padding of chat list item and item info side paddings
-// padding must be in 4.5 times smaller than height, use func/calc
+// with same var, same for padding of chat list item and chat info side paddings
+// padding must be in 4.5 X smaller than chat list item height, use func/calc
 
 .avatar-wrapper {
   min-width: 7.2rem;
   // width: 10rem; // OR
-  flex: 2; // TODO: clarify
+  // flex: 2; // TODO: clarify
   position: relative;
 }
 
@@ -36,42 +36,53 @@
 
 .chats-list__item {
   display: flex;
-  height: 7.2rem;
+  min-height: 7.2rem;
+  min-width: 40rem;
   padding: 1.6rem;
 }
 
-.chats-list__item-wrapper {
-}
+// .chats-list__item-wrapper {
+// }
 
-.chats-list__item-info {
+.chats-list__chat-info {
   display: flex;
-  justify-content: space-between;
-  // padding: 0 1.6rem;
+  flex-flow: column nowrap;
+  justify-content: space-around;
+  padding-left: 1.6rem; // NOTE: must be relative to chat list item height
+  // NOTE: set this or any other width value OR overflow: hidden; to prevent
+  min-width: 0; // text overflowing in a child of a flex child item
 
   p,
   h4 {
-    margin: 0;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 }
 
-.item-info__preview {
-  // flex: 4;
-  margin: auto;
-  padding: 0 1.6rem;
-  width: 100%;
+.chat-info__main {
+  display: flex;
+  // justify-content: space-between;
+  // margin: auto;
+  // width: 100%;
 }
 
-// .item-info__name {
-//   margin: 0;
-// }
-
-.item-info__last-message {
+.chat-info__name,
+.chat-info__last-message {
+  padding-right: 1.6rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.item-info__summary {
-  // flex: 2;
-  margin: auto;
+.chat-info__unread-count {
+  margin-left: auto;
+}
+
+.chat-info__additional {
+  display: flex;
+  // margin: auto;
+}
+
+.chat-info__time {
+  white-space: nowrap;
 }

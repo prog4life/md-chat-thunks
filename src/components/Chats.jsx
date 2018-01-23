@@ -1,5 +1,5 @@
 import React from 'react';
-import ChatsListItem from './ChatsListItem';
+import ChatsList from './ChatsList';
 
 const Chats = props => (
   <div className="chats">
@@ -7,13 +7,7 @@ const Chats = props => (
       {/* <h3 className="chat__header">
         {'Chats Page'}
       </h3> */}
-      <div className="chats-list">
-        <ChatsListItem />
-        <hr className="chats-list__delimeter" />
-        <ChatsListItem />
-        <hr className="chats-list__delimeter" />
-        <ChatsListItem />
-      </div>
+      <ChatsList />
     </div>
     <div className="test-picture" />
   </div>

@@ -6,33 +6,34 @@ const ChatsListItem = props => (
   <div className="chats-list__item">
     {/* TODO: Extract Avatar as separate component */}
     {/* <div className="chats-list__item-wrapper"> */}
-      <div className="avatar-wrapper">
-        <img
-          className="avatar_small"
-          src={avatarSrc}
-          alt="participants avatar"
-        />
+    <div className="avatar-wrapper">
+      <img
+        className="avatar_small"
+        src={avatarSrc}
+        alt="participants avatar"
+      />
+    </div>
+    <section className="chats-list__chat-info">
+      <div className="chat-info__main">
+        <header className="chat-info__name">
+          <h4>
+            {'Hot Chick'}
+          </h4>
+        </header>
+        <p className="chat-info__unread-count">{'4'}</p>
       </div>
-      <section className="chats-list__item-info">
-        <div className="item-info__preview">
-          <header>
-            <h4 className="item-info__name">
-              {'Hot Chick'}
-            </h4>
-          </header>
-          <p className="item-info__last-message">
-            {'Last message short preview, but message itself is really longLast message short preview, but message itself is really longLast message short preview, but message itself is really longLast message short preview, but message itself is really longLast message short preview, but message itself is really longLast message short preview, but message itself is really long'}
-          </p>
-        </div>
-        <summary className="item-info__summary">
-          <p className="item-info__unread-count">{'4'}</p>
-          <p>
-            <time>
-              {'16 Jan'}
-            </time>
-          </p>
-        </summary>
-      </section>
+      <div className="chat-info__additional">
+        <p className="chat-info__last-message">
+          {'Last '}
+        </p>
+        {/* <p> */}
+        {/* render consitionally <date> or <time> */}
+        <time className="chat-info__time">
+          {'16 Jan'}
+        </time>
+        {/* </p> */}
+      </div>
+    </section>
     {/* </div> */}
   </div>
 );
