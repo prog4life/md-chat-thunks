@@ -17,7 +17,6 @@ public/bundle.js.map
 public/*.css
 public/*.css.map
 
-development:
 src/assets/
 
 # config/

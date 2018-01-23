@@ -87,7 +87,7 @@ module.exports = (env) => {
             plugins: ['transform-class-properties'],
             presets: [
               ['env', {
-                // useBuiltIns: 'usage', // or 'usage' | 'entry'
+                // useBuiltIns: 'usage', // OR 'entry'
                 debug: true
               }],
               'react',
