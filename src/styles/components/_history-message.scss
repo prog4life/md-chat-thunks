@@ -1,5 +1,17 @@
 .history-msg {
-  padding: 0.1rem 0.4rem;
+  background-color: #fabebe5d;
+  border-radius: 3px;
+  color: #796464;
+  margin-right: 10%;
+  margin-bottom: 0.3rem;
+  padding: 0.5rem 1rem;
+}
+
+.history-msg_own {
+  background-color: #f8e8e879;
+  color: #7c5f5f;
+  margin-left: 10%;
+  margin-right: 0;
 }
 
 .history-msg__nickname {
@@ -8,4 +20,9 @@
 
 .history-msg__own-nickname {
   color: #bfbfbf;
+}
+
+.history-msg__status {
+  font-size: 1.2rem;
+  text-align: right;
 }

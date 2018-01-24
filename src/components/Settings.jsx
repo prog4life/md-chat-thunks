@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Settings = props => (
-  <div className="profile">
+  <div className="settings">
     {'Settings Page. Return to '}
     <Link to="/">
       {'Chats'}

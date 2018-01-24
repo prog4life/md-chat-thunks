@@ -1,13 +1,13 @@
 import React from 'react';
 import ChatsListItem from './ChatsListItem';
 
-const ChatsList = props => (
-  <section className="chats-list">
-    <ChatsListItem />
+const ChatsList = ({ onItemClick }) => (
+  <section className="chats-list chats-list_paper">
+    <ChatsListItem onItemClick={onItemClick} />
     <hr className="chats-list__delimiter" />
-    <ChatsListItem />
+    <ChatsListItem onItemClick={onItemClick} />
     <hr className="chats-list__delimiter" />
-    <ChatsListItem />
+    <ChatsListItem onItemClick={onItemClick} />
   </section>
 );
 

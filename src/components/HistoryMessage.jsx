@@ -2,21 +2,22 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const HistoryMessage = ({ nickname, text, isOwn, status }) => (
-  <div className="history-msg">
-    <span className={isOwn
+  <div className={`history-msg ${isOwn && 'history-msg_own'}`}>
+    {/* <span className={isOwn
       ? 'history-msg__own-nickname'
       : 'history-msg__nickname'
     }
     >
       {isOwn ? 'Me: ' : `${nickname}: `}
-    </span>
+    </span> */}
     <span>
       {text}
     </span>
+    {/* TEMP: isOwn */}
     {
-      status &&
-      <div style={{ textAlign: 'right' }}>
-        {status.toLowerCase()}
+      status && isOwn &&
+      <div className="history-msg__status">
+        {status.toUpperCase()}
       </div>
     }
   </div>

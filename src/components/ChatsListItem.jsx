@@ -2,8 +2,8 @@ import React from 'react';
 
 import avatarSrc from 'assets/test-avatar.jpg';
 
-const ChatsListItem = props => (
-  <div className="chats-list__item">
+const ChatsListItem = ({ onItemClick }) => (
+  <div className="chats-list__item" onClick={onItemClick} >
     {/* TODO: Extract Avatar as separate component */}
     {/* <div className="chats-list__item-wrapper"> */}
     <div className="avatar-wrapper">

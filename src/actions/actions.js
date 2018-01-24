@@ -126,6 +126,8 @@ export const sendTyping = (nickname, clientId) => (dispatch) => {
     type: 'IS_TYPING'
   };
 
+  // NOTE: maybe it's reasonable to try to send this without trying to recreate
+  // connection if there is no such
   dispatch(tryToSend({ outgoing }));
 };
 

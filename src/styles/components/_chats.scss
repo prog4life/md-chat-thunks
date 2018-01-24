@@ -1,18 +1,18 @@
 .chats {
   background-color: #eee;
-  // margin-bottom: 0;
-  // overflow: auto;
   // NOTE: 100% work with postioning and stretch to comprise a content
   // TODO: look for alternative manner to set 100% height
   // 100vh work with overflow: auto; but not reflect additional height growth
   // and excess scrollbar appears
+  // TODO: replace next 2 to .page
   height: calc(100% - 1px); // calc only for reminder
   min-height: 100vh;
   // NOTE: excess if app-bar is relatively positioned
-  padding-top: 4.5rem; // TODO: must equal to app-bar height variable
-  // position: fixed;
-  // width: 100%;
-  // z-index: -1;
+  // padding-top: 4.5rem; // TODO: must equal to app-bar height variable
+}
+
+.chats__container {
+  min-width: 40rem;
 }
 
 .test-picture {

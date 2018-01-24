@@ -49,6 +49,7 @@ class ChatForm extends React.Component {
     });
     // IDEA: typeof onTyping === 'function'
     if (name === 'messageText') {
+      // TODO: add throttling
       onTyping();
     }
   }

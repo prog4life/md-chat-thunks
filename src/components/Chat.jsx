@@ -62,20 +62,24 @@ export class Chat extends React.Component {
   render() {
     const { messages, whoIsTyping } = this.props;
     return (
-      <div className="chat container">
-        <h3 className="chat__header">
-          { 'LIL CHAT' }
-        </h3>
-        <ChatHistory messages={messages} />
-        <TypingNotification
-          config={typingNotifConfig}
-          onNotificationEnd={this.handleTypingNotifEnd}
-          whoIsTyping={whoIsTyping}
-        />
-        <ChatForm
-          onSendMessage={this.handleSendMessage}
-          onTyping={this.handleTyping}
-        />
+      <div className="chat page">
+        <div className="chat__container container">
+          <section className="chat__section chat_paper">
+            {/* <h3 className="chat__header">
+              { 'LIL CHAT' }
+            </h3> */}
+            <ChatHistory messages={messages} />
+            <TypingNotification
+              config={typingNotifConfig}
+              onNotificationEnd={this.handleTypingNotifEnd}
+              whoIsTyping={whoIsTyping}
+            />
+            <ChatForm
+              onSendMessage={this.handleSendMessage}
+              onTyping={this.handleTyping}
+            />
+          </section>
+        </div>
       </div>
     );
   }

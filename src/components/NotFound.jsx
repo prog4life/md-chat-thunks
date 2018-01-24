@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const NotFound = props => (
-  <div>
+  <div className="not-found" >
     {'404 Page content. Go to '}
     <Link to="/">
       {'Chats'}
