@@ -1,6 +1,6 @@
 html {
   // TODO: remove this from some nested rules
-  box-sizing: border-box;
+  // box-sizing: border-box;
   font-size: 62.5%;
 }
 
@@ -9,6 +9,12 @@ body {
   font-size: 1.6rem;
   // min-height: 100vh;
   // height: 100%; // at Yandex site
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 #app {

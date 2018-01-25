@@ -64,7 +64,7 @@ export class Chat extends React.Component {
     return (
       <div className="chat page">
         <div className="chat__container container">
-          <section className="chat__section chat_paper">
+          <section className="chat__section paper">
             {/* <h3 className="chat__header">
               { 'LIL CHAT' }
             </h3> */}

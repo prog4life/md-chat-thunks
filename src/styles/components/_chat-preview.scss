@@ -2,14 +2,15 @@
 // with same var, same for padding of chat list item and chat info side paddings
 // padding must be in 4.5 X smaller than chat list item height, use func/calc
 
-.avatar-wrapper {
+.avatar {
+  min-height: 7.2rem;
   min-width: 7.2rem;
   // width: 10rem; // OR
   // flex: 2; // TODO: clarify
   position: relative;
 }
 
-.avatar_small {
+.avatar__img_small {
   border-radius: 50%;
   position: absolute;
   top: 0;
@@ -23,7 +24,7 @@
 }
 
 // centering or positioning (using margin or distances) of an image
-// .avatar_small {
+// .avatar__img_small {
 //   position: absolute;
 //   top: 0;
 //   right: 0;
@@ -34,25 +35,29 @@
 //   width: 65%;
 // }
 
-.chats-list__item {
+.chat-preview {
   display: flex;
-  min-height: 7.2rem;
   min-width: 40rem;
   padding: 1.6rem;
 }
 
-.chats-list__item:hover {
+.chat-preview:hover {
   cursor: pointer;
 }
 
-// .chats-list__item-wrapper {
+// .chat-preview__item-wrapper {
 // }
 
-.chats-list__chat-info {
+.chat-preview__info {
+  flex: 1;
+  padding-left: 1.6rem; // NOTE: must be relative to chat list item height
+  min-height: 7.2rem;
+}
+
+.chat-info {
   display: flex;
   flex-flow: column nowrap;
-  justify-content: space-around;
-  padding-left: 1.6rem; // NOTE: must be relative to chat list item height
+  // justify-content: space-around;
   // NOTE: set this or any other width value OR overflow: hidden; to prevent
   min-width: 0; // text overflowing in a child of a flex child item
 
@@ -67,15 +72,28 @@
   display: flex;
   // justify-content: space-between;
   // margin: auto;
-  // width: 100%;
+  min-height: auto;
+  padding-bottom: 1rem; // if flex-container has default flex direction
 }
 
+// TODO: extract styles for non-wrapped single line with ellipsis
 .chat-info__name,
 .chat-info__last-message {
   padding-right: 1.6rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.chat-info__last-message {
+  line-height: 1.15em;
+  max-height: 2.25em; // line-height X number of lines
+  white-space: normal;
+  // word-wrap: break-word;
+  // NOTE: next 3 lines add ellipsis at multiline text end, works only in Chrome 
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; // number of lines
 }
 
 .chat-info__unread-count {
@@ -88,5 +106,7 @@
 }
 
 .chat-info__time {
+  margin-left: auto;
+  margin-top: auto;
   white-space: nowrap;
 }
