@@ -2,8 +2,14 @@ import React from 'react';
 
 import avatarSrc from 'assets/test-avatar.jpg';
 
-const ChatsListItem = ({ onItemClick }) => (
-  <div className="chats-list__item" onClick={onItemClick} >
+const ChatsListItem = ({ chat, onItemClick }) => (
+  <div
+    className="chats-list__item"
+    onClick={e => onItemClick(e, chat.id)}
+    onKeyPress={e => e.key === 'Enter' && onItemClick(e, chat.id)}
+    role="link"
+    tabIndex={0}
+  >
     {/* TODO: Extract Avatar as separate component */}
     {/* <div className="chats-list__item-wrapper"> */}
     <div className="avatar-wrapper">

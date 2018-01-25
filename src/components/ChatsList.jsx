@@ -1,13 +1,19 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import ChatsListItem from './ChatsListItem';
 
-const ChatsList = ({ onItemClick }) => (
+const ChatsList = ({ chats, onItemClick }) => (
   <section className="chats-list chats-list_paper">
-    <ChatsListItem onItemClick={onItemClick} />
+    {chats.map((chat, index) => (
+      <Fragment key={chat.id}>
+        <ChatsListItem chat={chat} onItemClick={onItemClick} />
+        {index !== chats.length - 1 && <hr className="chats-list__delimiter" />}
+      </Fragment>
+    ))}
+    {/* <ChatsListItem onItemClick={onItemClick} />
     <hr className="chats-list__delimiter" />
     <ChatsListItem onItemClick={onItemClick} />
     <hr className="chats-list__delimiter" />
-    <ChatsListItem onItemClick={onItemClick} />
+    <ChatsListItem onItemClick={onItemClick} /> */}
   </section>
 );
 

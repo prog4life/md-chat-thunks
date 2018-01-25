@@ -13,6 +13,14 @@ import configureStore from 'store/configureStore';
 const initialState = {
   clientId: '',
   nickname: '',
+  chats: [
+    {
+      id: 'tfhn523'
+    },
+    {
+      id: 'bpxv98'
+    }
+  ],
   messages: [
     {
       id: 'first',
