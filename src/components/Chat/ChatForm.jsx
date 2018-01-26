@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import TextFieldMaterial from './TextFieldMaterial';
+import TextFieldMaterial from 'TextFieldMaterial';
 // import TextFieldMaterialUI from './TextFieldMaterialUI';
 
 class ChatForm extends React.Component {

@@ -1,14 +1,15 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import configureStore from 'store/configureStore';
+
 import AppBar from 'components/AppBar';
 // import Home from 'components/Home';
-import Chats from 'components/Chats';
-import ChatContainer from 'components/Chat';
 import Profile from 'components/Profile';
 import Settings from 'components/Settings';
 import NotFound from 'components/NotFound';
-import configureStore from 'store/configureStore';
+import ChatContainer from './ChatContainer';
+import ChatsContainer from './ChatsContainer';
 
 const initialState = {
   clientId: '',
@@ -52,9 +53,9 @@ const routes = (
     <div className="root-container">
       <AppBar />
       <Switch>
-        <Route component={Chats} exact path="/" />
+        <Route component={ChatsContainer} exact path="/" />
         {/* For wide screen layout: */}
-        {/* <Route component={Chats} exact path="/chats/:chatId" /> */}
+        {/* <Route component={ChatsContainer} exact path="/chats/:chatId" /> */}
         <Route component={ChatContainer} path="/chat/:chatId" />
         <Route component={Profile} path="/profile" />
         <Route component={Settings} path="/settings" />

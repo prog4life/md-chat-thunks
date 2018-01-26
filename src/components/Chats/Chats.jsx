@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
 import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import ChatsList from './ChatsList';
-import ChatContainer from './Chat';
+
+import ChatsList from 'Chats/ChatsList';
+import ChatContainer from 'containers/ChatContainer';
 
 const propTypes = {
   chats: PropTypes.arrayOf(Object).isRequired
@@ -26,6 +26,7 @@ class Chats extends PureComponent {
   render() {
     const { chats } = this.props;
     return (
+      // TODO: stop using shared css classes
       <div className="chats page">
         <div className="chats__container container">
           {/* <h3 className="chat__header">
@@ -54,8 +55,4 @@ class Chats extends PureComponent {
 
 Chats.propTypes = propTypes;
 
-const mapStateToProps = ({ chats }) => ({
-  chats
-});
-
-export default connect(mapStateToProps)(Chats);
+export default Chats;

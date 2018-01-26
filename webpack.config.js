@@ -63,10 +63,13 @@ module.exports = (env) => {
     ],
     resolve: {
       alias: {
-        App: path.resolve(__dirname, 'src/components/App.jsx')
+        App: path.resolve(__dirname, 'src/components/App.jsx'),
+        Components: path.resolve(__dirname, 'src/components'),
+        Utilities: path.resolve(__dirname, 'src/utils')
       },
       modules: [
         // TODO: add "src/components", e.t.c
+        path.resolve(__dirname, 'src/components'),
         path.resolve(__dirname, 'src'),
         'node_modules'
       ],

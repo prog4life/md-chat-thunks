@@ -16,7 +16,7 @@ const ChatPreview = ({ chat, onItemClick }) => (
       <img
         className="avatar__img_small"
         src={avatarSrc}
-        alt="participants avatar"
+        alt="participant avatar"
       />
     </div>
     <section className="chat-preview__info chat-info">

@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
-import ChatPreview from './ChatPreview';
+import ChatPreview from 'Chats/ChatPreview';
 
 const ChatsList = ({ chats, onItemClick }) => (
+  // TODO: stop using shared css classes
   <section className="chats-list paper">
     {chats.map((chat, index) => (
       <Fragment key={chat.id}>

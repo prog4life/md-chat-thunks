@@ -1,27 +1,12 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
-// TODO: try to import files relative to src/, without .., as src is added
-// to modules in webpack's resolve
-import {
-  prepareWebsocketAndClientId,
-  sendMessage,
-  sendTyping,
-  stopTypingNotification,
-  startMonitoring,
-  stopPing
-} from 'actions';
-
-import { filterMessages } from 'selectors/messages';
-
 import typingNotifConfig from 'config/typing-notification';
-import ChatHistory from './ChatHistory';
-import ChatForm from './ChatForm';
-import TypingNotification from './TypingNotification';
+import ChatHistory from 'Chat/ChatHistory';
+import ChatForm from 'Chat/ChatForm';
+import TypingNotification from 'Chat/TypingNotification';
 
-export class Chat extends React.Component {
+class Chat extends React.Component {
   constructor(props) {
     super(props);
 
@@ -62,8 +47,10 @@ export class Chat extends React.Component {
   render() {
     const { messages, whoIsTyping } = this.props;
     return (
+      // TODO: stop using shared css classes
       <div className="chat page">
         <div className="chat__container container">
+          {/* TODO: stop using shared css classes */}
           <section className="chat__section paper">
             {/* <h3 className="chat__header">
               { 'LIL CHAT' }
@@ -92,23 +79,4 @@ Chat.propTypes = {
   whoIsTyping: PropTypes.string.isRequired
 };
 
-const mapStateToProps = state => ({
-  websocketStatus: state.websocketStatus,
-  nickname: state.nickname,
-  clientId: state.clientId,
-  messages: filterMessages(state.messages),
-  whoIsTyping: state.whoIsTyping
-});
-
-const mapDispatchToProps = dispatch => (
-  bindActionCreators({
-    prepareWebsocketAndClientId,
-    sendMessage,
-    sendTyping,
-    stopTypingNotification,
-    startMonitoring,
-    stopPing
-  }, dispatch)
-);
-
-export default connect(mapStateToProps, mapDispatchToProps)(Chat);
+export default Chat;
