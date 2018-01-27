@@ -2,7 +2,7 @@ const ws = require('ws');
 
 const DEF_PING_INTRVL = 10000;
 
-let updatedMessageHandler;
+let actualMessageHandler;
 
 const enablePing = (wss, interval = DEF_PING_INTRVL) => {
   wss.checkInterval = setInterval(() => {
@@ -20,12 +20,29 @@ const enablePing = (wss, interval = DEF_PING_INTRVL) => {
 
 const disablePing = wss => clearInterval(wss.checkInterval);
 
-const setOnMessageHandler = (handler) => {
-  updatedMessageHandler = handler;
+const setOnMessageHandler = (onMessage) => {
+  if (typeof onMessage === 'function') {
+    actualMessageHandler = onMessage;
+  } else {
+    console.error('Expected function as websocket message event handler');
+  }
 };
 
-const handleConnection = (wss, eventHandlers = {}) => (websocket) => {
-  const { messageHandler } = eventHandlers;
+const handleMessage = (websocket, onMessage) => (incoming) => {
+  // console.log('Socket message received: %s', incoming);
+  if (typeof onMessage === 'function') {
+    onMessage(websocket, incoming);
+  }
+};
+
+const handleConnection = (wss, websocketEventHandlers = {}) => (websocket) => {
+  const {
+    handleMessage,
+    handleError,
+    handleClose
+  } = websocketEventHandlers;
+
+  websocketServer.setWebsocketMsgHandler(chat.handleIncomingData.bind(chat));
 
   websocket.isAlive = true;
   // heartbeat callback
@@ -34,22 +51,16 @@ const handleConnection = (wss, eventHandlers = {}) => (websocket) => {
     websocket.isAlive = true;
   });
 
-  websocket.on('message', (incoming) => {
-    // console.log('Socket message received: %s', incoming);
-
-    if (typeof updatedMessageHandler === 'function') {
-      updatedMessageHandler(websocket, incoming);
-    } else if (typeof messageHandler === 'function') {
-      messageHandler(websocket, incoming);
-    }
-  });
+  websocket.on('message', chat.handleIncomingData);
 
   websocket.on('error', (error) => {
     console.error('websocket onerror with error: ', error);
     websocket.terminate();
+    messenger.removeChat(chat);
   });
 
   websocket.on('close', (code, reason) => {
+    messenger.removeChat(chat);
     console.log('websocket onclose code: %s and reason: %s ', code, reason);
     console.log('websocket onclose clients size', wss.clients.size);
   });

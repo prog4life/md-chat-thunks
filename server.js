@@ -7,16 +7,13 @@ const express = require('express');
 // const config = require('./webpack.config.js');
 // const compiler = webpack(config);
 
-const websocketChat = require('./websocket-chat');
 const websocketServer = require('./websocket-server');
 
 const app = express();
 
 const server = http.createServer(app);
 
-const wss = websocketServer.start(server);
-const chat = websocketChat.create(wss);
-websocketServer.setWebsocketMsgHandler(chat.handleIncomingData.bind(chat));
+websocketServer.start(server);
 
 const port = process.env.PORT || 8787;
 // can be something like: path.join(__dirname, '..', 'public')

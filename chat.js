@@ -1,4 +1,4 @@
-const websocket = require('ws');
+const ws = require('ws');
 const shortid = require('shortid');
 const throttle = require('lodash.throttle');
 
@@ -10,24 +10,27 @@ const validateIncomingData = (dataToCheck) => {
   return dataToCheck;
 };
 
-let chatInstance = null;
+// let chatInstance = null;
 
-class WebsocketChat {
-  constructor(websocketServer) {
-    this.setWebsocketServer(websocketServer);
+class Chat {
+  constructor(clientWebsocket, participantWebsocket) {
+    this.participants = [clientWebsocket, participantWebsocket];
+
     // has cancel method
     this.throttledBroadcast = throttle(
       this.broadcast,
       THROTTLE_WAIT,
       { leading: true, trailing: false }
     );
-    this.lap = Date.now();
-    this.sendLap = Date.now();
 
-    if (!chatInstance) {
-      chatInstance = this;
-    }
-    return chatInstance;
+    // this.setWebsocketServer(websocket);
+    // this.lap = Date.now();
+    // this.sendLap = Date.now();
+
+    // if (!chatInstance) {
+    //   chatInstance = this;
+    // }
+    // return chatInstance;
   }
 
   setWebsocketServer(wss) {
@@ -127,7 +130,7 @@ class WebsocketChat {
         console.log('Same clients item, clients size: ', this.wss.clients.size);
         return;
       }
-      if (client.readyState === websocket.OPEN) {
+      if (client.readyState === ws.OPEN) {
         client.send(outgoing);
       } else {
         console.log('Unable to send data, websocket readyState is not open');
@@ -173,5 +176,5 @@ class WebsocketChat {
   }
 }
 
-exports.create = websocketServer => new WebsocketChat(websocketServer);
-exports.WebsocketChat = WebsocketChat;
+exports.create = (clientWs, participantWs) => new Chat(clientWs, participantWs);
+exports.Chat = Chat;
