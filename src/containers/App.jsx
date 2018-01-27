@@ -15,12 +15,12 @@ const initialState = {
   clientId: '',
   nickname: '',
   chats: [
-    {
-      id: 'tfhn523'
-    },
-    {
-      id: 'bpxv98'
-    }
+    // {
+    //   id: 'tfhn523'
+    // },
+    // {
+    //   id: 'bpxv98'
+    // }
   ],
   messages: [
     {

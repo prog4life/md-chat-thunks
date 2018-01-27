@@ -14,6 +14,10 @@ class Chats extends PureComponent {
     super(props);
     this.handleChatListItemClick = this.handleChatListItemClick.bind(this);
   }
+  componentDidMount() {
+    const { prepareWebsocketAndClientId } = this.props;
+    prepareWebsocketAndClientId();
+  }
   handleChatListItemClick(e, chatId) {
     const { history, match } = this.props;
     // console.dir(e);

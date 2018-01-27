@@ -1,4 +1,5 @@
 const ws = require('ws');
+const { Messenger } = require('./server/messenger');
 
 const DEF_PING_INTRVL = 10000;
 
@@ -35,14 +36,14 @@ const handleMessage = (websocket, onMessage) => (incoming) => {
   }
 };
 
-const handleConnection = (wss, websocketEventHandlers = {}) => (websocket) => {
-  const {
-    handleMessage,
-    handleError,
-    handleClose
-  } = websocketEventHandlers;
+const handleConnection = (messenger, handlers = {}) => (websocket) => {
+  // const {
+  //   handleMessage,
+  //   handleError,
+  //   handleClose
+  // } = handlers;
 
-  websocketServer.setWebsocketMsgHandler(chat.handleIncomingData.bind(chat));
+  messenger.websocket = websocket; // NOTE: OR use some setter;
 
   websocket.isAlive = true;
   // heartbeat callback
@@ -51,18 +52,21 @@ const handleConnection = (wss, websocketEventHandlers = {}) => (websocket) => {
     websocket.isAlive = true;
   });
 
-  websocket.on('message', chat.handleIncomingData);
+  websocket.on('message', (incoming) => {
+    // console.log('Socket message received: %s', incoming);
+    messenger.handleIncoming(incoming, websocket);
+  });
 
   websocket.on('error', (error) => {
     console.error('websocket onerror with error: ', error);
     websocket.terminate();
-    messenger.removeChat(chat);
+    // messenger.removeChat(chat);
   });
 
   websocket.on('close', (code, reason) => {
-    messenger.removeChat(chat);
+    // messenger.removeChat(chat);
     console.log('websocket onclose code: %s and reason: %s ', code, reason);
-    console.log('websocket onclose clients size', wss.clients.size);
+    console.log('websocket onclose clients size', messenger.wss.clients.size);
   });
 };
 
@@ -73,7 +77,10 @@ const startServer = (httpServer, websocketHandlers = {}, pingInterval) => {
     // port: 8484
   });
 
-  wss.on('connection', handleConnection(wss, websocketHandlers));
+  const messenger = new Messenger();
+  messenger.wss = wss; // NOTE: OR pass wss to constructor / use some setter;
+
+  wss.on('connection', handleConnection(messenger, websocketHandlers));
   wss.on('error', (error) => {
     console.error('Websocket Server error ', error);
     wss.close(() => {

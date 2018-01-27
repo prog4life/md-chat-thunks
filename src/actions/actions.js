@@ -49,6 +49,12 @@ export const receiveMessage = message => ({
   message
 });
 
+export const addChat = (chatId, participants) => ({
+  type: 'ADD_CHAT',
+  chatId,
+  participants
+});
+
 export const getClientId = () => ({
   type: GET_CLIENT_ID
 });

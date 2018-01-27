@@ -12,6 +12,8 @@ const validateIncomingData = (dataToCheck) => {
 
 // let chatInstance = null;
 
+let chats = [];
+
 class Chat {
   constructor(clientWebsocket, participantWebsocket) {
     this.participants = [clientWebsocket, participantWebsocket];

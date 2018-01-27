@@ -5,8 +5,8 @@ import avatarSrc from 'assets/test-avatar.jpg';
 const ChatPreview = ({ chat, onItemClick }) => (
   <div
     className="chat-preview"
-    onClick={e => onItemClick(e, chat.id)}
-    onKeyPress={e => e.key === 'Enter' && onItemClick(e, chat.id)}
+    onClick={e => onItemClick(e, chat.chatId)}
+    onKeyPress={e => e.key === 'Enter' && onItemClick(e, chat.chatId)}
     role="link"
     tabIndex={0}
   >

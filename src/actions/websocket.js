@@ -7,6 +7,7 @@ import {
 } from 'constants/action-types';
 
 import {
+  addChat,
   receiveTyping,
   receiveMessage,
   pong,
@@ -39,7 +40,7 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
   const incoming = JSON.parse(messageEvent.data);
 
   const {
-    id, clientId, type, nickname, text
+    id, clientId, chatId, type, nickname, text, participants
   } = incoming;
 
   switch (type) {
@@ -66,6 +67,9 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
       break;
     case 'PONG':
       dispatch(pong());
+      break;
+    case 'ADD_CHAT':
+      dispatch(addChat(chatId, participants));
       break;
     case 'CHANGE_NAME':
       break;
