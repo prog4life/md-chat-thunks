@@ -6,7 +6,7 @@ const throttle = require('lodash.throttle');
 
 const THROTTLE_WAIT = 1000;
 
-// TODO: chats must be stored in Chat module, near his model
+// TODO: chats must be stored in Chat module, in same place as his model
 let chats = {
   // chat1: {
   //   participants: []
@@ -14,9 +14,9 @@ let chats = {
   // chat2: {
   //   participants: []
   // }
-}; 
+};
 
-// TODO: clients must be stored in Chat module, near his model
+// TODO: clients must be stored in Client module, in same place as his model
 let clients = {
   // wadwad: {
   //   websocket,
@@ -56,21 +56,7 @@ class Messenger {
       case 'GET_ID':
         newClientId = this.assignNewId();
         this.createClient(newClientId);
-
-        // if (this.wss.clients.size > 1) {
-        //   this.wss.clients.forEach((client) => {
-        //     if (client !== this.websocket) {
-        //       this.createChat(client);
-        //     }
-        //   });
-        // }
-        if (this.wss.clients.size > 1) {
-          Object.keys(clients).forEach((clientId) => {
-            if (clientId !== newClientId) {
-              this.createChat(newClientId, clientId);
-            }
-          });
-        }
+        this.createChats(newClientId);
         break;
       // case 'HAS_ID':
       //   console.log('Has clientId: ', clientId);
@@ -120,6 +106,96 @@ class Messenger {
     return newClient;
   }
 
+  createChats(newClientId) {
+    if (this.wss.clients.size > 1) {
+      Object.keys(clients).forEach((clientId) => {
+        if (clientId !== newClientId) {
+          this.createChat([newClientId, clientId]);
+        }
+      });
+    }
+    // if (this.wss.clients.size > 1) {
+    //   this.wss.clients.forEach((client) => {
+    //     if (client !== this.websocket) {
+    //       this.createChat(client);
+    //     }
+    //   });
+    // }
+  }
+
+  // TODO: pass participants as array ?
+  createChat(participants) {
+    const chatsUpdate = {};
+    // const chat = Chat.create(websocket, client);
+    const newChat = {
+      participants
+    };
+    const newChatId = shortid.generate();
+
+    chatsUpdate[newChatId] = newChat;
+    chats = Object.assign(chats, chatsUpdate);
+
+    // messenger.addChat(chat);
+    // newClient.chats.push(chat);
+
+    participants.forEach((clientId) => {
+      const currentClient = clients[clientId];
+
+      this.sendToOne(currentClient.websocket, {
+        type: 'ADD_CHAT',
+        chatId: newChatId,
+        // current (new) client is not included
+        participants: participants.filter(id => id !== clientId)
+      });
+      currentClient.chats = currentClient.chats.concat(newChatId);
+    });
+  }
+
+  // removeChats(websocket) {
+  //   let chatsToRemove;
+
+  //   Object.keys(clients).forEach((clientId) => {
+  //     const client = clients[clientId];
+  //     // client which socket was closed
+  //     if (client.websocket === websocket) {
+  //       chatsToRemove = [...client.chats];
+  //       chatsToRemove.forEach((chatId) => {
+  //         // remove chats related to client which socket was closed
+  //         delete chats[chatId];
+  //       });
+  //       client.chats = [];
+  //     }
+  //     // remove closed chats from other clients
+  //     client.chats = client.chats.filter((chatId) => {
+  //       if (chatsToRemove.include(chatId)) {
+
+  //       }
+  //     });
+  //     // clients which sockets were not closed
+  //   });
+  // }
+
+  /* eslint-disable class-methods-use-this */
+  removeChat(chatId, clientId, participants) {
+    clients[clientId].chats.filter(id => id !== chatId);
+
+    // if all clients have deleted chat with such id, remove it completely
+    if (participants.every(id => !clients[id].chats.include(chatId))) {
+      delete chats[chatId];
+    }
+  }
+
+  removeClient(websocket) {
+    Object.keys(clients).forEach((clientId) => {
+      const client = clients[clientId];
+      // client which socket was closed
+      if (client.websocket === websocket) {
+        delete clients[clientId];
+      }
+    });
+  }
+  /* eslint-enable */
+
   // createChat(participant, websocket = this.websocket) {
   //   const chatsUpdate = {};
   //   // const chat = Chat.create(websocket, client);
@@ -142,30 +218,6 @@ class Messenger {
   //   ));
   // }
 
-  /* eslint-disable class-methods-use-this */
-  createChat(newClientId, participantId) {
-    const chatsUpdate = {};
-    // const chat = Chat.create(websocket, client);
-    const newChat = {
-      participants: [newClientId, participantId]
-    };
-    const newChatId = shortid.generate();
-
-    chatsUpdate[newChatId] = newChat;
-    chats = Object.assign(chats, chatsUpdate);
-
-    // messenger.addChat(chat);
-    // newClient.chats.push(chat);
-
-    newChat.participants.forEach(clientId => (
-      clients[clientId].websocket.send(JSON.stringify({
-        type: 'ADD_CHAT',
-        chatId: newChatId,
-        participants: [newClientId, participantId]
-      }))
-    ));
-  }
-
   sendPong(websocket = this.client) {
     console.log('get ping from client, send pong');
     this.sendToOne(websocket, {
@@ -173,7 +225,19 @@ class Messenger {
     });
   }
 
+  // sendToEach(websockets, dataToSend) {
+  //   websockets.forEach((socket) => {
+  //     socket.send(JSON.stringify(dataToSend), (e) => {
+  //       if (e) {
+  //         console.log('Failed to send data to one client: ', e);
+  //       }
+  //       console.log('Next data was sent to one client: ', dataToSend);
+  //     });
+  //   });
+  // }
+
   sendToOne(websocket = this.client, dataToSend) {
+    // TODO: check if websocket open ?
     websocket.send(JSON.stringify(dataToSend), (e) => {
       if (e) {
         console.log('Failed to send data to one client: ', e);
@@ -200,6 +264,18 @@ class Messenger {
         console.log('Unable to send data, websocket readyState is not open');
       }
     });
+  }
+
+  // has cancel method
+  throttledBroadcast(websocket, outgoing) {
+    return throttle(
+      this.broadcast,
+      THROTTLE_WAIT,
+      { leading: true, trailing: false }
+    )(
+      websocket,
+      outgoing
+    );
   }
 
   resendMessageToAll(websocket = this.client, incoming) {

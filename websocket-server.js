@@ -43,7 +43,7 @@ const handleConnection = (messenger, handlers = {}) => (websocket) => {
   //   handleClose
   // } = handlers;
 
-  messenger.websocket = websocket; // NOTE: OR use some setter;
+  messenger.websocket = websocket; // NOTE: OR use some setter
 
   websocket.isAlive = true;
   // heartbeat callback
@@ -64,7 +64,8 @@ const handleConnection = (messenger, handlers = {}) => (websocket) => {
   });
 
   websocket.on('close', (code, reason) => {
-    // messenger.removeChat(chat);
+    // messenger.removeChats(websocket);
+    messenger.removeClient(websocket);
     console.log('websocket onclose code: %s and reason: %s ', code, reason);
     console.log('websocket onclose clients size', messenger.wss.clients.size);
   });
