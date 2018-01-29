@@ -54,6 +54,31 @@
   min-height: 7.2rem;
 }
 
+.chat-preview__close-btn {
+  // align-items: center;        // required for positioning of inner svg
+  background-color: transparent; // required
+  border: 0;                     // required
+  cursor: pointer;
+  // display: inline-flex;         // required for positioning of inner svg
+  // justify-content: center;      // required for positioning of inner svg
+  padding: 0.1rem;                 // required instead of inline-flex
+  user-select: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  width: 1.6rem;              // required, === padding x 2 + svg height/width
+  height: 1.6rem;             // required
+  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+}
+
+.close-btn__svg {
+  // cursor: pointer;
+  fill: #bfbfbf; // OR: currentColor | none;
+  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  height: 1.4rem; // required to set how much space of parent svg will fill in
+  width: 1.4rem;  // required to set how much space of parent svg will fill in
+  user-select: none;
+}
+
 .chat-info {
   display: flex;
   flex-flow: column nowrap;
@@ -70,10 +95,9 @@
 
 .chat-info__main {
   display: flex;
-  // justify-content: space-between;
-  // margin: auto;
-  min-height: auto;
-  padding-bottom: 1rem; // if flex-container has default flex direction
+  // margin: auto 0;
+  min-height: 3rem;
+  // padding-bottom: 1rem;
 }
 
 // TODO: extract styles for non-wrapped single line with ellipsis
@@ -98,6 +122,7 @@
 
 .chat-info__unread-count {
   margin-left: auto;
+  padding-right: 1.6rem;
 }
 
 .chat-info__additional {
