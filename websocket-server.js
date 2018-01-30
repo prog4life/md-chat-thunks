@@ -53,6 +53,10 @@ const handleConnection = (messenger, handlers = {}) => (websocket) => {
   });
 
   websocket.on('message', (incoming) => {
+    // TODO: pass function expression as listener and check value of this,
+    // if it will be websocket, check it or utilize in handleIncoming
+    // TODO: some unknown additional GET request to 8080 happens
+    // after websocket connection request
     // console.log('Socket message received: %s', incoming);
     messenger.handleIncoming(incoming, websocket);
   });

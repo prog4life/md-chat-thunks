@@ -17,12 +17,12 @@ module.exports = (env) => {
 
   return {
     entry: {
-      bundle: [
-        'babel-polyfill',
-        // 'normalize.css/normalize.css',
-        // './src/styles/index.scss',
-        './src/index.jsx'
-      ]
+      bundle: isProduction
+        ? ['babel-polyfill',
+          // 'normalize.css/normalize.css',
+          // './src/styles/index.scss',
+          './src/index.jsx']
+        : './src/index.jsx'
     },
     output: {
       filename: '[name].js', // 'js/[name].js'; [name].[chunkhash].js in PROD
@@ -55,7 +55,7 @@ module.exports = (env) => {
       )
       // new HTMLWebpackPlugin({
       //   title: 'Local Wall',
-      //   favicon: '/images/favicon.png'
+      //   favicon: 'src/assets/favicon.png'
       //   // filename: 'assets/custom.html'
       //   // append webpack compilation hash to all included js and css files,
       //   // hash: true // usefull for cache busting
