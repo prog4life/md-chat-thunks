@@ -10,6 +10,7 @@
   position: relative;
 }
 
+// centering or positioning (using margin or distances) of an image
 .avatar__img_small {
   border-radius: 50%;
   position: absolute;
@@ -17,36 +18,21 @@
   right: 0;
   bottom: 0;
   left: 0;
-  // margin: 0 auto; // for middle-top layout
-  margin: auto;
-  height: 100%;
-  width: 100%;
+  margin: auto; // margin: 0 auto; // for middle-top layout
+  height: 100%; // height: 65%;
+  width: 100%;  // width: 65%;
 }
-
-// centering or positioning (using margin or distances) of an image
-// .avatar__img_small {
-//   position: absolute;
-//   top: 0;
-//   right: 0;
-//   bottom: 0;
-//   left: 0;
-//   margin: auto; // OR margin 0 auto;
-//   height: 65%;
-//   width: 65%;
-// }
 
 .chat-preview {
   display: flex;
   min-width: 40rem;
   padding: 1.6rem;
-}
+  outline: none;
 
-.chat-preview:hover {
-  cursor: pointer;
+  &:hover {
+    cursor: pointer;
+  }
 }
-
-// .chat-preview__item-wrapper {
-// }
 
 .chat-preview__info {
   flex: 1;
@@ -58,7 +44,9 @@
   // align-items: center;        // required for positioning of inner svg
   background-color: transparent; // required
   border: 0;                     // required
+  color: #bfbfbf;
   cursor: pointer;
+  outline: none;
   // display: inline-flex;         // required for positioning of inner svg
   // justify-content: center;      // required for positioning of inner svg
   padding: 0.1rem;                 // required instead of inline-flex
@@ -68,14 +56,18 @@
   width: 1.6rem;              // required, === padding x 2 + svg height/width
   height: 1.6rem;             // required
   transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+
+  &:active {
+    color: #6e6b6b;
+  }
 }
 
 .close-btn__svg {
   // cursor: pointer;
-  fill: #bfbfbf; // OR: currentColor | none;
+  fill: currentColor; // OR: currentColor | none;
   transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  height: 1.4rem; // required to set how much space of parent svg will fill in
-  width: 1.4rem;  // required to set how much space of parent svg will fill in
+  // height: 1.4rem; // required to set how much space of parent svg will fill in
+  // width: 1.4rem;  // required to set how much space of parent svg will fill in
   user-select: none;
 }
 

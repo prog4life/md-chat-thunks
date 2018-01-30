@@ -20,6 +20,7 @@ public/*.css.map
 src/assets/
 
 # config/
+**/.env
 
 # .eslintrc.json
 # .eslintignore

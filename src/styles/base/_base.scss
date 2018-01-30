@@ -3,16 +3,27 @@ html {
   // box-sizing: border-box;
   font-size: 62.5%;
   // -webkit-font-smoothing: antialiased;
-  // -moz-osx-font-smoothing: grayscale;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   margin: 0;
   background-color: #fafafa; // from Material UI
-  font-family: Helvetica, Verdana, sans-serif;
+  // font-family: 'Roboto', 'Helvetica', 'Verdana', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 1.6rem;
   // min-height: 100vh;
   // height: 100%; // at Yandex site
+}
+
+// from Google Fonts site:
+html,
+body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
 }
 
 *,

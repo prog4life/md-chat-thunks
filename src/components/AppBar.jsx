@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import appLogo from 'assets/test-svg-apptentive.svg';
+import appLogo from 'assets/consul.svg';
 import Drawer from './Drawer';
 
 
@@ -26,12 +26,12 @@ class AppBar extends Component {
             {'MENU'}
           </button>
         </div>
-        <div className="app-bar__logo-wrapper">
+        <div className="app-bar__logo logo">
           {/* TODO: replace by NavLink/Link */}
-          <Link className="app-bar__logo-link" to="/" >
-            <img className="app-bar__logo" src={appLogo} alt="app-logo" />
+          <Link className="logo__link" to="/" >
+            <img className="logo__img" src={appLogo} alt="app-logo" />
           </Link>
-          <h1>{'Lil Chat'}</h1>
+          <h1 className="logo__text">{'LOCAL CHAT'}</h1>
         </div>
         <Drawer
           isOpened={this.state.isDrawerOpened}

@@ -13,6 +13,7 @@ class Chats extends PureComponent {
   constructor(props) {
     super(props);
     this.handleChatListItemClick = this.handleChatListItemClick.bind(this);
+    this.handleChatItemClose = this.handleChatItemClose.bind(this);
   }
   componentDidMount() {
     const { prepareWebsocketAndClientId } = this.props;
@@ -20,12 +21,16 @@ class Chats extends PureComponent {
   }
   handleChatListItemClick(e, chatId) {
     const { history, match } = this.props;
-    // console.dir(e);
+    console.dir(e.target);
     console.dir(chatId);
     console.log(match);
 
     // history.push(`${match.url}/:${chatId}`);
     history.push(`/chat/${chatId}`);
+  }
+  handleChatItemClose(e, chatId) {
+    e.stopPropagation();
+    console.dir(e.target);
   }
   render() {
     const { chats } = this.props;
@@ -36,7 +41,11 @@ class Chats extends PureComponent {
           {/* <h3 className="chat__header">
             {'Chats Page'}
           </h3> */}
-          <ChatsList chats={chats} onItemClick={this.handleChatListItemClick} />
+          <ChatsList
+            chats={chats}
+            onClose={this.handleChatItemClose}
+            onItemClick={this.handleChatListItemClick}
+          />
         </div>
         {/* <Route component={ChatContainer} exact path={`${match.url}`} /> */}
         <div className="test-picture" />
