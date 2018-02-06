@@ -1,30 +1,18 @@
-// const Chat = require('./chat');
-// const Client = require('./client');
 const ws = require('ws');
-const shortid = require('shortid');
 const throttle = require('lodash.throttle');
+const chat = require('./chat');
+const client = require('./client');
+const { chats } = require('./chat');
+const { clients } = require('./client');
 
 const THROTTLE_WAIT = 1000;
 
-// TODO: chats must be stored in Chat module, in same place as his model
-let chats = {
-  // chat1: {
-  //   participants: []
-  // },
-  // chat2: {
-  //   participants: []
-  // }
-};
-
-// TODO: clients must be stored in Client module, in same place as his model
-let clients = {
-  // wadwad: {
-  //   websocket,
-  //   chats: ['chatid1', 'chatid2']
-  // },
-  // awd234: {
-  //   websocket,
-  //   chats: ['chatid1', 'chatid2']
+let messages = {
+  // 'messageId1': {
+  //   id: 'messageId1',
+  //   from: 'clientId1',
+  //   to: ['clientId2'],
+  //   status: 'SENT', // 'DELIVERED', 'SEEN'
   // }
 };
 
@@ -50,13 +38,16 @@ class Messenger {
       return;
     }
     const { type } = incoming;
-    let newClientId;
+
+    let newClient;
 
     switch (type) {
       case 'GET_ID':
-        newClientId = this.assignNewId();
-        this.createClient(newClientId);
-        this.createChats(newClientId);
+        newClient = client.addOne(websocket);
+        // send back to client his new id
+        this.sendNewClientId(newClient.id, websocket);
+        // create chats between new client and each other
+        this.createChats(newClient.id);
         break;
       // case 'HAS_ID':
       //   console.log('Has clientId: ', clientId);
@@ -82,72 +73,40 @@ class Messenger {
     }
   }
 
-  assignNewId(websocket = this.websocket) {
-    const clientId = shortid.generate();
-
+  /* eslint-disable class-methods-use-this */
+  sendNewClientId(clientId, websocket) {
     this.sendToOne(websocket, {
-      clientId,
-      type: 'SET_ID'
+      type: 'SET_ID',
+      clientId
     });
-
-    return clientId;
-  }
-
-  createClient(newClientId, websocket = this.websocket) {
-    const clientsUpdate = {};
-    const newClient = { // OR Client.assignId() OR new Client() => new id
-      websocket,
-      chats: []
-    };
-
-    clientsUpdate[newClientId] = newClient;
-    clients = Object.assign(clients, clientsUpdate);
-
-    return newClient;
   }
 
   createChats(newClientId) {
     if (this.wss.clients.size > 1) {
+      // NOTE: probably "clients" should be replaced by getClients()
       Object.keys(clients).forEach((clientId) => {
         if (clientId !== newClientId) {
           this.createChat([newClientId, clientId]);
         }
       });
     }
-    // if (this.wss.clients.size > 1) {
-    //   this.wss.clients.forEach((client) => {
-    //     if (client !== this.websocket) {
-    //       this.createChat(client);
-    //     }
-    //   });
-    // }
   }
 
-  // TODO: pass participants as array ?
   createChat(participants) {
-    const chatsUpdate = {};
-    // const chat = Chat.create(websocket, client);
-    const newChat = {
-      participants
-    };
-    const newChatId = shortid.generate();
-
-    chatsUpdate[newChatId] = newChat;
-    chats = Object.assign(chats, chatsUpdate);
-
-    // messenger.addChat(chat);
-    // newClient.chats.push(chat);
+    const newChat = chat.addOne(participants);
 
     participants.forEach((clientId) => {
+      // NOTE: probably "clients" should be replaced by getClients()
       const currentClient = clients[clientId];
 
       this.sendToOne(currentClient.websocket, {
         type: 'ADD_CHAT',
-        chatId: newChatId,
-        // current (new) client is not included
+        chatId: newChat.id,
+        // currentClient's own id is not included
         participants: participants.filter(id => id !== clientId)
       });
-      currentClient.chats = currentClient.chats.concat(newChatId);
+
+      currentClient.chats.push(newChat.id);
     });
   }
 
@@ -175,50 +134,43 @@ class Messenger {
   //   });
   // }
 
-  /* eslint-disable class-methods-use-this */
-  removeChat(chatId, clientId, participants) {
+  removeChat(chatId, clientId) {
+    // NOTE: probably "clients" should be replaced by getClients()
     clients[clientId].chats.filter(id => id !== chatId);
 
+    // NOTE: probably "chats" should be replaced by getChats()
+    const { participants } = chats[chatId];
+
     // if all clients have deleted chat with such id, remove it completely
+    // NOTE: probably "clients" should be replaced by getClients()
     if (participants.every(id => !clients[id].chats.include(chatId))) {
-      delete chats[chatId];
+      chat.deleteOne(chatId);
     }
   }
 
+  // TODO: change to disconnectClient later, and set connected: false
   removeClient(websocket) {
+    console.log('--- removeClient start clients ---');
+    console.log.apply(null, Object.keys(clients));
+    console.log('--- removeClient start getClients() ---');
+    const clts = client.getClients();
+    console.log(clts);
+    // NOTE: probably "clients" should be replaced by getClients()
     Object.keys(clients).forEach((clientId) => {
-      const client = clients[clientId];
+      const currentClient = clients[clientId];
       // client which socket was closed
-      if (client.websocket === websocket) {
-        delete clients[clientId];
+      if (currentClient.websocket === websocket) {
+        client.deleteOne(clientId);
       }
     });
+    console.log('--- removeClient end clients ---');
+    console.log.apply(null, Object.keys(clients));
+    console.log('--- removeClient end getClients() ---');
+    const clts2 = client.getClients();
+    console.log(clts2);
   }
-  /* eslint-enable */
 
-  // createChat(participant, websocket = this.websocket) {
-  //   const chatsUpdate = {};
-  //   // const chat = Chat.create(websocket, client);
-  //   const newChat = {
-  //     participants: [websocket, participant]
-  //   };
-  //   const newChatId = shortid.generate();
-
-  //   chatsUpdate[newChatId] = newChat;
-  //   chats = Object.assign(chats, chatsUpdate);
-
-  //   // messenger.addChat(chat);
-  //   // newClient.chats.push(chat);
-
-  //   newChat.participants.forEach(socket => (
-  //     socket.send(JSON.stringify({
-  //       type: 'ADD_CHAT',
-  //       chatId: newChatId
-  //     }))
-  //   ));
-  // }
-
-  sendPong(websocket = this.client) {
+  sendPong(websocket) {
     console.log('get ping from client, send pong');
     this.sendToOne(websocket, {
       type: 'PONG'
@@ -236,7 +188,7 @@ class Messenger {
   //   });
   // }
 
-  sendToOne(websocket = this.client, dataToSend) {
+  sendToOne(websocket, dataToSend) {
     // TODO: check if websocket open ?
     websocket.send(JSON.stringify(dataToSend), (e) => {
       if (e) {
@@ -247,7 +199,7 @@ class Messenger {
   }
 
   // send to everyone else
-  broadcast(websocket = this.client, outgoing) {
+  broadcast(websocket, outgoing) {
     // TODO: remove
     const thisMoment = Date.now();
     console.log('Sending: ', thisMoment - this.sendLap);
@@ -278,7 +230,7 @@ class Messenger {
     );
   }
 
-  resendMessageToAll(websocket = this.client, incoming) {
+  resendMessageToAll(websocket, incoming) {
     // NOTE: this method is added for further additional processing of incoming
     const {
       id, clientId, nickname, text, type
@@ -295,7 +247,7 @@ class Messenger {
     this.broadcast(websocket, outgoing);
   }
 
-  sendTypingNotification(websocket = this.client, incoming) {
+  sendTypingNotification(websocket, incoming) {
     // NOTE: this method is added for further additional processing of incoming
     // const { clientId, nickname, type } = incoming;
     //

@@ -8,7 +8,7 @@ const websocketMsgHandlers = {
   }
 };
 
-routeIncoming = (incoming, handlers) => {
+const routeIncoming = (incoming, handlers = websocketMsgHandlers) => {
   handlers[incoming.type](incoming);
 };
 
@@ -24,4 +24,7 @@ routeIncoming = (incoming, handlers) => {
 //   handlers[handlerName]();
 // };
 
-routeIncoming({ type: 'ANOTHER_TYPE', msg: 'Yay' }, websocketMsgHandlers);
+// routeIncoming({ type: 'ANOTHER_TYPE', msg: 'Yay' }, websocketMsgHandlers);
+routeIncoming({ type: 'ANOTHER_TYPE', msg: 'Yay' });
+
+// export default routeIncoming;
