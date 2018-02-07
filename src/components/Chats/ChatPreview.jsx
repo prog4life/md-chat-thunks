@@ -1,4 +1,5 @@
 import React from 'react';
+import Avatar from 'components/Avatar';
 
 import avatarSrc from 'assets/test-avatar.jpg';
 
@@ -12,13 +13,7 @@ const ChatPreview = ({ chat, onItemClick, onClose }) => (
   >
     {/* TODO: Extract Avatar as separate component */}
     {/* <div className="chat-preview__item-wrapper"> */}
-    <div className="chat-preview__avatar avatar">
-      <img
-        className="avatar__img_small"
-        src={avatarSrc}
-        alt="participant avatar"
-      />
-    </div>
+    <Avatar />
     <section className="chat-preview__info chat-info">
       <div className="chat-info__main">
         <header className="chat-info__name">

@@ -6,7 +6,8 @@ import ChatsList from 'Chats/ChatsList';
 import ChatContainer from 'containers/ChatContainer';
 
 const propTypes = {
-  chats: PropTypes.arrayOf(Object).isRequired
+  chats: PropTypes.arrayOf(Object).isRequired,
+  clientId: PropTypes.string.isRequired
 };
 
 class Chats extends PureComponent {
@@ -30,7 +31,10 @@ class Chats extends PureComponent {
   }
   handleChatItemClose(e, chatId) {
     e.stopPropagation();
-    console.dir(e.target);
+    const { clientId, deleteChat } = this.props;
+
+    console.dir(e.target, chatId);
+    deleteChat(chatId, clientId);
   }
   render() {
     const { chats } = this.props;

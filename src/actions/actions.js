@@ -12,6 +12,7 @@ import {
 } from 'constants/action-types';
 
 import { tryToSend } from './connection';
+import { getWebsocket } from './websocket';
 
 export const sendMessageAttempt = ({ id, clientId, nickname, text }) => ({
   type: SEND_MESSAGE_ATTEMPT,
@@ -55,13 +56,32 @@ export const addChat = (chatId, participants) => ({
   participants
 });
 
+export const deleteChat = (chatId, clientId) => {
+  const ws = getWebsocket();
+  const outgoing = {
+    type: 'DELETE_CHAT',
+    chatId,
+    clientId
+  };
+
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(outgoing));
+  } else {
+    console.warn('WebSocket state is not open, unable to send: ', outgoing);
+  }
+  return {
+    type: 'DELETE_CHAT',
+    chatId
+  };
+};
+
 export const getClientId = () => ({
   type: GET_CLIENT_ID
 });
 
 export const requestClientId = () => (dispatch) => {
   const outgoing = { type: 'GET_ID' };
-  dispatch(tryToSend({ outgoing }));
+  dispatch(tryToSend(outgoing));
   // it's Redux action type, while above type is JSON websocket msg type
   dispatch(getClientId());
 };
@@ -107,11 +127,8 @@ export const sendUnsentMessages = () => (dispatch, getState) => {
       nickname: unsentMessage.nickname || nickname
     };
 
-    dispatch(tryToSend({
-      outgoing,
-      actions: {
-        success: sendMessageSuccess(outgoing)
-      }
+    dispatch(tryToSend(outgoing, {
+      success: sendMessageSuccess(outgoing)
     }));
   });
 };
@@ -134,7 +151,7 @@ export const sendTyping = (nickname, clientId) => (dispatch) => {
 
   // NOTE: maybe it's reasonable to try to send this without trying to recreate
   // connection if there is no such
-  dispatch(tryToSend({ outgoing }));
+  dispatch(tryToSend(outgoing));
 };
 
 export const sendMessage = (nickname, text) => (dispatch, getState) => {
@@ -168,11 +185,8 @@ export const sendMessage = (nickname, text) => (dispatch, getState) => {
     return;
   }
 
-  dispatch(tryToSend({
-    outgoing: message,
-    actions: {
-      success: sendMessageSuccess(message),
-      fail: sendMessageFail(message)
-    }
+  dispatch(tryToSend(message, {
+    success: sendMessageSuccess(message),
+    fail: sendMessageFail(message)
   }));
 };

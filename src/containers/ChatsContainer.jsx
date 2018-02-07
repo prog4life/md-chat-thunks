@@ -1,10 +1,17 @@
 import { connect } from 'react-redux';
 
 import Chats from 'Chats';
-import { prepareWebsocketAndClientId } from 'actions';
+import { prepareWebsocketAndClientId, deleteChat } from 'actions';
 
-const mapStateToProps = ({ chats }) => ({
+const mapStateToProps = ({ clientId, chats }) => ({
+  clientId,
   chats
 });
 
-export default connect(mapStateToProps, { prepareWebsocketAndClientId })(Chats);
+export default connect(
+  mapStateToProps,
+  {
+    prepareWebsocketAndClientId,
+    deleteChat
+  }
+)(Chats);

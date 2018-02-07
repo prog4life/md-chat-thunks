@@ -63,6 +63,9 @@ class Messenger {
         break;
       case 'CHANGE_NAME':
         break;
+      case 'DELETE_CHAT':
+        this.removeChat(incoming);
+        break;
       case 'OPEN_CHAT':
         this.createChat(websocket, incoming);
         break;
@@ -134,18 +137,25 @@ class Messenger {
   //   });
   // }
 
-  removeChat(chatId, clientId) {
+  removeChat({ chatId, clientId }) {
+    const clientChats = clients[clientId].chats;
+    console.log('--- removeChat start CHATS ---');
+    console.log.apply(null, Object.keys(chats));
+    console.log('--- removeChat start CLIENT chats: ', clientChats);
     // NOTE: probably "clients" should be replaced by getClients()
-    clients[clientId].chats.filter(id => id !== chatId);
+    clients[clientId].chats = clientChats.filter(id => id !== chatId);
 
     // NOTE: probably "chats" should be replaced by getChats()
     const { participants } = chats[chatId];
 
-    // if all clients have deleted chat with such id, remove it completely
+    // if all participants have deleted chat with such id, remove it completely
     // NOTE: probably "clients" should be replaced by getClients()
-    if (participants.every(id => !clients[id].chats.include(chatId))) {
+    if (participants.every(id => clients[id].chats.indexOf(chatId) === -1)) {
       chat.deleteOne(chatId);
     }
+    console.log('--- removeChat end CHATS ---');
+    console.log.apply(null, Object.keys(chats));
+    console.log('--- removeChat end CLIENT chats: ', clients[clientId].chats);
   }
 
   // TODO: change to disconnectClient later, and set connected: false

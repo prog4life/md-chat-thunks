@@ -18,7 +18,10 @@ import {
 } from 'actions';
 
 let webSocket;
+
 export const getWebsocket = () => webSocket;
+
+// TODO: rename handlers to listeners
 
 // for removing initial listeners from the outside
 const initialWebsocketEventHandlers = {};

@@ -27,7 +27,7 @@ export const prepareWebsocketAndClientId = clientId => (dispatch, getState) => {
   }
 };
 
-export const tryToSend = ({ outgoing, actions = {} }) => (dispatch) => {
+export const tryToSend = (outgoing, actions = {}) => (dispatch) => {
   const { success: successAction, fail: failAction } = actions;
   const webSocket = getWebsocket();
 
@@ -109,9 +109,7 @@ export const startMonitoring = () => (dispatch) => {
       return;
     }
     heartbeat = false;
-    dispatch(tryToSend({
-      outgoing: { type: 'PING' }
-    }));
+    dispatch(tryToSend({ type: 'PING' }));
   }, MONITORING_INTRVL);
 
   heartbeat = true;
