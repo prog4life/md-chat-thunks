@@ -12,7 +12,6 @@ import {
 } from 'constants/action-types';
 
 import { tryToSend } from './connection';
-import { getWebsocket } from './websocket';
 
 export const sendMessageAttempt = ({ id, clientId, nickname, text }) => ({
   type: SEND_MESSAGE_ATTEMPT,
@@ -40,6 +39,7 @@ export const sendMessageSuccess = ({ id, clientId, nickname, text }) => ({
   }
 });
 
+// will add message to unsent
 export const sendMessageFail = message => ({
   type: SEND_MESSAGE_FAIL,
   message
@@ -57,33 +57,28 @@ export const addChat = (chatId, participants) => ({
 });
 
 export const deleteChat = (chatId, clientId) => {
-  const ws = getWebsocket();
   const outgoing = {
     type: 'DELETE_CHAT',
     chatId,
     clientId
   };
 
-  if (ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify(outgoing));
-  } else {
-    console.warn('WebSocket state is not open, unable to send: ', outgoing);
-  }
+  // TODO: add 3rd arg with action that postpones chat deleting command
+  tryToSend(outgoing, true);
+
   return {
     type: 'DELETE_CHAT',
     chatId
   };
 };
 
-export const getClientId = () => ({
-  type: GET_CLIENT_ID
-});
-
-export const requestClientId = () => (dispatch) => {
+export const getClientId = () => (dispatch) => {
   const outgoing = { type: 'GET_ID' };
-  dispatch(tryToSend(outgoing));
-  // it's Redux action type, while above type is JSON websocket msg type
-  dispatch(getClientId());
+  dispatch(tryToSend(outgoing, true));
+  // TODO: check if it works
+  return {
+    type: GET_CLIENT_ID
+  };
 };
 
 export const setClientId = clientId => ({
@@ -101,41 +96,32 @@ export const receiveTyping = nickname => ({
   nickname
 });
 
-export const stopTypingNotification = () => ({
-  type: STOP_TYPING_NOTIFICATION
+// TODO: track one who is typing by clientId
+export const stopTypingNotification = nickname => ({
+  type: STOP_TYPING_NOTIFICATION,
+  nickname
 });
 
-// TODO: limit sending to last * messages
-// TODO: consider complete removing unsent array from store by iterating over
-// messages and checking their status
+// TODO: limit sending to last * messages ?
+// TODO: consider complete removing unsent array from store and iterating over
+// messages and checking their statuses instead
 export const sendUnsentMessages = () => (dispatch, getState) => {
-  const { unsent, clientId, nickname } = getState();
-
-  if (!clientId) {
-    dispatch(requestClientId());
-    return;
-  }
+  const { unsent } = getState();
 
   if (unsent.length < 1) {
     return;
   }
 
   unsent.forEach((unsentMessage) => {
-    const outgoing = {
-      ...unsentMessage,
-      clientId: unsentMessage.clientId || clientId,
-      nickname: unsentMessage.nickname || nickname
-    };
-
-    dispatch(tryToSend(outgoing, {
-      success: sendMessageSuccess(outgoing)
+    dispatch(tryToSend(unsentMessage, true, {
+      successAction: sendMessageSuccess(unsentMessage)
     }));
   });
 };
 
 export const sendTyping = (nickname, clientId) => (dispatch) => {
   if (!clientId) {
-    dispatch(requestClientId());
+    dispatch(getClientId());
     return;
   }
 
@@ -149,13 +135,11 @@ export const sendTyping = (nickname, clientId) => (dispatch) => {
     type: 'IS_TYPING'
   };
 
-  // NOTE: maybe it's reasonable to try to send this without trying to recreate
-  // connection if there is no such
-  dispatch(tryToSend(outgoing));
+  dispatch(tryToSend(outgoing, false));
 };
 
-export const sendMessage = (nickname, text) => (dispatch, getState) => {
-  const { clientId, unsent, nickname: existingNickname } = getState();
+export const sendMessage = text => (dispatch, getState) => {
+  const { clientId, unsent, nickname } = getState();
   const message = {
     id: shortid.generate(),
     // TODO: add timestamp here?
@@ -165,28 +149,29 @@ export const sendMessage = (nickname, text) => (dispatch, getState) => {
     type: 'MESSAGE'
   };
 
-  // TEMP replace it later to connected ChatForm or elsewhere,
+  // TEMP: replace it later to connected ChatForm or elsewhere,
   // TODO: dispatch CHANGE_NICKNAME action, and send notification
-  if (nickname !== existingNickname) {
-    dispatch(setNickname(nickname));
-  }
+  // if (nickname !== existingNickname) {
+  //   dispatch(setNickname(nickname));
+  // }
 
   dispatch(sendMessageAttempt(message));
 
   if (!clientId) {
     dispatch(sendMessageFail(message));
-    dispatch(requestClientId());
+    dispatch(getClientId());
     return;
   }
 
   if (unsent.length > 0) {
-    dispatch(sendMessageFail(message));
+    // TODO: create additional action, something like POSTPONE_SENDING ?
+    dispatch(sendMessageFail(message)); // to postpone sending
     dispatch(sendUnsentMessages());
     return;
   }
 
-  dispatch(tryToSend(message, {
-    success: sendMessageSuccess(message),
-    fail: sendMessageFail(message)
+  dispatch(tryToSend(message, true, {
+    successAction: sendMessageSuccess(message),
+    failAction: sendMessageFail(message)
   }));
 };

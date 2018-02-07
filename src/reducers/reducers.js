@@ -7,54 +7,9 @@
 //   SET_NICKNAME,
 //   RECEIVE_TYPING,
 //   STOP_TYPING_NOTIFICATION,
-//   PING,
-//   PONG,
-//   RECONNECT,
-//   START_PING,
-//   STOP_PING,
-//   WEBSOCKET_CLOSING,
-//   WEBSOCKET_OPEN,
-//   WEBSOCKET_CLOSED,
-//   WEBSOCKET_ERROR,
-//   WEBSOCKET_CONNECTING
 // } from 'constants/action-types';
 
 import * as at from 'constants/action-types';
-
-// TEMP: optional
-export const websocketStatus = (state = null, action) => {
-  switch (action.type) {
-    case at.WEBSOCKET_OPEN:
-    case at.WEBSOCKET_CONNECTING:
-    case at.WEBSOCKET_CLOSING:
-    case at.WEBSOCKET_CLOSED:
-    case at.WEBSOCKET_ERROR:
-      return action.status;
-    default:
-      return state;
-  }
-};
-
-export const connectionMonitoring = (state = { heartbeat: true }, action) => {
-  switch (action.type) {
-    case at.START_PING:
-    case at.STOP_PING:
-      return {
-        ...state,
-        intervalId: action.intervalId,
-        heartbeat: action.heartbeat
-      };
-    case at.PING:
-    case at.PONG:
-    case at.RECONNECT:
-      return {
-        ...state,
-        heartbeat: action.heartbeat
-      };
-    default:
-      return state;
-  }
-};
 
 export const nickname = (state = '', action) => {
   switch (action.type) {
@@ -74,56 +29,18 @@ export const clientId = (state = '', action) => {
   }
 };
 
-// TODO: add queued/postponed status
-export const message = (state, action) => {
-  switch (action.type) {
-    case at.SEND_MESSAGE_ATTEMPT:
-      return {
-        ...action.message
-      };
-    case at.SEND_MESSAGE_SUCCESS:
-      if (state.id === action.message.id) {
-        return {
-          ...state,
-          status: action.message.status
-        };
-      }
-      return state;
-    case at.RECEIVE_MESSAGE:
-      return {
-        ...action.message
-      };
-    default:
-      return state;
-  }
-};
-
-// NOTE: think over storing messages as obj with id as property names
-export const messages = (state = [], action) => {
-  switch (action.type) {
-    case at.SEND_MESSAGE_ATTEMPT:
-      return [...state, message(undefined, action)];
-    case at.SEND_MESSAGE_SUCCESS:
-      return state.map(msg => message(msg, action));
-    case at.RECEIVE_MESSAGE:
-      // TODO: check if such message already exists by comparing message ids
-      return [...state, message(undefined, action)];
-    default:
-      return state;
-  }
-};
-
-export const whoIsTyping = (state = '', action) => {
-  switch (action.type) {
+export const whoIsTyping = (state = '', { type, nickname }) => {
+  switch (type) {
     case at.RECEIVE_TYPING:
-      return action.nickname;
+      return nickname;
     case at.STOP_TYPING_NOTIFICATION:
-      return '';
+      return state === nickname || !nickname ? '' : state;
     default:
       return state;
   }
 };
 
+// NOTE: think over storing unsents as obj with id as property names
 export const unsent = (state = [], action) => {
   switch (action.type) {
     case at.SEND_MESSAGE_SUCCESS:

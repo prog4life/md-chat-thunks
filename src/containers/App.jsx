@@ -40,8 +40,7 @@ const initialState = {
       status: 'UNSENT'
     }
   ],
-  whoIsTyping: '',
-  websocketStatus: 'CLOSED'
+  whoIsTyping: ''
 };
 
 const store = configureStore(initialState);

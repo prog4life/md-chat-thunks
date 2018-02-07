@@ -27,6 +27,9 @@ class Messenger {
   handleIncoming(rawIncoming, websocket) {
     // this.websocket = websocket || this.websocket;
 
+    this.startPoint = Date.now();
+    this.lap = Date.now();
+
     let incoming = null;
     try {
       incoming = JSON.parse(rawIncoming);
@@ -212,8 +215,8 @@ class Messenger {
   broadcast(websocket, outgoing) {
     // TODO: remove
     const thisMoment = Date.now();
-    console.log('Sending: ', thisMoment - this.sendLap);
-    this.sendLap = thisMoment;
+    console.log('Sending: ', thisMoment - this.startPoint);
+    this.startPoint = thisMoment;
 
     this.wss.clients.forEach((client) => {
       if (client === websocket) {
@@ -228,10 +231,11 @@ class Messenger {
     });
   }
 
-  // has cancel method
+  // has cancel and flush (invoke delayed call immediately) methods
   throttledBroadcast(websocket, outgoing) {
     return throttle(
-      this.broadcast,
+      // (...rest) => this.broadcast(rest),
+      this.broadcast.bind(this),
       THROTTLE_WAIT,
       { leading: true, trailing: false }
     )(

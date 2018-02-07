@@ -1,6 +1,11 @@
+import {
+  ADD_CHAT,
+  DELETE_CHAT
+} from 'constants/action-types';
+
 const chats = (state = [], action) => {
   switch (action.type) {
-    case 'ADD_CHAT':
+    case ADD_CHAT:
       return [
         ...state,
         {
@@ -8,7 +13,7 @@ const chats = (state = [], action) => {
           participants: [...action.participants]
         }
       ];
-    case 'DELETE_CHAT':
+    case DELETE_CHAT:
       return state.filter(chat => chat.chatId !== action.chatId);
     default:
       return state;

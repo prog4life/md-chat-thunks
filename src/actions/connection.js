@@ -1,12 +1,4 @@
-import {
-  PING,
-  PONG,
-  RECONNECT,
-  START_PING,
-  STOP_PING
-} from 'constants/action-types';
-
-import { getWebsocket, setupWebsocket, requestClientId } from 'actions';
+import { getWebsocket, setupWebsocket, getClientId } from 'actions';
 
 let monitoringIntervalId;
 let heartbeat;
@@ -23,19 +15,22 @@ export const prepareWebsocketAndClientId = clientId => (dispatch, getState) => {
   }
 
   if (!id) {
-    dispatch(requestClientId());
+    dispatch(getClientId());
   }
 };
 
-export const tryToSend = (outgoing, actions = {}) => (dispatch) => {
-  const { success: successAction, fail: failAction } = actions;
+export const tryToSend = (outgoing, reopen, actions = {}) => (dispatch) => {
+  const { successAction, failAction } = actions;
   const webSocket = getWebsocket();
 
   if (webSocket.readyState !== WebSocket.OPEN) {
     if (failAction) {
       dispatch(failAction);
     }
-    dispatch(setupWebsocket());
+    if (reopen) {
+      dispatch(setupWebsocket());
+    }
+    console.warn('WebSocket readyState is not OPEN, unable to send ', outgoing);
     return;
   }
 
@@ -44,59 +39,6 @@ export const tryToSend = (outgoing, actions = {}) => (dispatch) => {
     dispatch(successAction);
   }
 };
-
-export const ping = () => ({
-  type: PING,
-  heartbeat: false
-});
-
-export const pong = () => ({
-  type: PONG,
-  heartbeat: true
-});
-
-export const reconnect = () => ({
-  type: RECONNECT,
-  heartbeat: true
-});
-
-export const startPing = intervalId => ({
-  type: START_PING,
-  intervalId,
-  heartbeat: true
-});
-
-export const stopPing = () => (dispatch, getState) => {
-  clearInterval(getState().connectionMonitoring.intervalId);
-  return {
-    type: STOP_PING,
-    intervalId: null,
-    heartbeat: false
-  };
-};
-
-// export const startMonitoring = () => (dispatch, getState) => {
-//   const { intervalId } = getState().connectionMonitoring;
-//   clearInterval(intervalId);
-//
-//   const monitoringIntervalId = setInterval(() => {
-//     if (getState().connectionMonitoring.heartbeat === false) {
-//       // TODO: change websocketStatus to something like 'BROKEN' ?
-//       // assume heartbeat as true for single next check
-//       dispatch(reconnect());
-//       dispatch(setupWebsocket());
-//       return;
-//     }
-//     dispatch(ping());
-//     dispatch(tryToSend({
-//       outgoing: { type: 'PING' }
-//     }));
-//   }, MONITORING_INTRVL);
-//
-//   dispatch(startPing(monitoringIntervalId));
-// };
-
-// NOTE: alternative version, without Redux store usage:
 
 export const startMonitoring = () => (dispatch) => {
   clearInterval(monitoringIntervalId);
@@ -109,8 +51,12 @@ export const startMonitoring = () => (dispatch) => {
       return;
     }
     heartbeat = false;
-    dispatch(tryToSend({ type: 'PING' }));
+    dispatch(tryToSend({ type: 'PING' }, false));
   }, MONITORING_INTRVL);
 
   heartbeat = true;
+};
+
+export const stopMonitoring = () => {
+  clearInterval(monitoringIntervalId);
 };

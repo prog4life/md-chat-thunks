@@ -23,10 +23,13 @@ export const getWebsocket = () => webSocket;
 
 // TODO: rename handlers to listeners
 
+// TODO: create websocket middleware
+
 // for removing initial listeners from the outside
 const initialWebsocketEventHandlers = {};
-export const getInitialWebsocketEventHandler = eventName => (
-  initialWebsocketEventHandlers[eventName]
+
+export const getInitialWebsocketEventHandler = eventType => (
+  initialWebsocketEventHandlers[eventType]
 );
 
 export const closeWebsocket = () => {
@@ -37,9 +40,8 @@ export const closeWebsocket = () => {
   };
 };
 
-// returns wrapped event handler function that will be used in listener
+// returns wrapped event listener function
 const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
-  // TODO: start sending "unsent" from here too ?
   const incoming = JSON.parse(messageEvent.data);
 
   const {
@@ -51,18 +53,10 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
       dispatch(receiveTyping(nickname));
       break;
     case 'MESSAGE':
-      dispatch(receiveMessage({
-        id,
-        clientId,
-        nickname,
-        text,
-        isOwn: false
-      }));
+      dispatch(receiveMessage({ ...incoming, isOwn: false }));
       // to terminate showing typing notification if new message is received
       // from one whose typing notification is showing
-      if (getState().whoIsTyping === nickname) {
-        dispatch(stopTypingNotification());
-      }
+      dispatch(stopTypingNotification(nickname));
       break;
     case 'SET_ID':
       dispatch(setClientId(clientId));
@@ -87,19 +81,10 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
 
 export const createOpenEventHandler = (dispatch, getState) => (openEvent) => {
   const { clientId } = getState();
-  dispatch({
-    type: WEBSOCKET_OPEN,
-    status: 'OPEN'
-  });
 
-  // TODO: send PING if did not dispatch REOPENING and set heartbeat as true
-  // in ping interval func
-  // webSocket.send(JSON.stringify({
-  //   type: 'PING'
-  // }));
+  console.log('WebSocket OPENED, event: ', openEvent);
 
   if (!clientId) {
-    webSocket.send(JSON.stringify({ type: 'GET_ID' }));
     dispatch(getClientId());
     return;
   }
@@ -109,20 +94,12 @@ export const createOpenEventHandler = (dispatch, getState) => (openEvent) => {
 
 export const createCloseEventHandler = dispatch => (closeEvent) => {
   // console.log(`Closing wasClean: ${closeEvent.wasClean}`);
-  console.log('webSocket close event: ', closeEvent);
-  dispatch({
-    type: WEBSOCKET_CLOSED,
-    status: 'CLOSED'
-  });
-  // TODO: reopen ?
+  console.log('WebSocket CLOSED, event: ', closeEvent);
+  // TODO: reopen here ?
 };
 
 export const createErrorEventHandler = dispatch => (errorEvent) => {
-  console.log('webSocket error event: ', errorEvent);
-  dispatch({
-    type: WEBSOCKET_ERROR,
-    status: 'ERROR'
-  });
+  console.log('WebSocket ERROR, event: ', errorEvent);
 
   if (webSocket && webSocket.readyState !== WebSocket.CLOSED) {
     // NOTE: looks like closing will be done by websocket itself in case
@@ -136,13 +113,11 @@ export const setupWebsocket = () => (dispatch) => {
     webSocket.close();
   }
 
-  dispatch({
-    type: WEBSOCKET_CONNECTING,
-    status: 'CONNECTING'
-  });
   webSocket = new WebSocket('ws://localhost:8787');
 
-  // dispatching thunk that returns wrapped event handler function
+  console.log('WebSocket CONNECTING');
+
+  // will create wrapped into dispatch event listener functions
   const openEventHandler = dispatch(createOpenEventHandler);
   const messageEventHandler = dispatch(createMessageEventHandler);
   const closeEventHandler = dispatch(createCloseEventHandler);
@@ -153,12 +128,11 @@ export const setupWebsocket = () => (dispatch) => {
   webSocket.addEventListener('close', closeEventHandler);
   webSocket.addEventListener('error', errorEventHandler);
 
-  initialWebsocketEventHandlers.openEventHandler = openEventHandler;
-  initialWebsocketEventHandlers.messageEventHandler = messageEventHandler;
-  initialWebsocketEventHandlers.closeEventHandler = closeEventHandler;
-  initialWebsocketEventHandlers.errorEventHandler = errorEventHandler;
+  initialWebsocketEventHandlers.open = openEventHandler;
+  initialWebsocketEventHandlers.message = messageEventHandler;
+  initialWebsocketEventHandlers.close = closeEventHandler;
+  initialWebsocketEventHandlers.error = errorEventHandler;
 
   return webSocket;
 };
 
-export { createMessageEventHandler };

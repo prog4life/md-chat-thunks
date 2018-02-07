@@ -10,7 +10,7 @@ import {
   sendTyping,
   stopTypingNotification,
   startMonitoring,
-  stopPing
+  stopMonitoring
 } from 'actions';
 
 import { filterMessages } from 'selectors/messages';
@@ -30,7 +30,7 @@ const mapDispatchToProps = dispatch => (
     sendTyping,
     stopTypingNotification,
     startMonitoring,
-    stopPing
+    stopMonitoring
   }, dispatch)
 );
 

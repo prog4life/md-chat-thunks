@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+// import TextFieldMaterial from 'TextFieldMaterial';
+// import TextFieldMaterialUI from './TextFieldMaterialUI';
 
 class ChatForm extends React.Component {
   constructor(props) {
@@ -8,10 +10,12 @@ class ChatForm extends React.Component {
     this.state = {
       nickname: '',
       messageText: ''
+      // isNicknameFocused: false
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    // this.handleNicknameFocusToggle = this.handleNicknameFocusToggle.bind(this);
   }
   // FIXME: resolve
   shouldComponentUpdate(nextProps, nextState) {
@@ -19,15 +23,21 @@ class ChatForm extends React.Component {
   }
   handleSubmit(e) {
     e.preventDefault();
-    const { messageText } = e.target.elements;
+    const { nickname, messageText } = e.target.elements;
+    const nicknameLength = nickname.value.length;
     const messageTextLength = messageText.value.length;
+
+    if (nicknameLength < 2 || nicknameLength > 30) {
+      nickname.focus();
+      return;
+    }
 
     if (messageTextLength < 1) {
       messageText.focus();
       return;
     }
     this.setState({ messageText: '' });
-    this.props.onSendMessage(messageText.value);
+    this.props.onSendMessage(nickname.value, messageText.value);
   }
   handleInputChange(e) {
     // TODO: change to currentTarget ?

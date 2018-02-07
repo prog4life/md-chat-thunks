@@ -25,13 +25,13 @@ class Chat extends React.Component {
     return true;
   }
   componentWillUnmount() {
-    const { stopPing } = this.props;
-    stopPing();
+    const { stopMonitoring } = this.props;
+    // stopMonitoring();
     // TODO: terminate websocket
   }
-  handleSendMessage(nickname, text) {
+  handleSendMessage(text) {
     const { sendMessage } = this.props;
-    sendMessage(nickname, text);
+    sendMessage(text);
   }
   handleTypingNotifEnd() {
     const { stopTypingNotification } = this.props;
