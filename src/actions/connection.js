@@ -40,6 +40,10 @@ export const tryToSend = (outgoing, reopen, actions = {}) => (dispatch) => {
   }
 };
 
+export const handleServerPong = () => {
+  heartbeat = true;
+};
+
 export const startMonitoring = () => (dispatch) => {
   clearInterval(monitoringIntervalId);
 

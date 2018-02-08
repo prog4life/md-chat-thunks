@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
 
-import HistoryMessage from './HistoryMessage';
+import ChatHistoryMsg from './ChatHistoryMsg';
 
 class ChatHistory extends React.Component {
   constructor(props) {
@@ -28,7 +28,7 @@ class ChatHistory extends React.Component {
     const { messages } = this.props;
 
     return messages.map(message => (
-      <HistoryMessage key={shortid.generate()} {...message} />
+      <ChatHistoryMsg key={shortid.generate()} {...message} />
     ));
   }
   render() {

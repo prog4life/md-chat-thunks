@@ -1,16 +1,8 @@
 import {
-  WEBSOCKET_CLOSING,
-  WEBSOCKET_OPEN,
-  WEBSOCKET_CLOSED,
-  WEBSOCKET_ERROR,
-  WEBSOCKET_CONNECTING
-} from 'constants/action-types';
-
-import {
   addChat,
   receiveTyping,
   receiveMessage,
-  pong,
+  handleServerPong,
   setClientId,
   getClientId,
   sendUnsentMessages,
@@ -34,10 +26,6 @@ export const getInitialWebsocketEventHandler = eventType => (
 
 export const closeWebsocket = () => {
   webSocket.close();
-  return {
-    type: WEBSOCKET_CLOSING,
-    status: 'CLOSING'
-  };
 };
 
 // returns wrapped event listener function
@@ -63,7 +51,7 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
       dispatch(sendUnsentMessages());
       break;
     case 'PONG':
-      dispatch(pong());
+      handleServerPong();
       break;
     case 'ADD_CHAT':
       dispatch(addChat(chatId, participants));

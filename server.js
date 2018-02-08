@@ -7,7 +7,7 @@ const express = require('express');
 // const config = require('./webpack.config.js');
 // const compiler = webpack(config);
 
-const websocketServer = require('./websocket-server');
+const websocketServer = require('./server/websocket-server');
 
 const app = express();
 

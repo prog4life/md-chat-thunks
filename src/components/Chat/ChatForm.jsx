@@ -58,23 +58,6 @@ class ChatForm extends React.Component {
         className="chat-form"
         onSubmit={this.handleSubmit}
       >
-        {/* <TextFieldMaterial
-          placeholder={'Input field with bottom border animation'}
-        /> */}
-        {/* <TextFieldMaterialUI
-          // onChange={this.handleInputChange}
-          placeholder={'Your nickname (from 2 to 30 characters)'}
-          // value={nickname}
-          // wrongInputMsg={'sample wrong input message'}
-        /> */}
-        {/* <TextFieldMaterialUIDumb
-          isFocused={isNicknameFocused}
-          onChange={this.handleInputChange}
-          onFocusToggle={this.handleNicknameFocusToggle}
-          placeholder={'Your nickname (from 2 to 30 characters)'}
-          value={nickname}
-          wrongInputMsg={'sample wrong input message'}
-        /> */}
         <div className="chat-form__message">
           <textarea
             className="chat-form__msg-textarea"

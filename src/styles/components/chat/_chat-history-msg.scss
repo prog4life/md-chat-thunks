@@ -1,4 +1,4 @@
-.history-msg {
+.chat-history-msg {
   background-color: #fabebe5d;
   border-radius: 3px;
   color: #796464;
@@ -7,22 +7,18 @@
   padding: 0.5rem 1rem;
 }
 
-.history-msg_own {
+.chat-history-msg_own {
   background-color: #f8e8e879;
   color: #7c5f5f;
   margin-left: 10%;
   margin-right: 1rem;
 }
 
-.history-msg__nickname {
-  color: #f19090;
-}
+// .chat-history-msg__text {
+//  ...
+// }
 
-.history-msg__own-nickname {
-  color: #bfbfbf;
-}
-
-.history-msg__status {
+.chat-history-msg__status {
   font-size: 1.2rem;
   text-align: right;
 }
