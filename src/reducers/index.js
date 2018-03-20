@@ -9,6 +9,7 @@ import {
   unsent
 } from './reducers';
 
+// exporting of rootReducer
 export default combineReducers({
   nickname,
   clientId,

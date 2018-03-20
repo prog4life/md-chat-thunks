@@ -55,5 +55,5 @@ app.use((error, req, res, next) => {
 server.listen(port);
 
 server.on('listening', () => {
-  console.log(`Up & running at ${server.address().port} port`);
+  console.log(`Server is listening at ${server.address().port} port`);
 });

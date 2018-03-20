@@ -233,6 +233,7 @@ class Messenger {
 
   // has cancel and flush (invoke delayed call immediately) methods
   throttledBroadcast(websocket, outgoing) {
+    // NOTE: looks like it is improper usage of throttle
     return throttle(
       // (...rest) => this.broadcast(rest),
       this.broadcast.bind(this),

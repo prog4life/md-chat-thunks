@@ -54,7 +54,7 @@ module.exports = (env) => {
         { exclude: ['index.html'] }
       )
       // new HTMLWebpackPlugin({
-      //   title: 'Local Wall',
+      //   title: 'Lil Chat',
       //   favicon: 'src/assets/favicon.png'
       //   // filename: 'assets/custom.html'
       //   // append webpack compilation hash to all included js and css files,
@@ -90,6 +90,7 @@ module.exports = (env) => {
             plugins: ['transform-class-properties'],
             presets: [
               ['env', {
+                // modules: false,
                 // useBuiltIns: 'usage', // OR 'entry'
                 debug: true
               }],
@@ -107,7 +108,7 @@ module.exports = (env) => {
           ],
           use: ExtractTextPlugin.extract({
             use: [
-              { // not translates url() that start with "/"
+              { // not translates url() that starts with "/"
                 loader: 'css-loader',
                 options: {
                   importLoaders: 3,

@@ -2,6 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import configureStore from 'store/configureStore';
+import { loadState, saveState } from 'utils/localStorage';
 
 import AppBar from 'components/AppBar';
 // import Home from 'components/Home';
@@ -42,6 +43,8 @@ const initialState = {
   ],
   whoIsTyping: ''
 };
+
+const persistedState = loadState('vk-search-state') || {};
 
 const store = configureStore(initialState);
 
