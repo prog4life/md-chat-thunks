@@ -103,7 +103,7 @@
 
 .chat-info__last-message {
   line-height: 1.15em;
-  max-height: 2.25em; // line-height X number of lines
+  max-height: 2.25em; // line-height X number of lines // TODO: not equal !!!
   white-space: normal;
   // word-wrap: break-word;
   // NOTE: next 3 lines add ellipsis at multiline text end, works only in Chrome 

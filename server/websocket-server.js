@@ -1,5 +1,5 @@
 const ws = require('ws');
-const { Messenger } = require('./server/messenger');
+const { Messenger } = require('./messenger');
 
 const DEF_PING_INTRVL = 10000;
 

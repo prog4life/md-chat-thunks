@@ -24,9 +24,11 @@ const validateIncomingData = (dataToCheck) => {
 
 // Make it abstract-like and use static methods
 class Messenger {
+  // constructor() {
+
+  // }
   handleIncoming(rawIncoming, websocket) {
     // this.websocket = websocket || this.websocket;
-
     this.startPoint = Date.now();
     this.lap = Date.now();
 
@@ -233,7 +235,7 @@ class Messenger {
 
   // has cancel and flush (invoke delayed call immediately) methods
   throttledBroadcast(websocket, outgoing) {
-    // NOTE: looks like it is improper usage of throttle
+    // NOTE: looks like it is improper usage of throttle                         !!!
     return throttle(
       // (...rest) => this.broadcast(rest),
       this.broadcast.bind(this),

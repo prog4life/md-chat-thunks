@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 // const HTMLWebpackPlugin = require('html-webpack-plugin');
 // const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+// const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const scssSyntax = require('postcss-scss');
@@ -16,6 +16,7 @@ module.exports = (env) => {
   console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
 
   return {
+    mode: env || 'development',
     entry: {
       bundle: isProduction
         ? ['babel-polyfill',
@@ -30,15 +31,15 @@ module.exports = (env) => {
       publicPath: '/'
     },
     plugins: [
-      new ExtractTextPlugin({
-        filename: getPath => (
-          getPath('[name].css').replace('bundle', 'styles') // 'css/styles'
-        ),
-        allChunks: true,
-        // inline loading in development is recommended for HMR and build speed
-        disable: env === 'development' // OR:
-        // disable: !isProduction
-      }),
+      // new ExtractTextPlugin({
+      //   filename: getPath => (
+      //     getPath('[name].css').replace('bundle', 'styles') // 'css/styles'
+      //   ),
+      //   allChunks: true,
+      //   // inline loading in development is recommended for HMR and build speed
+      //   disable: true // env === 'development' // OR:
+      //   // disable: !isProduction
+      // }),
       // new UglifyJsPlugin({ // OR old webpack.optimize.UglifyJsPlugin
       //   sourceMap: true,
       //   parallel: true, // default === os.cpus().length -1
@@ -106,35 +107,62 @@ module.exports = (env) => {
             path.resolve(__dirname, 'src'),
             path.resolve(__dirname, 'node_modules')
           ],
-          use: ExtractTextPlugin.extract({
-            use: [
-              { // not translates url() that starts with "/"
-                loader: 'css-loader',
-                options: {
-                  importLoaders: 3,
-                  // url: false, // enable/disable url() resolving
-                  // minimize: true, // OR { /* cssnano config */ } OR w postcss
-                  sourceMap: true
-                }
-              },
-              {
-                loader: 'postcss-loader',
-                options: {
-                  ident: 'postcss',
-                  syntax: scssSyntax,
-                  plugins: [
-                    autoprefixer
-                    // cssnano
-                  ],
-                  sourceMap: true
-                }
-              },
-              // w/o it css-loader can only resolve url() relative to index.scss
-              // 'resolve-url-loader',
-              { loader: 'sass-loader', options: { sourceMap: true } }
-            ],
-            fallback: 'style-loader'
-          })
+          use: [
+            { loader: 'style-loader', options: { sourceMap: true } },
+            { // not translates url() that starts with "/"
+              loader: 'css-loader',
+              options: {
+                importLoaders: 3,
+                // url: false, // enable/disable url() resolving
+                // minimize: true, // OR { /* cssnano config */ } OR w postcss
+                sourceMap: true
+              }
+            },
+            {
+              loader: 'postcss-loader',
+              options: {
+                ident: 'postcss',
+                syntax: scssSyntax,
+                plugins: [
+                  autoprefixer
+                  // cssnano
+                ],
+                sourceMap: true
+              }
+            },
+            // w/o it css-loader can only resolve url() relative to index.scss
+            // 'resolve-url-loader',
+            { loader: 'sass-loader', options: { sourceMap: true } }
+          ]
+          // use: ExtractTextPlugin.extract({
+          //   use: [
+          //     { // not translates url() that starts with "/"
+          //       loader: 'css-loader',
+          //       options: {
+          //         importLoaders: 3,
+          //         // url: false, // enable/disable url() resolving
+          //         // minimize: true, // OR { /* cssnano config */ } OR w postcss
+          //         sourceMap: true
+          //       }
+          //     },
+          //     {
+          //       loader: 'postcss-loader',
+          //       options: {
+          //         ident: 'postcss',
+          //         syntax: scssSyntax,
+          //         plugins: [
+          //           autoprefixer
+          //           // cssnano
+          //         ],
+          //         sourceMap: true
+          //       }
+          //     },
+          //     // w/o it css-loader can only resolve url() relative to index.scss
+          //     // 'resolve-url-loader',
+          //     { loader: 'sass-loader', options: { sourceMap: true } }
+          //   ],
+          //   fallback: 'style-loader'
+          // })
         },
         {
           test: /\.(png|jpe?g|gif|svg)$/,
