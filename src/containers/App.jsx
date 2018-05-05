@@ -1,8 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import configureStore from 'store/configureStore';
-import { loadState, saveState } from 'utils/localStorage';
+import { hot, setConfig } from 'react-hot-loader';
 
 import AppBar from 'components/AppBar';
 // import Home from 'components/Home';
@@ -12,65 +12,34 @@ import NotFound from 'components/NotFound';
 import ChatContainer from './ChatContainer';
 import ChatsContainer from './ChatsContainer';
 
-const initialState = {
-  clientId: '',
-  nickname: '',
-  chats: [
-    // {
-    //   id: 'tfhn523'
-    // },
-    // {
-    //   id: 'bpxv98'
-    // }
-  ],
-  messages: [
-    {
-      id: 'first',
-      clientId: '32425gser27408908',
-      nickname: 'test user',
-      text: 'Sample test user message',
-      isOwn: false,
-      status: 'SENT' // must be not viewed as not own
-    },
-    {
-      id: 'scnd',
-      clientId: 'wdadr27408908',
-      nickname: 'Like Me',
-      text: 'Whatever You want',
-      isOwn: true,
-      status: 'UNSENT'
-    }
-  ],
-  whoIsTyping: ''
-};
-
-const persistedState = loadState('vk-search-state') || {};
-
-const store = configureStore(initialState);
-
-// store.subscribe(() => console.log('New state from store: ', store.getState()));
+setConfig({ logLevel: 'error' }); // ['debug', 'log', 'warn', 'error'(default)]
 
 const routes = (
   <Router>
     <div className="root-container">
       <AppBar />
       <Switch>
-        <Route component={ChatsContainer} exact path="/" />
+        <Route path="/" exact component={ChatsContainer} />
         {/* For wide screen layout: */}
         {/* <Route component={ChatsContainer} exact path="/chats/:chatId" /> */}
-        <Route component={ChatContainer} path="/chat/:chatId" />
-        <Route component={Profile} path="/profile" />
-        <Route component={Settings} path="/settings" />
+        <Route path="/chat/:chatId" component={ChatContainer} />
+        <Route path="/profile" component={Profile} />
+        <Route path="/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>
     </div>
   </Router>
 );
 
-const App = props => (
+const App = ({ store }) => (
   <Provider store={store}>
     {routes}
   </Provider>
 );
 
-export default App;
+App.propTypes = {
+  store: PropTypes.shape({}).isRequired
+};
+
+// export default hot(module)(App);
+export default process.env.NODE_ENV === 'production' ? App : hot(module)(App);

@@ -16,6 +16,7 @@ public/bundle.js
 public/bundle.js.map
 public/*.css
 public/*.css.map
+public/report.html
 
 src/assets/
 
