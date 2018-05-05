@@ -34,8 +34,8 @@ module.exports = {
     ]
   },
   output: {
-    filename: isProduction ? 'js/[name].[chunkhash].js' : '[name].[id].js',
-    chunkFilename: isProduction ? 'js/[name].[chunkhash].js' : '[id].[name].js',
+    filename: isProduction ? 'js/[name].[chunkhash].js' : '[name].js',
+    chunkFilename: isProduction ? 'js/[name].[chunkhash].js' : '[id].js',
     path: path.resolve(__dirname, 'public'),
     publicPath: '/'
   },

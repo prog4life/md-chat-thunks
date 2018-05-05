@@ -12,10 +12,10 @@ dist/
 public/dist/
 public/assets/
 
-public/bundle.js
-public/bundle.js.map
-public/*.css
-public/*.css.map
+public/**/*.js
+public/**/*.js.map
+public/**/*.css
+public/**/*.css.map
 public/report.html
 
 src/assets/
@@ -29,4 +29,10 @@ src/assets/
 # misc
 .DS_Store
 npm-debug.log
+yarn-error.log
 **/.idea/
+**/.vscode/
+TEMP/
+TMP/
+temp/
+tmp/
