@@ -1,6 +1,7 @@
 import { createStore, compose, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import immutabilityWatcher from 'redux-immutable-state-invariant';
+import freeze from 'redux-freeze';
 import { createLogger } from 'redux-logger';
 // import logger from 'redux-logger'; // to get logger mw with default options
 import appReducer from 'reducers';
@@ -17,7 +18,7 @@ const logger = createLogger({
 const watcher = immutabilityWatcher();
 
 const middleware = process.env.NODE_ENV === 'development'
-  ? [watcher, thunk, logger]
+  ? [watcher, freeze, thunk, logger]
   : [thunk];
 
 const configureStore = (preloadedState = {}) => {
