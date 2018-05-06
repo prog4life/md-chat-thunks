@@ -9,17 +9,18 @@ import AppBar from 'components/AppBar';
 import Profile from 'components/Profile';
 import Settings from 'components/Settings';
 import NotFound from 'components/NotFound';
-import ChatContainer from './ChatContainer';
-import ChatsContainer from './ChatsContainer';
+import ChatContainer from 'containers/ChatContainer';
+import ChatsContainer from 'containers/ChatsContainer';
+import PublicWall from './PublicWall';
 
 setConfig({ logLevel: 'error' }); // ['debug', 'log', 'warn', 'error'(default)]
 
 const routes = (
   <Router>
     <div className="root-container">
-      <AppBar />
       <Switch>
-        <Route path="/" exact component={ChatsContainer} />
+        <Route path="/" exact component={PublicWall} />
+        <Route path="/chats" exact component={ChatsContainer} />
         {/* For wide screen layout: */}
         {/* <Route component={ChatsContainer} exact path="/chats/:chatId" /> */}
         <Route path="/chat/:chatId" component={ChatContainer} />

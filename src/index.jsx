@@ -1,11 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from 'containers/App';
+import App from 'components/App';
 
 import configureStore from 'store/configureStore';
 import { loadState, saveState } from 'utils/localStorage';
 
-import 'normalize.css/normalize.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+// import 'normalize.css/normalize.css';
 import 'styles/index.scss';
 
 import 'assets/favicon-32x32.png';
