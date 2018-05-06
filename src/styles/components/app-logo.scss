@@ -1,0 +1,26 @@
+.app-logo {
+  align-items: center;
+  display: flex;
+  // min-width: 22rem;
+}
+
+.app-logo__img {
+  animation: app-logo-spin infinite 10s linear;
+  height: 3rem; // TODO: calc from app-bar height ?
+}
+
+.app-logo__text {
+  color: #ea8f8f;
+  // font-family: 'Monoton', cursive;
+  // font-family: 'Bungee Inline', cursive;
+  // font-family: 'Sirin Stencil', cursive;
+  // font-family: 'Carter One', cursive;
+  font-family: 'Bungee Shade', cursive;
+  margin: 0;
+  padding: 0 0.5rem;
+}
+
+@keyframes app-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

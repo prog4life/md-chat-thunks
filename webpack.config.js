@@ -24,30 +24,33 @@ console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
 module.exports = {
   mode: env,
   entry: {
-    polyfills: './src/config/polyfills.js',
+    // polyfills: './src/config/polyfills.js',
     bundle: [
-      // 'babel-polyfill',
       // 'normalize.css/normalize.css',
       // 'sanitize.css/sanitize.css',
       // './src/styles/index.scss',
-      './src/index.jsx'
-    ]
+      './src/config/polyfills.js',
+      './src/index.jsx',
+    ],
   },
   output: {
     filename: isProduction ? 'js/[name].[chunkhash].js' : '[name].js',
     chunkFilename: isProduction ? 'js/[name].[chunkhash].js' : '[id].js',
     path: path.resolve(__dirname, 'public'),
-    publicPath: '/'
+    publicPath: '/',
   },
   optimization: {
     minimizer: [ // setting this overrides webpack 4 defaults
       new UglifyJsPlugin({
         cache: true,
         parallel: 2, // if "true": os.cpus().length -1 (default)
-        sourceMap: true // set to true if you want JS source maps
+        sourceMap: true, // set to true if you want JS source maps
       }),
-      new OptimizeCSSAssetsPlugin({})
-    ]
+      new OptimizeCSSAssetsPlugin({}),
+    ],
+    splitChunks: {
+      chunks: 'all',
+    },
     // splitChunks: {
     //   cacheGroups: {
     //     styles: { // to extract css to one file
@@ -63,17 +66,17 @@ module.exports = {
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
-      filename: isProduction ? 'css/styles.[name].[hash].css' : '[name].css',
-      chunkFilename: isProduction ? 'css/chunk.[id].[hash].css' : '[id].css'
+      filename: isProduction ? 'css/styles.[contenthash].css' : '[name].css',
+      chunkFilename: isProduction ? 'css/[name].[contenthash].css' : '[id].css',
     }),
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(env)
-      }
-    }),
+    // new webpack.DefinePlugin({
+    //   'process.env': {
+    //     NODE_ENV: JSON.stringify(env)
+    //   },
+    // }),
     new CleanWebpackPlugin(
       ['public'], // OR 'build' OR 'dist', removes folder
-      { exclude: ['index.html'] }
+      { exclude: ['index.html'] },
     ),
     // new HTMLWebpackPlugin({
     //   title: 'Lil Chat',
@@ -86,12 +89,14 @@ module.exports = {
     //   deleteOriginalAssets: true,
     //   test: /\.js/
     // }),
+    // new webpack.optimize.SplitChunksPlugin(),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
-      openAnalyzer: false
+      openAnalyzer: false,
     }),
     new DuplPkgCheckrPlugin(),
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+    ...isProduction ? [] : [new webpack.HotModuleReplacementPlugin()],
     // new VisualizerPlugin(),
   ],
   resolve: {
@@ -101,14 +106,14 @@ module.exports = {
       reducers: path.resolve(__dirname, 'src/reducers'),
       actions: path.resolve(__dirname, 'src/actions'),
       constants: path.resolve(__dirname, 'src/constants'),
-      utils: path.resolve(__dirname, 'src/utils')
+      utils: path.resolve(__dirname, 'src/utils'),
     },
     modules: [
       path.resolve(__dirname, 'src/components'),
       path.resolve(__dirname, 'src'),
-      'node_modules'
+      'node_modules',
     ],
-    extensions: ['.js', '.json', '.jsx', '*']
+    extensions: ['.js', '.json', '.jsx', '*'],
   },
   module: {
     rules: [
@@ -121,7 +126,8 @@ module.exports = {
           // TODO: "transform-imports" (babel-plugin-transform-imports)
           plugins: [
             'react-hot-loader/babel',
-            'transform-class-properties'
+            'syntax-dynamic-import',
+            'transform-class-properties',
           ].concat(isProduction ? [] : ['transform-react-jsx-source']),
           presets: [
             ['env', {
@@ -129,29 +135,29 @@ module.exports = {
               // useBuiltIns: 'usage', // OR 'entry'
               debug: true,
               targets: {
-                browsers: ['last 2 versions']
+                browsers: ['last 2 versions'],
               },
-              exclude: [/* plugins to exlude */]
+              exclude: [/* plugins to exlude */],
             }],
             'react',
-            'stage-3'
+            'stage-3',
           ],
-          cacheDirectory: true
-        }
+          cacheDirectory: true,
+        },
       },
       {
         test: /\.(scss|css)$/, // OR /\.s?[ac]ss$/,
         // TODO: consider to remove include
         include: [
           path.resolve(__dirname, 'src'),
-          path.resolve(__dirname, 'node_modules')
+          path.resolve(__dirname, 'node_modules'),
         ],
         use: [
           isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
           { // not translates url() that starts with "/"
             loader: 'css-loader',
             // options: { importLoaders: 3, url: false }
-            options: { minimize: true, sourceMap: true }
+            options: { minimize: true, sourceMap: true },
           },
           {
             loader: 'postcss-loader',
@@ -159,12 +165,12 @@ module.exports = {
               ident: 'postcss',
               // syntax: scssSyntax,
               plugins: [autoprefixer], // cssnano
-              sourceMap: true
-            }
+              sourceMap: true,
+            },
           },
           // 'resolve-url-loader',
-          { loader: 'sass-loader', options: { sourceMap: true } }
-        ]
+          { loader: 'sass-loader', options: { sourceMap: true } },
+        ],
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/,
@@ -175,9 +181,9 @@ module.exports = {
             loader: 'file-loader',
             options: {
               name: '[name].[ext]', // '[name].[hash].[ext]'
-              outputPath: 'assets/img/' // custom output path
-            }
-          }
+              outputPath: 'assets/img/', // custom output path
+            },
+          },
           // {
           //   loader: 'image-webpack-loader',
           //   query: {
@@ -190,8 +196,8 @@ module.exports = {
           //     }
           //   }
           // }
-        ]
-      }
+        ],
+      },
       // {
       //   test: /\.(scss|css)$/,
       //   // TODO: add include here ?
@@ -236,15 +242,16 @@ module.exports = {
       //     limit: 10000
       //   }
       // }
-    ]
+    ],
   },
   devServer: {
     progress: true,
     contentBase: path.resolve(__dirname, 'public'),
     compress: true,
-    historyApiFallback: true
+    historyApiFallback: true,
+    hot: true,
     // port: 9000,
   },
-  // devtool: isProduction ? 'source-map' : 'cheap-module-eval-source-map'
-  devtool: 'source-map'
+  devtool: isProduction ? 'source-map' : 'eval-source-map',
+  // devtool: 'source-map',
 };
