@@ -1,13 +1,14 @@
 const webpack = require('webpack');
 const path = require('path');
 // const HTMLWebpackPlugin = require('html-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-// const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const DuplPkgCheckrPlugin = require('duplicate-package-checker-webpack-plugin');
+// const BabelPluginTransformImports = require('babel-plugin-transform-imports');
+// const CompressionPlugin = require('compression-webpack-plugin');
 // const VisualizerPlugin = require('webpack-visualizer-plugin');
 const autoprefixer = require('autoprefixer');
 // const scssSyntax = require('postcss-scss');
@@ -41,7 +42,7 @@ module.exports = {
   },
   optimization: {
     minimizer: [ // setting this overrides webpack 4 defaults
-      new UglifyJsPlugin({
+      new UglifyJSPlugin({
         cache: true,
         parallel: 2, // if "true": os.cpus().length -1 (default)
         sourceMap: true, // set to true if you want JS source maps
@@ -96,8 +97,8 @@ module.exports = {
     }),
     new DuplPkgCheckrPlugin(),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    ...isProduction ? [] : [new webpack.HotModuleReplacementPlugin()],
     // new VisualizerPlugin(),
+    ...isProduction ? [] : [new webpack.HotModuleReplacementPlugin()],
   ],
   resolve: {
     alias: {
@@ -126,6 +127,7 @@ module.exports = {
           // TODO: "transform-imports" (babel-plugin-transform-imports)
           plugins: [
             'react-hot-loader/babel',
+            // 'fast-async',
             'syntax-dynamic-import',
             'transform-class-properties',
           ].concat(isProduction ? [] : ['transform-react-jsx-source']),
@@ -180,8 +182,9 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              name: '[name].[ext]', // '[name].[hash].[ext]'
+              name: '[name].[ext]', // '[name].[hash].[ext]' for 'production' ?
               outputPath: 'assets/img/', // custom output path
+              // useRelativePath: true, // isProd
             },
           },
           // {
@@ -253,5 +256,4 @@ module.exports = {
     // port: 9000,
   },
   devtool: isProduction ? 'source-map' : 'eval-source-map',
-  // devtool: 'source-map',
 };

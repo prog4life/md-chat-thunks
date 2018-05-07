@@ -32,7 +32,7 @@ const initialState = {
       nickname: 'test user',
       text: 'Sample test user message',
       isOwn: false,
-      status: 'SENT' // must be not viewed as not own
+      status: 'SENT', // must be not viewed as not own
     },
     {
       id: 'scnd',
@@ -40,10 +40,10 @@ const initialState = {
       nickname: 'Like Me',
       text: 'Whatever You want',
       isOwn: true,
-      status: 'UNSENT'
-    }
+      status: 'UNSENT',
+    },
   ],
-  whoIsTyping: ''
+  whoIsTyping: '',
 };
 
 const persistedState = loadState('md-chat-state') || {};
