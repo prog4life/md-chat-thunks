@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { hot, setConfig } from 'react-hot-loader';
 
-import AppBar from 'components/AppBar';
+// import AppBar from 'components/AppBar';
 // import Home from 'components/Home';
 import Profile from 'components/Profile';
 import Settings from 'components/Settings';

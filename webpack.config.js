@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
-// const HTMLWebpackPlugin = require('html-webpack-plugin');
+const HTMLWebpackPlugin = require('html-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
@@ -79,13 +79,20 @@ module.exports = {
       ['public'], // OR 'build' OR 'dist', removes folder
       { exclude: ['index.html'] },
     ),
-    // new HTMLWebpackPlugin({
-    //   title: 'Lil Chat',
-    //   favicon: 'src/assets/favicon.png'
-    //   // filename: 'assets/custom.html'
-    //   // append webpack compilation hash to all included js and css files,
-    //   // hash: true // usefull for cache busting
-    // }),
+    new HTMLWebpackPlugin({
+      title: 'Local Chat',
+      favicon: 'src/assets/favicon.png',
+      // meta: {
+      //   viewport: 'width=device-width, initial-scale=1, shrink-to-fit=no'
+      // },
+      inject: false,
+      template: './src/assets/template.html',
+      appMountId: 'app',
+      mobile: true,
+      // filename: 'assets/custom.html'
+      // append webpack compilation hash to all included js and css files,
+      // hash: true // usefull for cache busting
+    }),
     // new CompressionPlugin({
     //   deleteOriginalAssets: true,
     //   test: /\.js/

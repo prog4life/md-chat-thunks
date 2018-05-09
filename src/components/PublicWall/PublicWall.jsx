@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import shortId from 'shortid';
 import {
-  ListGroup, ListGroupItem, Container, Row, Col, Navbar, NavbarBrand,
+  ListGroup, ListGroupItem, Container, Row, Col,
 } from 'reactstrap';
 
 import AppBar from 'components/AppBar';
-import AppLogo from 'components/AppLogo';
 
 const posts = [
   { author: shortId.generate() },
@@ -22,11 +21,7 @@ class PublicWall extends React.Component {
 
     return (
       <Fragment>
-        <Navbar>
-          <NavbarBrand href="/">
-            <AppLogo />
-          </NavbarBrand>
-        </Navbar>
+        <AppBar />
         <Container>
           <Row>
             <Col>

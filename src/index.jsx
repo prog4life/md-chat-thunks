@@ -10,7 +10,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // import 'normalize.css/normalize.css';
 import 'styles/index.scss';
 
-import 'assets/favicon-32x32.png';
+// import 'assets/favicon.png';
 
 console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
 
