@@ -89,15 +89,13 @@ module.exports = {
       template: './src/assets/template.html',
       appMountId: 'app',
       mobile: true,
-      // filename: 'assets/custom.html'
-      // append webpack compilation hash to all included js and css files,
-      // hash: true // usefull for cache busting
+      // filename: 'assets/custom.html',
+      // hash: true, // usefull for cache busting
     }),
     // new CompressionPlugin({
     //   deleteOriginalAssets: true,
     //   test: /\.js/
     // }),
-    // new webpack.optimize.SplitChunksPlugin(),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
       openAnalyzer: false,
@@ -156,9 +154,11 @@ module.exports = {
       },
       {
         test: /\.(scss|css)$/, // OR /\.s?[ac]ss$/,
-        // TODO: consider to remove include
+        // TODO: consider to replace by more specific include's
         include: [
-          path.resolve(__dirname, 'src'),
+          // path.resolve(__dirname, 'src'),
+          path.resolve(__dirname, 'src/styles'),
+          path.resolve(__dirname, 'src/components'),
           path.resolve(__dirname, 'node_modules'),
         ],
         use: [
@@ -173,7 +173,7 @@ module.exports = {
             options: {
               ident: 'postcss',
               // syntax: scssSyntax,
-              plugins: [autoprefixer], // cssnano
+              plugins: [autoprefixer],
               sourceMap: true,
             },
           },
@@ -189,9 +189,9 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              name: '[name].[ext]', // '[name].[hash].[ext]' for 'production' ?
-              outputPath: 'assets/img/', // custom output path
-              // useRelativePath: true, // isProd
+              name: isProduction ? '[name].[hash].[ext]' : '[name].[ext]',
+              // outputPath: 'assets/', // custom output path
+              useRelativePath: true, // isProd
             },
           },
           // {
