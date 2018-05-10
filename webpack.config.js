@@ -115,7 +115,7 @@ module.exports = {
       utils: path.resolve(__dirname, 'src/utils'),
     },
     modules: [
-      path.resolve(__dirname, 'src/components'),
+      // path.resolve(__dirname, 'src/components'),
       path.resolve(__dirname, 'src'),
       'node_modules',
     ],

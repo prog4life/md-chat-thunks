@@ -3,9 +3,9 @@ import React from 'react';
 import avatarSrc from 'assets/test-avatar.jpg';
 
 const Avatar = () => (
-  <div className="chat-preview__avatar avatar">
+  <div className="avatar">
     <img
-      className="avatar__img_small"
+      className="avatar__img"
       src={avatarSrc}
       alt="participant avatar"
     />

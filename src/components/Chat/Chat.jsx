@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import typingNotifConfig from 'config/typing-notification';
-import ChatHistory from 'Chat/ChatHistory';
-import ChatForm from 'Chat/ChatForm';
-import TypingNotification from 'Chat/TypingNotification';
+import ChatHistory from './ChatHistory';
+import ChatForm from './ChatForm';
+import TypingNotification from './TypingNotification';
 
 class Chat extends React.Component {
   constructor(props) {

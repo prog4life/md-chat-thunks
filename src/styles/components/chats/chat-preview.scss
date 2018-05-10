@@ -1,0 +1,60 @@
+// TODO avatar block width must be same as chat list item height, define them
+// with same var, same for padding of chat list item and chat info side paddings
+// padding must be in 4.5 X smaller than chat list item height, use func/calc
+
+.chat-preview {
+  // min-width: 40rem;
+  // padding: 0.8rem;
+  outline: none;
+}
+
+.chat-preview__details {
+  // display: flex;
+  // flex-flow: column nowrap;
+  padding-left: 0.8rem; // NOTE: must be relative to chat list item height
+  // min-height: 3.6rem;
+  // justify-content: space-around;
+  // NOTE: set this or any other width value OR overflow: hidden; to prevent
+  min-width: 0; // text overflowing in a child of a flex child item
+
+  // p,
+  // h4 {
+  //   margin-top: 0;
+  //   margin-bottom: 0;
+  // }
+}
+
+// TODO: extract styles for non-wrapped single line with ellipsis
+.chat-preview__header {
+  // flex: 1;
+  font-weight: 600;
+  font-size: 105%;
+  // overflow: hidden;
+  // text-overflow: ellipsis;
+  // white-space: nowrap;
+}
+
+.chat-preview__additional {
+  // display: flex;
+}
+
+.chat-preview__header,
+.close-x-button,
+.chat-preview__additional {
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.last-message-preview {
+  padding-right: 1.9rem;
+  // overflow: hidden;
+  // text-overflow: ellipsis;
+  // white-space: nowrap;
+}
+
+.chat-info__time {
+  margin-left: auto;
+  margin-top: auto;
+  white-space: nowrap;
+}

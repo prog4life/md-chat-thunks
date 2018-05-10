@@ -1,13 +1,13 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-import ChatsList from 'Chats/ChatsList';
 import ChatContainer from 'containers/ChatContainer';
+import ChatsList from './ChatsList';
 
 const propTypes = {
   chats: PropTypes.arrayOf(Object).isRequired,
-  clientId: PropTypes.string.isRequired
+  clientId: PropTypes.string.isRequired,
 };
 
 class Chats extends PureComponent {

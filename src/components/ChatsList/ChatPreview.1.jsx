@@ -1,8 +1,6 @@
 import React from 'react';
 import Avatar from 'components/Avatar';
 
-import avatarSrc from 'assets/test-avatar.jpg';
-
 const ChatPreview = ({ chat, onItemClick, onClose }) => (
   <div
     className="chat-preview"
@@ -14,8 +12,8 @@ const ChatPreview = ({ chat, onItemClick, onClose }) => (
     {/* TODO: Extract Avatar as separate component */}
     {/* <div className="chat-preview__item-wrapper"> */}
     <Avatar />
-    <section className="chat-preview__info chat-info">
-      <div className="chat-info__main">
+    <section className="chat-preview__details chat-info">
+      <div className="chat-preview__main">
         <header className="chat-info__name">
           <h4>
             {'Hot Chick'}
@@ -41,7 +39,7 @@ const ChatPreview = ({ chat, onItemClick, onClose }) => (
           </span>
         </button>
       </div>
-      <div className="chat-info__additional">
+      <div className="chat-preview__additional">
         <p className="chat-info__last-message">
           {'Typing typing typing, adding more contents, nanananana, common be wide - adding more contents, nanananana, common be wide'}
         </p>

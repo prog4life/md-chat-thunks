@@ -6,6 +6,7 @@ import { hot, setConfig } from 'react-hot-loader';
 
 // import AppBar from 'components/AppBar';
 // import Home from 'components/Home';
+import ChatsPage from 'components/ChatsPage';
 import Profile from 'components/Profile';
 import Settings from 'components/Settings';
 import NotFound from 'components/NotFound';
@@ -20,10 +21,10 @@ const routes = (
     <div className="root-container">
       <Switch>
         <Route path="/" exact component={PublicWall} />
-        <Route path="/chats" exact component={ChatsContainer} />
+        <Route path="/chats" exact component={ChatsPage} />
         {/* For wide screen layout: */}
-        {/* <Route component={ChatsContainer} exact path="/chats/:chatId" /> */}
-        <Route path="/chat/:chatId" component={ChatContainer} />
+        <Route path="/chats/:chatId" component={ChatsPage} />
+        {/* <Route path="/chat/:chatId" component={ChatContainer} /> */}
         <Route path="/profile" component={Profile} />
         <Route path="/settings" component={Settings} />
         <Route component={NotFound} />

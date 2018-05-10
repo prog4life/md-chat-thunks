@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
-import ChatPreview from 'Chats/ChatPreview';
+
+import ChatPreview from './ChatPreview';
 
 const ChatsList = ({ chats, onItemClick, onClose }) => (
   // TODO: stop using shared css classes

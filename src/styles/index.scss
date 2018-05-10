@@ -12,10 +12,11 @@
 // @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500');
 // @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-@import "base/settings";
+// @import "base/settings";
 // @import "base/base";
-@import "base/container";
+// @import "base/container";
 @import "components/app-logo";
+@import "components/avatar";
 // @import "components/app-bar";
 // @import "components/chat/chat";
 // @import "components/chat/chat-form";
@@ -24,7 +25,7 @@
 // @import "components/chat/typing-notification";
 // @import "components/chats/chats";
 // @import "components/chats/chats-list";
-// @import "components/chats/chat-preview";
+@import "components/chats/chat-preview";
 // @import "components/drawer";
 // @import "components/nav-bar";
 @import "components/not-found";

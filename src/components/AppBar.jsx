@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink as RouterNavLink } from 'react-router-dom';
 // import PropTypes from 'prop-types';
 import {
   Navbar, NavbarBrand, Nav, NavItem, NavLink, NavbarToggler, Collapse,
@@ -28,17 +29,39 @@ class AppBar extends React.Component {
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" pills navbar>
             <NavItem>
-              <NavLink href="/chats">
+              <NavLink
+                to="/"
+                exact
+                tag={RouterNavLink}
+                activeClassName="bg-white"
+              >
+                {'Public Wall'}
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                to="/chats"
+                tag={RouterNavLink}
+                activeClassName="bg-white"
+              >
                 {'Chats'}
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="/profile">
+              <NavLink
+                to="/profile"
+                tag={RouterNavLink}
+                activeClassName="bg-white"
+              >
                 {'Profile'}
               </NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="/settings">
+              <NavLink
+                to="/settings"
+                tag={RouterNavLink}
+                activeClassName="bg-white"
+              >
                 {'Settings'}
               </NavLink>
             </NavItem>

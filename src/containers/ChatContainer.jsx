@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import Chat from 'Chat';
+import Chat from 'components/Chat';
 // TODO: try to import files relative to src/, without .., as src is added
 // to modules in webpack's resolve
 import {
@@ -10,7 +10,7 @@ import {
   sendTyping,
   stopTypingNotification,
   startMonitoring,
-  stopMonitoring
+  stopMonitoring,
 } from 'actions';
 
 import { filterMessages } from 'selectors/messages';
@@ -20,7 +20,7 @@ const mapStateToProps = state => ({
   nickname: state.nickname,
   clientId: state.clientId,
   messages: filterMessages(state.messages),
-  whoIsTyping: state.whoIsTyping
+  whoIsTyping: state.whoIsTyping,
 });
 
 const mapDispatchToProps = dispatch => (
@@ -30,7 +30,7 @@ const mapDispatchToProps = dispatch => (
     sendTyping,
     stopTypingNotification,
     startMonitoring,
-    stopMonitoring
+    stopMonitoring,
   }, dispatch)
 );
 

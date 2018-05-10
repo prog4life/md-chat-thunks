@@ -17,8 +17,6 @@ const posts = [
 class PublicWall extends React.Component {
   componetDidMount() {}
   render() {
-    const { match } = this.props;
-
     return (
       <Fragment>
         <AppBar />
@@ -33,7 +31,7 @@ class PublicWall extends React.Component {
                     <ListGroupItem key={shortId.generate()}>
                       {`List Item ${index + 1}`}
                       {' '}
-                      <Link to={`/chat/${author}`}>
+                      <Link to={`/chats/${author}`}>
                         {'Chat'}
                       </Link>
                     </ListGroupItem>
