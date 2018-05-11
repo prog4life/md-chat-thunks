@@ -24,9 +24,9 @@ const validateIncomingData = (dataToCheck) => {
 
 // Make it abstract-like and use static methods
 class Messenger {
-  // constructor() {
-
-  // }
+  constructor(websocketServerInstance) {
+    this.wss = websocketServerInstance;
+  }
   handleIncoming(rawIncoming, websocket) {
     // this.websocket = websocket || this.websocket;
     this.startPoint = Date.now();

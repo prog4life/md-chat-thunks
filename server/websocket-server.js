@@ -1,9 +1,9 @@
 const ws = require('ws');
 const { Messenger } = require('./messenger');
+const ConnectionManager = require('./connection-manager');
+const db = require('./database');
 
 const DEF_PING_INTRVL = 10000;
-
-let actualMessageHandler;
 
 const enablePing = (wss, interval = DEF_PING_INTRVL) => {
   wss.checkInterval = setInterval(() => {
@@ -21,44 +21,30 @@ const enablePing = (wss, interval = DEF_PING_INTRVL) => {
 
 const disablePing = wss => clearInterval(wss.checkInterval);
 
-const setOnMessageHandler = (onMessage) => {
-  if (typeof onMessage === 'function') {
-    actualMessageHandler = onMessage;
-  } else {
-    console.error('Expected function as websocket message event handler');
-  }
-};
+// const handleMessage = (websocket, onMessage) => (incoming) => {
+//   // console.log('Socket message received: %s', incoming);
+//   if (typeof onMessage === 'function') {
+//     onMessage(websocket, incoming);
+//   }
+// };
 
-const handleMessage = (websocket, onMessage) => (incoming) => {
-  // console.log('Socket message received: %s', incoming);
-  if (typeof onMessage === 'function') {
-    onMessage(websocket, incoming);
-  }
-};
-
-const handleConnection = (messenger, handlers = {}) => (websocket) => {
-  // const {
-  //   handleMessage,
-  //   handleError,
-  //   handleClose
-  // } = handlers;
-
-  messenger.websocket = websocket; // NOTE: OR use some setter
+const handleConnection = (websocket, connections, connectionManager) => {
+  // const connectionManager = new ConnectionManager(websocket);
 
   websocket.isAlive = true;
   // heartbeat callback
   websocket.on('pong', () => {
-    console.log('pong from client');
+    const timeNow = new Date().toLocaleTimeString('en-GB', { hour12: false });
+    console.log(`pong from client - ${timeNow}`);
     websocket.isAlive = true;
   });
 
   websocket.on('message', (incoming) => {
-    // TODO: pass function expression as listener and check value of this,
-    // if it will be websocket, check it or utilize in handleIncoming
     // TODO: some unknown additional GET request to 8080 happens
     // after websocket connection request
     // console.log('Socket message received: %s', incoming);
-    messenger.handleIncoming(incoming, websocket);
+    // messenger.handleIncoming(incoming, websocket); // OR this
+    connectionManager.handleIncoming(incoming); // OR this
   });
 
   websocket.on('error', (error) => {
@@ -69,23 +55,31 @@ const handleConnection = (messenger, handlers = {}) => (websocket) => {
 
   websocket.on('close', (code, reason) => {
     // messenger.removeChats(websocket);
-    messenger.removeClient(websocket);
+    // messenger.removeClient(websocket);
+    // connectionManager.removeClient(websocket);
     console.log('websocket onclose code: %s and reason: %s ', code, reason);
-    console.log('websocket onclose clients size', messenger.wss.clients.size);
+    // console.log('websocket onclose clients size', messenger.wss.clients.size);
+    console.log('websocket onclose clients size', connectionManager.wss.clients.size);
   });
 };
 
-const startServer = (httpServer, websocketHandlers = {}, pingInterval) => {
+const startServer = (httpServer, pingInterval) => {
   const wss = new ws.Server({
-    server: httpServer // OR:
+    server: httpServer, // OR:
     // to use on different port than express server
     // port: 8484
   });
+  const connections = new Set();
 
-  const messenger = new Messenger();
-  messenger.wss = wss; // NOTE: OR pass wss to constructor / use some setter;
+  // const messenger = new Messenger(wss);
 
-  wss.on('connection', handleConnection(messenger, websocketHandlers));
+  // wss.on('connection', handleConnection(messenger));
+  // wss.on('connection', handleConnection);
+  wss.on('connection', (websocket) => {
+    const connectionManager = new ConnectionManager(websocket, wss);
+    connections.add(connectionManager);
+    handleConnection(websocket, connections, connectionManager)
+  });
   wss.on('error', (error) => {
     console.error('Websocket Server error ', error);
     wss.close(() => {
@@ -94,12 +88,11 @@ const startServer = (httpServer, websocketHandlers = {}, pingInterval) => {
   });
 
   if (pingInterval !== false) {
-    enablePing(wss, pingInterval);
+    enablePing(wss, Number.isInteger(pingInterval) ? pingInterval : undefined);
   }
   return wss;
 };
 
 exports.start = startServer;
-exports.setWebsocketMsgHandler = setOnMessageHandler;
 exports.enablePing = enablePing;
 exports.disablePing = disablePing;

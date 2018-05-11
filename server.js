@@ -14,7 +14,6 @@ const app = express();
 const server = http.createServer(app);
 
 websocketServer.start(server);
-// websocketServer.setWebsocketMsgHandler(chat.handleIncomingData.bind(chat));
 
 const port = process.env.PORT || 8787;
 // can be something like: path.join(__dirname, '..', 'public')

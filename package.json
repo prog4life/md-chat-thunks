@@ -12,7 +12,7 @@
     "watch-p": "cross-env NODE_ENV=production webpack -w --color --progress",
     "serve": "webpack-dev-server --color",
     "up": "node server.js",
-    "mon": "nodemon server.js",
+    "mon": "nodemon -i db.json -V server.js",
     "debug": "node --inspect-brk=9229 server.js",
     "mondeb": "nodemon --inspect=9229 server.js"
   },
