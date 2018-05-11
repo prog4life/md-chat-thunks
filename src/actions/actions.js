@@ -72,6 +72,12 @@ export const deleteChat = (chatId, clientId) => {
   };
 };
 
+export const signIn = login => (dispatch) => {
+  const outgoing = { type: 'SIGN_IN', login };
+
+  dispatch(tryToSend(outgoing, true));
+};
+
 export const getClientId = () => (dispatch) => {
   const outgoing = { type: 'GET_ID' };
   dispatch(tryToSend(outgoing, true));

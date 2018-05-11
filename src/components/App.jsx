@@ -9,6 +9,7 @@ import { hot, setConfig } from 'react-hot-loader';
 import ChatsPage from 'components/ChatsPage';
 import Profile from 'components/Profile';
 import Settings from 'components/Settings';
+import LoginPage from 'components/LoginPage';
 import NotFound from 'components/NotFound';
 import ChatContainer from 'containers/ChatContainer';
 import ChatsContainer from 'containers/ChatsContainer';
@@ -27,6 +28,7 @@ const routes = (
         {/* <Route path="/chat/:chatId" component={ChatContainer} /> */}
         <Route path="/profile" component={Profile} />
         <Route path="/settings" component={Settings} />
+        <Route path="/login" component={LoginPage} />
         <Route component={NotFound} />
       </Switch>
     </div>

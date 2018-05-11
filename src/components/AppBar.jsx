@@ -65,6 +65,15 @@ class AppBar extends React.Component {
                 {'Settings'}
               </NavLink>
             </NavItem>
+            <NavItem>
+              <NavLink
+                to="/login"
+                tag={RouterNavLink}
+                activeClassName="bg-white"
+              >
+                {'Login'}
+              </NavLink>
+            </NavItem>
           </Nav>
         </Collapse>
       </Navbar>
