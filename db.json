@@ -2,15 +2,18 @@
   "posts": {
     "r1Epn-QCM": {
       "id": "r1Epn-QCM",
-      "authorId": "Hyg4T3b7Rz"
+      "authorId": "Hyg4T3b7Rz",
+      "text": "Some dummy post message"
     },
     "B1WV62Z70M": {
       "id": "B1WV62Z70M",
-      "authorId": "SkzV6nWQRz"
+      "authorId": "SkzV6nWQRz",
+      "text": "Another `usefull` text contents"
     },
     "ryQNahWQRf": {
       "id": "ryQNahWQRf",
-      "authorId": "HJVEph-XCG"
+      "authorId": "HJVEph-XCG",
+      "text": "You definitely are not wasting your time while read this"
     }
   },
   "users": {

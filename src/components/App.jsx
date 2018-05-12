@@ -13,7 +13,7 @@ import LoginPage from 'components/LoginPage';
 import NotFound from 'components/NotFound';
 import ChatContainer from 'containers/ChatContainer';
 import ChatsContainer from 'containers/ChatsContainer';
-import PublicWall from './PublicWall';
+import PublicWallPage from './PublicWallPage';
 
 setConfig({ logLevel: 'error' }); // ['debug', 'log', 'warn', 'error'(default)]
 
@@ -21,7 +21,7 @@ const routes = (
   <Router>
     <div className="root-container">
       <Switch>
-        <Route path="/" exact component={PublicWall} />
+        <Route path="/" exact component={PublicWallPage} />
         <Route path="/chats" exact component={ChatsPage} />
         {/* For wide screen layout: */}
         <Route path="/chats/:chatId" component={ChatsPage} />

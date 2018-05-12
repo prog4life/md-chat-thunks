@@ -99,7 +99,7 @@ export const createErrorEventHandler = dispatch => (errorEvent) => {
   }
 };
 
-export const setupWebsocket = () => (dispatch) => {
+export const setupWebsocket = () => (dispatch, getState) => {
   if (webSocket) {
     webSocket.close();
   }
@@ -109,6 +109,7 @@ export const setupWebsocket = () => (dispatch) => {
   console.log('WebSocket CONNECTING');
 
   // will create wrapped into dispatch event listener functions
+  // TODO: pass dispatch/getState as arg right into factory function call ?
   const openEventHandler = dispatch(createOpenEventHandler);
   const messageEventHandler = dispatch(createMessageEventHandler);
   const closeEventHandler = dispatch(createCloseEventHandler);

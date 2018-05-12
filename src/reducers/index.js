@@ -2,11 +2,12 @@ import { combineReducers } from 'redux';
 
 import chats from './chatsReducer';
 import messages from './messagesReducer';
+import publicWall from './publicWall';
 import {
   nickname,
   clientId,
   whoIsTyping,
-  unsent
+  unsent,
 } from './reducers';
 
 // exporting of rootReducer
@@ -15,6 +16,7 @@ export default combineReducers({
   clientId,
   chats,
   messages,
+  publicWall,
   whoIsTyping,
-  unsent
+  unsent,
 });
