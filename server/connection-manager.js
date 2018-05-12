@@ -1,4 +1,7 @@
+const user = require('./user');
+
 const GET_ID = 'GET_ID';
+const SIGN_IN = 'SIGN_IN';
 const MESSAGE = 'MESSAGE';
 const IS_TYPING = 'IS_TYPING';
 const PING = 'PING';
@@ -9,12 +12,13 @@ const LEAVE_CHAT = 'LEAVE_CHAT';
 const HAS_ID = 'HAS_ID';
 
 const validator = {
-  validateIncoming() {},
+  validateIncoming() { return true; },
 };
 
 class ConnectionManager {
-  constructor(websocket) {
+  constructor(websocket, websocketServer) {
     this.ws = websocket;
+    this.wss = websocketServer;
     this.handleSpecificMessageType = this.mapMessageTypeHandlers();
   }
   mapMessageTypeHandlers() {
@@ -25,6 +29,17 @@ class ConnectionManager {
         this.sendNewClientId(newClient.id, websocket);
         // create chats between new client and each other
         this.createChats(newClient.id);
+      },
+      [SIGN_IN]: (incoming) => {
+        const existingUser = user.signIn(incoming.login);
+
+        if (existingUser) {
+          this.ws.send(JSON.stringify({ type: 'LOGGED_IN', clientId: existingUser.id }));
+        } else {
+          const newUser = user.signUp(incoming.login);
+          // TODO: change to SIGNED_UP
+          this.ws.send(JSON.stringify({ type: 'SET_ID', clientId: newUser.id }));
+        }
       },
       [MESSAGE]: incoming => this.resendMessageToAll(websocket, incoming),
       [IS_TYPING]: incoming => this.sendTypingNotification(websocket, incoming),
@@ -62,5 +77,5 @@ class ConnectionManager {
   }
 }
 
-exports.ConnectionManager = ConnectionManager;
+module.exports = ConnectionManager;
 // export.handleConnection = (websocket) => {};

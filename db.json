@@ -13,6 +13,17 @@
       "authorId": "HJVEph-XCG"
     }
   },
-  "users": {},
+  "users": {
+    "3c12e3w3": {
+      "id": "3c12e3w3",
+      "login": "fluffy",
+      "nickname": "fluffy"
+    },
+    "5oc435bkk": {
+      "id": "5oc435bkk",
+      "login": "chappi",
+      "nickname": "chappi"
+    },
+  },
   "chats": {}
 }

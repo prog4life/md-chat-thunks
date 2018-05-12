@@ -18,11 +18,11 @@ function fillLookupTable(amount = 3) {
 
 const posts = fillLookupTable();
 
-db.defaults({
-  posts,
-  users: {},
-  chats: {},
-})
-  .write();
+// db.defaults({
+//   posts,
+//   users: {},
+//   chats: {},
+// })
+//   .write();
 
 module.exports = db;

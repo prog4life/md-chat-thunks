@@ -33,7 +33,7 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
   const incoming = JSON.parse(messageEvent.data);
 
   const {
-    id, clientId, chatId, type, nickname, text, participants
+    id, clientId, login, chatId, type, nickname, text, participants
   } = incoming;
 
   switch (type) {
@@ -49,6 +49,9 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
     case 'SET_ID':
       dispatch(setClientId(clientId));
       dispatch(sendUnsentMessages());
+      break;
+    case 'LOGGED_IN':
+      dispatch(setClientId(clientId));
       break;
     case 'PONG':
       handleServerPong();
@@ -123,4 +126,3 @@ export const setupWebsocket = () => (dispatch) => {
 
   return webSocket;
 };
-

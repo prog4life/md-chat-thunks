@@ -10,13 +10,14 @@ const LoginPage = ({ signIn }) => (
     <AppBar />
     <form onSubmit={(event) => {
         event.preventDefault();
-        signIn(event.target.value);
+        signIn(event.target.login.value);
       }}
     >
-      <input type="text" placeholder="Write your login" />
-      <button type="submit">
+      <input name="login" type="text" placeholder="Write your login" />
+      <input type="submit" value="Login" />
+      {/* <button type="submit">
         {'Login'}
-      </button>
+      </button> */}
     </form>
   </Fragment>
 );

@@ -1,10 +1,9 @@
 const ws = require('ws');
 const { Messenger } = require('./messenger');
 const ConnectionManager = require('./connection-manager');
-const db = require('./database');
 
 const DEF_PING_INTRVL = 10000;
-
+/* eslint-disable no-param-reassign */
 const enablePing = (wss, interval = DEF_PING_INTRVL) => {
   wss.checkInterval = setInterval(() => {
     wss.clients.forEach((websocket) => {
@@ -28,8 +27,8 @@ const disablePing = wss => clearInterval(wss.checkInterval);
 //   }
 // };
 
-const handleConnection = (websocket, connections, connectionManager) => {
-  // const connectionManager = new ConnectionManager(websocket);
+const handleConnection = (websocket, wss) => {
+  const connectionManager = new ConnectionManager(websocket, wss);
 
   websocket.isAlive = true;
   // heartbeat callback
@@ -69,16 +68,16 @@ const startServer = (httpServer, pingInterval) => {
     // to use on different port than express server
     // port: 8484
   });
-  const connections = new Set();
+  // const connections = new Set();
 
   // const messenger = new Messenger(wss);
-
   // wss.on('connection', handleConnection(messenger));
-  // wss.on('connection', handleConnection);
+
   wss.on('connection', (websocket) => {
-    const connectionManager = new ConnectionManager(websocket, wss);
-    connections.add(connectionManager);
-    handleConnection(websocket, connections, connectionManager)
+    // const connectionManager = new ConnectionManager(websocket, wss);
+    // connections.add(connectionManager);
+    // handleConnection(websocket, connections, connectionManager);
+    handleConnection(websocket, wss);
   });
   wss.on('error', (error) => {
     console.error('Websocket Server error ', error);

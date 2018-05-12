@@ -80,7 +80,7 @@ export const signIn = login => (dispatch) => {
 
 export const getClientId = () => (dispatch) => {
   const outgoing = { type: 'GET_ID' };
-  dispatch(tryToSend(outgoing, true));
+  // dispatch(tryToSend(outgoing, true));
   // TODO: check if it works
   return {
     type: GET_CLIENT_ID
