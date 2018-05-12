@@ -1,3 +1,5 @@
+import { WEBSOCKET_CLOSED } from 'constants/action-types';
+
 import {
   addChat,
   receiveTyping,
@@ -6,8 +8,10 @@ import {
   setClientId,
   getClientId,
   sendUnsentMessages,
-  stopTypingNotification
-} from 'actions';
+  stopTypingNotification,
+} from './actions';
+
+import { joinWallSuccess } from './publicWall';
 
 let webSocket;
 
@@ -27,6 +31,8 @@ export const getInitialWebsocketEventHandler = eventType => (
 export const closeWebsocket = () => {
   webSocket.close();
 };
+
+export const websocketClosed = () => ({ type: WEBSOCKET_CLOSED });
 
 // returns wrapped event listener function
 const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
@@ -50,8 +56,14 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
       dispatch(setClientId(clientId));
       dispatch(sendUnsentMessages());
       break;
-    case 'LOGGED_IN':
+    case 'SIGN_IN':
       dispatch(setClientId(clientId));
+      break;
+    case 'SIGN_UP':
+      dispatch(setClientId(clientId));
+      break;
+    case 'JOIN-THE-WALL':
+      dispatch(joinWallSuccess(incoming));
       break;
     case 'PONG':
       handleServerPong();
@@ -86,6 +98,7 @@ export const createOpenEventHandler = (dispatch, getState) => (openEvent) => {
 export const createCloseEventHandler = dispatch => (closeEvent) => {
   // console.log(`Closing wasClean: ${closeEvent.wasClean}`);
   console.log('WebSocket CLOSED, event: ', closeEvent);
+  dispatch(websocketClosed());
   // TODO: reopen here ?
 };
 

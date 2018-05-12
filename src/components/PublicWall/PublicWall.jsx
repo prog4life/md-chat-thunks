@@ -12,11 +12,14 @@ import shortId from 'shortid';
 
 class PublicWall extends React.Component {
   static propTypes = {
-    loadPosts: PropTypes.func.isRequired,
+    joinWall: PropTypes.func.isRequired,
     posts: PropTypes.arrayOf(PropTypes.object).isRequired,
   }
   componentDidMount() {
-    const { loadPosts } = this.props;
+    const { joinWall } = this.props;
+  }
+  componentWillUnmount() {
+    const { leaveTheWall } = this.props;
   }
   render() {
     const { posts } = this.props;

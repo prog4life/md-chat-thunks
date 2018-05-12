@@ -2,6 +2,10 @@ const user = require('./user');
 
 const GET_ID = 'GET_ID';
 const SIGN_IN = 'SIGN_IN';
+const SIGN_UP = 'SIGN_UP';
+// const JOIN_THE_WALL = 'JOIN-THE-WALL';
+const JOIN_THE_WALL = 'Join-The-Wall';
+const LEAVE_THE_WALL = 'LEAVE-THE-WALL';
 const MESSAGE = 'MESSAGE';
 const IS_TYPING = 'IS_TYPING';
 const PING = 'PING';
@@ -34,13 +38,14 @@ class ConnectionManager {
         const existingUser = user.signIn(incoming.login);
 
         if (existingUser) {
-          this.ws.send(JSON.stringify({ type: 'LOGGED_IN', clientId: existingUser.id }));
+          this.ws.send(JSON.stringify({ type: SIGN_IN, clientId: existingUser.id }));
         } else {
           const newUser = user.signUp(incoming.login);
-          // TODO: change to SIGNED_UP
-          this.ws.send(JSON.stringify({ type: 'SET_ID', clientId: newUser.id }));
+          this.ws.send(JSON.stringify({ type: SIGN_UP, clientId: newUser.id }));
         }
       },
+      [JOIN_THE_WALL]: () => {},
+      [LEAVE_THE_WALL]: () => {},
       [MESSAGE]: incoming => this.resendMessageToAll(websocket, incoming),
       [IS_TYPING]: incoming => this.sendTypingNotification(websocket, incoming),
       [PING]: () => this.sendPong(websocket),
@@ -53,7 +58,7 @@ class ConnectionManager {
 
     // this function will become this.handleSpecificMessageType
     return (type, incoming) => {
-      if (type in messageTypesMap) {
+      if (messageTypesMap.type) {
         return messageTypesMap[type](incoming);
       }
       console.error('Unknown type of incoming message');

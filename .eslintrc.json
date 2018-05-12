@@ -41,6 +41,7 @@
       "peerDependencies": false
     }],
     "linebreak-style": ["warn", "windows"],
+    "no-prototype-builtins": 0,
     "object-curly-newline": ["error", {
       "minProperties": 5,
       "consistent": true

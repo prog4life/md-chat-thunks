@@ -18,3 +18,10 @@ export const DELETE_CHAT = 'DELETE_CHAT';
 export const LOAD_POSTS = 'LOAD_POSTS';
 export const LOAD_POSTS_SUCCESS = 'LOAD_POSTS_SUCCESS';
 export const LOAD_POSTS_FAIL = 'LOAD_POSTS_FAIL';
+// PUBLIC WALL
+export const JOIN_WALL = 'JOIN_WALL';
+export const JOIN_WALL_SUCCESS = 'JOIN_WALL_SUCCESS';
+export const JOIN_WALL_FAIL = 'JOIN_WALL_FAIL';
+export const LEAVE_WALL = 'LEAVE_WALL';
+// WebSocket
+export const WEBSOCKET_CLOSED = 'WEBSOCKET_CLOSED';
