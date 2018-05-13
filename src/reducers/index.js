@@ -2,28 +2,31 @@ import { combineReducers } from 'redux';
 
 import chats from './chatsReducer';
 import messages from './messagesReducer';
-import publicWall from './publicWall';
+import wall from './wall';
 import isWebsocketOpen from './isWebsocketOpen';
+import client from './client';
 import {
-  nickname,
-  clientId,
+  // nickname,
+  // clientId,
   whoIsTyping,
   unsent,
 } from './reducers';
 
 // exporting of rootReducer
 export default combineReducers({
-  nickname,
-  clientId,
+  client,
+  // nickname,
+  // clientId,
   chats,
   messages,
-  publicWall,
+  wall,
   whoIsTyping,
   unsent,
   isWebsocketOpen,
 });
 
-export const getClientId = state => state.clientId;
-export const getPosts = state => Object.values(state.publicWall.postsById);
+export const getClientId = state => state.client.id;
+export const getChats = state => state.chats;
+export const getPosts = state => Object.values(state.wall.postsById);
 export const isWebsocketOpenSelector = state => state.isWebsocketOpen;
-export const isWallTrackedSelector = state => state.publicWall.isTracked;
+export const isWallTrackedSelector = state => state.wall.isTracked;

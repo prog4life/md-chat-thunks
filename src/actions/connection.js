@@ -6,7 +6,7 @@ let heartbeat;
 const MONITORING_INTRVL = 10000;
 
 export const prepareWebsocketAndClientId = clientId => (dispatch, getState) => {
-  const id = clientId || getState().clientId;
+  const id = clientId || getState().client.id;
   const ws = getWebsocket();
 
   if (!ws || (ws.readyState !== 1 && ws.readyState !== 0)) {

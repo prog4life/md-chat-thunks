@@ -1,15 +1,8 @@
 import shortid from 'shortid';
 import {
-  SEND_MESSAGE_ATTEMPT,
-  SEND_MESSAGE_SUCCESS,
-  SEND_MESSAGE_FAIL,
-  RECEIVE_MESSAGE,
-  GET_CLIENT_ID,
-  SET_CLIENT_ID,
-  SET_NICKNAME,
-  RECEIVE_TYPING,
-  STOP_TYPING_NOTIFICATION
-} from 'constants/action-types';
+  SEND_MESSAGE_ATTEMPT, SEND_MESSAGE_SUCCESS, SEND_MESSAGE_FAIL,
+  RECEIVE_MESSAGE, RECEIVE_TYPING, STOP_TYPING_NOTIFICATION,
+} from 'constants/actionTypes';
 
 import { tryToSend } from './connection';
 
@@ -72,31 +65,6 @@ export const deleteChat = (chatId, clientId) => {
     chatId
   };
 };
-
-export const signIn = login => (dispatch) => {
-  const outgoing = { type: 'SIGN_IN', login };
-
-  dispatch(tryToSend(outgoing, true));
-};
-
-export const getClientId = () => (dispatch) => {
-  const outgoing = { type: 'GET_ID' };
-  dispatch(tryToSend(outgoing, true));
-  // TODO: check if it works
-  return {
-    type: GET_CLIENT_ID
-  };
-};
-
-export const setClientId = clientId => ({
-  type: SET_CLIENT_ID,
-  clientId
-});
-
-export const setNickname = nickname => ({
-  type: SET_NICKNAME,
-  nickname
-});
 
 export const receiveTyping = nickname => ({
   type: RECEIVE_TYPING,

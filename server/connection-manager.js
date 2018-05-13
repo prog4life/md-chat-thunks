@@ -26,6 +26,7 @@ class ConnectionManager {
     this.ws = websocket;
     this.wss = websocketServer;
     this.handleSpecificMessageType = this.mapMessageTypeHandlers();
+    this.clientId = null;
   }
   mapMessageTypeHandlers() {
     const messageTypesMap = {
@@ -35,17 +36,22 @@ class ConnectionManager {
         // this.sendNewClientId(newClient.id, websocket);
         // // create chats between new client and each other
         // this.createChats(newClient.id);
-        const newId = user.assignId();
-        this.ws.send(JSON.stringify({ type: SET_ID, clientId: newId }));
+        this.clientId = user.assignId();
+        this.ws.send(JSON.stringify({ type: SET_ID, clientId: this.clientId }));
       },
       [SIGN_IN]: (incoming) => {
-        const existingUser = user.signIn(incoming.login);
+        const authData = user.signIn(incoming.login);
 
-        if (existingUser) {
-          this.ws.send(JSON.stringify({ type: SIGN_IN, clientId: existingUser.id }));
+        if (authData) {
+          this.clientId = authData.id;
+          this.ws.send(JSON.stringify({
+            type: SIGN_IN, clientId: authData.id, token: authData.token,
+          }));
+        // TODO: extract as SIGN_UP
         } else {
           const newUser = user.signUp(incoming.login);
-          this.ws.send(JSON.stringify({ type: SIGN_UP, clientId: newUser.id }));
+          this.clientId = newUser.id;
+          this.ws.send(JSON.stringify({ type: SIGN_UP, clientId: this.clientId }));
         }
       },
       [JOIN_WALL]: incoming => wall.subscribe(incoming.clientId),
@@ -63,10 +69,10 @@ class ConnectionManager {
     // this function will become this.handleSpecificMessageType
     return (type, incoming) => {
       if (messageTypesMap.hasOwnProperty(type)) {
-        return messageTypesMap[type](incoming);
+        messageTypesMap[type](incoming);
+      } else {
+        console.error('Unknown type of incoming message');
       }
-      console.error('Unknown type of incoming message');
-      return null;
     };
   }
   handleIncoming(rawIncoming) {
@@ -84,6 +90,10 @@ class ConnectionManager {
     const { type } = incoming;
 
     this.handleSpecificMessageType(type, incoming);
+  }
+  handleClose() {
+    // wall.unsubscribe(this.clientId);
+    // user.signOut(this.clientId);
   }
 }
 

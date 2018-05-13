@@ -1,17 +1,16 @@
-import { WEBSOCKET_OPEN, WEBSOCKET_CLOSED } from 'constants/action-types';
+import { WEBSOCKET_OPEN, WEBSOCKET_CLOSED } from 'constants/actionTypes';
 
 import {
   addChat,
   receiveTyping,
   receiveMessage,
   handleServerPong,
-  setClientId,
-  getClientId,
   sendUnsentMessages,
   stopTypingNotification,
 } from './actions';
 
-import { joinWallSuccess } from './publicWall';
+import { getClientId, setClientId, setToken } from './client';
+import { joinWallSuccess } from './wall';
 
 let webSocket;
 
@@ -40,7 +39,7 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
   const incoming = JSON.parse(messageEvent.data);
 
   const {
-    id, clientId, login, chatId, type, nickname, text, participants
+    id, clientId, login, token, chatId, type, nickname, text, participants
   } = incoming;
 
   switch (type) {
@@ -59,9 +58,11 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
       break;
     case 'SIGN_IN':
       dispatch(setClientId(clientId));
+      dispatch(setToken(token));
       break;
     case 'SIGN_UP':
       dispatch(setClientId(clientId));
+      dispatch(setToken(token));
       break;
     case 'Join_Wall':
       console.log('Joined the wall');

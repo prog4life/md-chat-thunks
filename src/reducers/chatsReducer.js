@@ -1,7 +1,7 @@
 import {
   ADD_CHAT,
   DELETE_CHAT
-} from 'constants/action-types';
+} from 'constants/actionTypes';
 
 const chats = (state = [], action) => {
   switch (action.type) {

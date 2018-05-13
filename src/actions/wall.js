@@ -1,9 +1,9 @@
 // import {
 //   LOAD_POSTS, LOAD_POSTS_SUCCESS, LOAD_POSTS_FAIL,
-// } from 'constants/action-types';
+// } from 'constants/actionTypes';
 import {
   JOIN_WALL, JOIN_WALL_SUCCESS, JOIN_WALL_FAIL, LEAVE_WALL,
-} from 'constants/action-types';
+} from 'constants/actionTypes';
 
 import { tryToSend } from './connection';
 
@@ -16,11 +16,11 @@ export const joinWallFail = () => ({ type: JOIN_WALL_FAIL });
 
 export const joinWall = id => (dispatch, getState) => {
   const state = getState();
-  const { clientId } = state; // TODO: replace by selector and:
-  // const clientId = id || state.clientId;
+  // const { id: clientId } = state.client; // TODO: replace by selector and:
+  const clientId = id || state.client.id;
 
   console.log('CALL JOIN WALL');
-  if (state.publicWall.isConnecting) {
+  if (state.wall.isConnecting) {
     return null;
   }
   dispatch({ type: JOIN_WALL });
@@ -34,8 +34,8 @@ export const joinWall = id => (dispatch, getState) => {
 
 export const leaveWall = id => (dispatch, getState) => {
   const state = getState();
-  const { clientId } = state; // TODO: replace by selector and:
-  // const clientId = id || state.clientId;
+  // const { id: clientId } = state.client; // TODO: replace by selector and:
+  const clientId = id || state.client.id;
 
   dispatch({ type: LEAVE_WALL });
 

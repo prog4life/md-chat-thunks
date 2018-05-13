@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 import {
   // LOAD_POSTS, LOAD_POSTS_SUCCESS, LOAD_POSTS_FAIL, WEBSOCKET_CLOSED,
   JOIN_WALL, JOIN_WALL_SUCCESS, JOIN_WALL_FAIL, LEAVE_WALL, WEBSOCKET_CLOSED,
-} from 'constants/action-types';
+} from 'constants/actionTypes';
 
 import { makeUnion } from './helpers';
 
@@ -32,6 +32,7 @@ const visiblePosts = (state = [], action) => {
   }
 };
 
+// attempt to subscribe to the wall
 const isConnecting = (state = false, action) => {
   switch (action.type) {
     case JOIN_WALL:
@@ -46,6 +47,7 @@ const isConnecting = (state = false, action) => {
   }
 };
 
+// is client subscribed to the wall
 const isTracked = (state = false, action) => {
   switch (action.type) {
     case JOIN_WALL_SUCCESS:

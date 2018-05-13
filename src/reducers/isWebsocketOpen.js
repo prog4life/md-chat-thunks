@@ -1,4 +1,4 @@
-import { WEBSOCKET_OPEN, WEBSOCKET_CLOSED } from 'constants/action-types';
+import { WEBSOCKET_OPEN, WEBSOCKET_CLOSED } from 'constants/actionTypes';
 
 export default function isWebsocketOpen(state = false, action) {
   switch (action.type) {

@@ -7,27 +7,27 @@
 //   SET_NICKNAME,
 //   RECEIVE_TYPING,
 //   STOP_TYPING_NOTIFICATION,
-// } from 'constants/action-types';
+// } from 'constants/actionTypes';
 
-import * as at from 'constants/action-types';
+import * as at from 'constants/actionTypes';
 
-export const nickname = (state = '', action) => {
-  switch (action.type) {
-    case at.SET_NICKNAME:
-      return action.nickname;
-    default:
-      return state;
-  }
-};
+// export const nickname = (state = '', action) => {
+//   switch (action.type) {
+//     case at.SET_NICKNAME:
+//       return action.nickname;
+//     default:
+//       return state;
+//   }
+// };
 
-export const clientId = (state = null, action) => {
-  switch (action.type) {
-    case at.SET_CLIENT_ID:
-      return action.clientId;
-    default:
-      return state;
-  }
-};
+// export const clientId = (state = null, action) => {
+//   switch (action.type) {
+//     case at.SET_CLIENT_ID:
+//       return action.clientId;
+//     default:
+//       return state;
+//   }
+// };
 
 export const whoIsTyping = (state = '', { type, nickname }) => {
   switch (type) {

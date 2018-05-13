@@ -55,7 +55,7 @@ const handleConnection = (websocket, wss) => {
   websocket.on('close', (code, reason) => {
     // messenger.removeChats(websocket);
     // messenger.removeClient(websocket);
-    // connectionManager.removeClient(websocket);
+    connectionManager.handleClose();
     console.log('websocket onclose code: %s and reason: %s ', code, reason);
     // console.log('websocket onclose clients size', messenger.wss.clients.size);
     console.log('websocket onclose clients size', connectionManager.wss.clients.size);

@@ -2,7 +2,7 @@ import {
   SEND_MESSAGE_ATTEMPT,
   SEND_MESSAGE_SUCCESS,
   RECEIVE_MESSAGE
-} from 'constants/action-types';
+} from 'constants/actionTypes';
 
 // TODO: add queued/postponed status
 export const message = (state, action) => {

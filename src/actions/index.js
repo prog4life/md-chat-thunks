@@ -1,4 +1,5 @@
 export * from './actions';
+export * from './client';
 export * from './connection';
 export * from './websocket';
-export * from './publicWall';
+export * from './wall';

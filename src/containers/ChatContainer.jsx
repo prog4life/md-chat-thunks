@@ -17,8 +17,8 @@ import { filterMessages } from 'selectors/messages';
 
 const mapStateToProps = state => ({
   websocketStatus: state.websocketStatus,
-  nickname: state.nickname,
-  clientId: state.clientId,
+  nickname: state.client.nickname,
+  clientId: state.client.id,
   messages: filterMessages(state.messages),
   whoIsTyping: state.whoIsTyping,
 });

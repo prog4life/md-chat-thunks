@@ -15,8 +15,10 @@ import 'styles/index.scss';
 console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
 
 const initialState = {
-  clientId: '',
-  nickname: '',
+  // client: {
+  //   clientId: '',
+  //   nickname: '',
+  // },
   chats: [
     // {
     //   id: 'tfhn523'
