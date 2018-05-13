@@ -48,16 +48,8 @@ class ConnectionManager {
           this.ws.send(JSON.stringify({ type: SIGN_UP, clientId: newUser.id }));
         }
       },
-      [JOIN_WALL]: (incoming) => {
-        console.log('Connected to wall');
-        const result = wall.subscribe(incoming.clientId);
-        console.log('Subscribed: ', result);
-      },
-      [LEAVE_WALL]: (incoming) => {
-        console.log('Disconnected from wall');
-        const result = wall.unsubscribe(incoming.clientId);
-        console.log('Unsubscribed: ', result);
-      },
+      [JOIN_WALL]: incoming => wall.subscribe(incoming.clientId),
+      [LEAVE_WALL]: incoming => wall.unsubscribe(incoming.clientId),
       [MESSAGE]: incoming => this.resendMessageToAll(websocket, incoming),
       [IS_TYPING]: incoming => this.sendTypingNotification(websocket, incoming),
       [PING]: () => this.sendPong(websocket),
