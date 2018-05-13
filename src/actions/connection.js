@@ -23,7 +23,7 @@ export const tryToSend = (outgoing, reopen, actions = {}) => (dispatch) => {
   const { successAction, failAction } = actions;
   const webSocket = getWebsocket();
 
-  if (webSocket.readyState !== WebSocket.OPEN) {
+  if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
     if (failAction) {
       dispatch(failAction);
     }
@@ -31,13 +31,14 @@ export const tryToSend = (outgoing, reopen, actions = {}) => (dispatch) => {
       dispatch(setupWebsocket());
     }
     console.warn('WebSocket readyState is not OPEN, unable to send ', outgoing);
-    return;
+    return false;
   }
 
   webSocket.send(JSON.stringify(outgoing));
   if (successAction) {
     dispatch(successAction);
   }
+  return true;
 };
 
 export const handleServerPong = () => {

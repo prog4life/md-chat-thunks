@@ -26,7 +26,13 @@
       "id": "5oc435bkk",
       "login": "chappi",
       "nickname": "chappi"
-    },
+    }
+  },
+  "wall": {
+    "subscribers": [
+      "HJxqdGrRM",
+      "HJxqdGrRM"
+    ]
   },
   "chats": {}
 }

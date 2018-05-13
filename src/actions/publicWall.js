@@ -14,16 +14,30 @@ export const joinWallSuccess = ({ entities, result }) => ({
 
 export const joinWallFail = () => ({ type: JOIN_WALL_FAIL });
 
-export const joinWall = () => (dispatch) => {
+export const joinWall = id => (dispatch, getState) => {
+  const state = getState();
+  const { clientId } = state; // TODO: replace by selector and:
+  // const clientId = id || state.clientId;
+
+  console.log('CALL JOIN WALL');
+  if (state.publicWall.isConnecting) {
+    return null;
+  }
   dispatch({ type: JOIN_WALL });
 
-  tryToSend({ type: 'JOIN-THE-WALL' }, null, {
+  const outgoing = { type: 'Join_Wall', clientId };
+
+  return dispatch(tryToSend(outgoing, null, {
     failAction: joinWallFail(),
-  });
+  }));
 };
 
-export const leaveTheWall = () => (dispatch) => {
+export const leaveWall = id => (dispatch, getState) => {
+  const state = getState();
+  const { clientId } = state; // TODO: replace by selector and:
+  // const clientId = id || state.clientId;
+
   dispatch({ type: LEAVE_WALL });
 
-  tryToSend({ type: 'LEAVE-THE-WALL' });
+  dispatch(tryToSend({ type: 'Leave_Wall', clientId }));
 };

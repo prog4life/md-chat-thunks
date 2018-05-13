@@ -1,11 +1,13 @@
 const user = require('./user');
+const wall = require('./wall');
 
 const GET_ID = 'GET_ID';
+const SET_ID = 'SET_ID';
 const SIGN_IN = 'SIGN_IN';
 const SIGN_UP = 'SIGN_UP';
 // const JOIN_THE_WALL = 'JOIN-THE-WALL';
-const JOIN_THE_WALL = 'Join-The-Wall';
-const LEAVE_THE_WALL = 'LEAVE-THE-WALL';
+const JOIN_WALL = 'Join_Wall';
+const LEAVE_WALL = 'Leave_Wall';
 const MESSAGE = 'MESSAGE';
 const IS_TYPING = 'IS_TYPING';
 const PING = 'PING';
@@ -28,11 +30,13 @@ class ConnectionManager {
   mapMessageTypeHandlers() {
     const messageTypesMap = {
       [GET_ID]: () => {
-        const newClient = client.addOne(websocket);
-        // send back to client his new id
-        this.sendNewClientId(newClient.id, websocket);
-        // create chats between new client and each other
-        this.createChats(newClient.id);
+        // const newClient = client.addOne(websocket);
+        // // send back to client his new id
+        // this.sendNewClientId(newClient.id, websocket);
+        // // create chats between new client and each other
+        // this.createChats(newClient.id);
+        const newId = user.assignId();
+        this.ws.send(JSON.stringify({ type: SET_ID, clientId: newId }));
       },
       [SIGN_IN]: (incoming) => {
         const existingUser = user.signIn(incoming.login);
@@ -44,8 +48,16 @@ class ConnectionManager {
           this.ws.send(JSON.stringify({ type: SIGN_UP, clientId: newUser.id }));
         }
       },
-      [JOIN_THE_WALL]: () => {},
-      [LEAVE_THE_WALL]: () => {},
+      [JOIN_WALL]: (incoming) => {
+        console.log('Connected to wall');
+        const result = wall.subscribe(incoming.clientId);
+        console.log('Subscribed: ', result);
+      },
+      [LEAVE_WALL]: (incoming) => {
+        console.log('Disconnected from wall');
+        const result = wall.unsubscribe(incoming.clientId);
+        console.log('Unsubscribed: ', result);
+      },
       [MESSAGE]: incoming => this.resendMessageToAll(websocket, incoming),
       [IS_TYPING]: incoming => this.sendTypingNotification(websocket, incoming),
       [PING]: () => this.sendPong(websocket),
@@ -58,7 +70,7 @@ class ConnectionManager {
 
     // this function will become this.handleSpecificMessageType
     return (type, incoming) => {
-      if (messageTypesMap.type) {
+      if (messageTypesMap.hasOwnProperty(type)) {
         return messageTypesMap[type](incoming);
       }
       console.error('Unknown type of incoming message');
@@ -67,6 +79,7 @@ class ConnectionManager {
   }
   handleIncoming(rawIncoming) {
     let incoming = null;
+
     try {
       incoming = JSON.parse(rawIncoming);
     } catch (e) {
@@ -83,4 +96,3 @@ class ConnectionManager {
 }
 
 module.exports = ConnectionManager;
-// export.handleConnection = (websocket) => {};

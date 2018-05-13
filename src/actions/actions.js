@@ -64,6 +64,7 @@ export const deleteChat = (chatId, clientId) => {
   };
 
   // TODO: add 3rd arg with action that postpones chat deleting command
+  // TODO: need to dispatch
   tryToSend(outgoing, true);
 
   return {
@@ -80,7 +81,7 @@ export const signIn = login => (dispatch) => {
 
 export const getClientId = () => (dispatch) => {
   const outgoing = { type: 'GET_ID' };
-  // dispatch(tryToSend(outgoing, true));
+  dispatch(tryToSend(outgoing, true));
   // TODO: check if it works
   return {
     type: GET_CLIENT_ID

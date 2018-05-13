@@ -34,6 +34,7 @@
     "react-router-prop-types": "^1.0.3",
     "reactstrap": "^6.0.1",
     "redux": "^4.0.0",
+    "redux-mw-ws": "^1.2.3",
     "redux-saga": "^0.16.0",
     "redux-thunk": "^2.2.0",
     "reselect": "^3.0.1",

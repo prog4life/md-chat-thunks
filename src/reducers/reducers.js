@@ -20,7 +20,7 @@ export const nickname = (state = '', action) => {
   }
 };
 
-export const clientId = (state = '', action) => {
+export const clientId = (state = null, action) => {
   switch (action.type) {
     case at.SET_CLIENT_ID:
       return action.clientId;

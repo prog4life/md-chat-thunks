@@ -12,14 +12,36 @@ import shortId from 'shortid';
 
 class PublicWall extends React.Component {
   static propTypes = {
+    clientId: PropTypes.string.isRequired,
+    isWallTracked: PropTypes.bool.isRequired,
+    isWebsocketOpen: PropTypes.bool.isRequired,
     joinWall: PropTypes.func.isRequired,
+    leaveWall: PropTypes.func.isRequired,
     posts: PropTypes.arrayOf(PropTypes.object).isRequired,
+    prepareWebsocketAndClientId: PropTypes.func.isRequired,
   }
   componentDidMount() {
-    const { joinWall } = this.props;
+    const { prepareWebsocketAndClientId } = this.props;
+
+    prepareWebsocketAndClientId();
+    this.joinWallConditionally();
+  }
+  componentDidUpdate() {
+    console.log('PUBLIC WALL UPDATE');
+
+    this.joinWallConditionally();
   }
   componentWillUnmount() {
-    const { leaveTheWall } = this.props;
+    const { leaveWall } = this.props;
+
+    leaveWall();
+  }
+  joinWallConditionally() {
+    const { isWebsocketOpen, isWallTracked, joinWall, clientId } = this.props;
+
+    if (!isWallTracked && isWebsocketOpen && clientId) {
+      joinWall();
+    }
   }
   render() {
     const { posts } = this.props;

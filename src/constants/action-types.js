@@ -24,4 +24,5 @@ export const JOIN_WALL_SUCCESS = 'JOIN_WALL_SUCCESS';
 export const JOIN_WALL_FAIL = 'JOIN_WALL_FAIL';
 export const LEAVE_WALL = 'LEAVE_WALL';
 // WebSocket
+export const WEBSOCKET_OPEN = 'WEBSOCKET_OPEN';
 export const WEBSOCKET_CLOSED = 'WEBSOCKET_CLOSED';

@@ -1,4 +1,4 @@
-import { WEBSOCKET_CLOSED } from 'constants/action-types';
+import { WEBSOCKET_OPEN, WEBSOCKET_CLOSED } from 'constants/action-types';
 
 import {
   addChat,
@@ -32,6 +32,7 @@ export const closeWebsocket = () => {
   webSocket.close();
 };
 
+export const websocketOpen = () => ({ type: WEBSOCKET_OPEN });
 export const websocketClosed = () => ({ type: WEBSOCKET_CLOSED });
 
 // returns wrapped event listener function
@@ -62,8 +63,9 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
     case 'SIGN_UP':
       dispatch(setClientId(clientId));
       break;
-    case 'JOIN-THE-WALL':
-      dispatch(joinWallSuccess(incoming));
+    case 'Join_Wall':
+      console.log('Joined the wall');
+      // dispatch(joinWallSuccess(incoming));
       break;
     case 'PONG':
       handleServerPong();
@@ -86,6 +88,8 @@ export const createOpenEventHandler = (dispatch, getState) => (openEvent) => {
   const { clientId } = getState();
 
   console.log('WebSocket OPENED, event: ', openEvent);
+
+  dispatch(websocketOpen());
 
   if (!clientId) {
     dispatch(getClientId());

@@ -14,14 +14,16 @@ const db = require('./database');
 //   },
 // };
 
-class User {
-  constructor(newId, login, nickname = null, chats = []) {
-    this.id = newId;
-    this.login = login;
-    this.nickname = nickname;
-    this.chats = chats;
-  }
-}
+// class User {
+//   constructor(newId, login, nickname = null, chats = []) {
+//     this.id = newId;
+//     this.login = login;
+//     this.nickname = nickname;
+//     this.chats = chats;
+//   }
+// }
+
+const assignId = () => shortId.generate();
 
 const signUp = (login) => {
   const newUserId = shortId.generate();
@@ -53,5 +55,6 @@ const signIn = (login) => {
   return existing || null;
 };
 
+exports.assignId = assignId;
 exports.signUp = signUp;
 exports.signIn = signIn;
