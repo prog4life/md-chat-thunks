@@ -10,7 +10,7 @@ const propTypes = {
   chats: PropTypes.arrayOf(Object).isRequired,
   clientId: PropTypes.string.isRequired,
   deleteChat: PropTypes.func.isRequired,
-  prepareWebsocketAndClientId: PropTypes.func.isRequired,
+  // prepareWebsocketAndClientId: PropTypes.func.isRequired,
 };
 
 class ChatsList extends PureComponent {
@@ -20,8 +20,8 @@ class ChatsList extends PureComponent {
     this.handleChatItemClose = this.handleChatItemClose.bind(this);
   }
   componentDidMount() {
-    const { prepareWebsocketAndClientId } = this.props;
-    prepareWebsocketAndClientId();
+    // const { prepareWebsocketAndClientId } = this.props;
+    // prepareWebsocketAndClientId();
   }
   handleChatListItemClick(e, chatId) {
     const { history, match } = this.props;

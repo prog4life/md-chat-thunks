@@ -25,10 +25,16 @@ class ConnectionManager {
   constructor(websocket, websocketServer) {
     this.ws = websocket;
     this.wss = websocketServer;
-    this.handleSpecificMessageType = this.mapMessageTypeHandlers();
+    this.handleSpecificMessageType = this.setMessageTypeHandlers();
     this.clientId = user.assignId();
   }
-  mapMessageTypeHandlers() {
+  changeId(newId) {
+    if (wall.isSubscriber(this.clientId)) {
+      wall.replaceSubscriber(this.clientId, newId);
+    }
+    this.clientId = newId;
+  }
+  setMessageTypeHandlers() {
     const messageTypesMap = {
       // [GET_ID]: () => {
       //   // const newClient = client.addOne(websocket);
@@ -45,10 +51,13 @@ class ConnectionManager {
         if (authData) {
           // TODO: create user id on connection and just add login/token on
           // sign in/sign up OR this.changeId with resubscribing to wall
-          this.clientId = authData.id;
+          // this.clientId = authData.id;
+          this.changeId(authData.id);
           this.ws.send(JSON.stringify({
             type: SIGN_IN, clientId: authData.id, token: authData.token,
           }));
+        } else {
+          
         }
         // TODO: send fail message, perhaps without token with reason
       },
@@ -100,7 +109,7 @@ class ConnectionManager {
     this.handleSpecificMessageType(type, incoming);
   }
   handleClose() {
-    // wall.unsubscribe(this.clientId);
+    wall.unsubscribe(this.clientId);
     // user.signOut(this.clientId);
   }
 }

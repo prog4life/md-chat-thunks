@@ -13,7 +13,7 @@ const enablePing = (wss, interval = DEF_PING_INTRVL) => {
       }
 
       websocket.isAlive = false;
-      websocket.ping('', false, true);
+      websocket.ping('', false, true); // TODO: websocket.ping(noop);
     });
   }, interval); // NOTE: was 30000 in example
 };

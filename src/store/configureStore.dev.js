@@ -6,9 +6,8 @@ import { createLogger } from 'redux-logger';
 import createWebsocketMiddleware from 'redux-mw-ws';
 // import logger from 'redux-logger'; // to get logger mw with default options
 import appReducer from 'reducers';
-import * as actions from 'actions';
 
-import createWebsocketHandler from 'middleware/websocketHandler';
+import createWebsocketHandler, { handleIncoming } from 'middleware/websocketHandler';
 
 // must be the last middleware in chain
 const logger = createLogger({
@@ -16,7 +15,7 @@ const logger = createLogger({
   predicate: (getState, action) => {
     const hiddenTypes = [];
     return !hiddenTypes.some(type => type === action.type);
-  }
+  },
 });
 
 // 1st - options, 2nd - reconnectCallback
@@ -24,7 +23,7 @@ const websocketMw = createWebsocketMiddleware({
   defaultEndpoint: 'ws://localhost:8787',
 });
 
-const websocketHandler = createWebsocketHandler(actions);
+const websocketHandler = createWebsocketHandler(handleIncoming);
 
 const watcher = immutabilityWatcher();
 
@@ -39,7 +38,7 @@ const configureStore = (preloadedState = {}) => {
   return createStore(
     appReducer,
     preloadedState,
-    composeEnhancers(applyMiddleware(...middleware))
+    composeEnhancers(applyMiddleware(...middleware)),
   );
 };
 

@@ -27,5 +27,25 @@ const unsubscribe = (userId) => {
   console.log('after unsubscribe ', db.get('wall.subscribers').value());
 };
 
+const isSubscriber = (currentId) => {
+  const index = db.get('wall.subscribers')
+    .indexOf(currentId)
+    .value();
+
+  return index !== -1;
+};
+
+const replaceSubscriber = (currentId, newId) => {
+  const subscribers = db.get('wall.subscribers').value();
+  const index = subscribers.indexOf(currentId);
+
+  if (index !== -1) {
+    subscribers[index] = newId;
+  }
+  db.set('wall.subscribers', subscribers).write();
+};
+
 exports.subscribe = subscribe;
 exports.unsubscribe = unsubscribe;
+exports.isSubscriber = isSubscriber;
+exports.replaceSubscriber = replaceSubscriber;
