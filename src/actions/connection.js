@@ -10,8 +10,8 @@ export const prepareWebsocketAndClientId = clientId => (dispatch, getState) => {
   const ws = getWebsocket();
 
   if (!ws || (ws.readyState !== 1 && ws.readyState !== 0)) {
-    dispatch(setupWebsocket());
-    return;
+    // dispatch(setupWebsocket());
+    // return;
   }
 
   if (!id) {
@@ -25,18 +25,18 @@ export const tryToSend = (outgoing, reopen, actions = {}) => (dispatch) => {
 
   if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
     if (failAction) {
-      dispatch(failAction);
+      // dispatch(failAction);
     }
     if (reopen) {
-      dispatch(setupWebsocket());
+      // dispatch(setupWebsocket());
     }
     console.warn('WebSocket readyState is not OPEN, unable to send ', outgoing);
     return false;
   }
 
-  webSocket.send(JSON.stringify(outgoing));
+  // webSocket.send(JSON.stringify(outgoing));
   if (successAction) {
-    dispatch(successAction);
+    // dispatch(successAction);
   }
   return true;
 };

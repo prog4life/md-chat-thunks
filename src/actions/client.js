@@ -19,7 +19,12 @@ export const getClientId = () => (dispatch) => {
   const outgoing = { type: 'GET_ID' };
 
   dispatch({ type: GET_CLIENT_ID });
-  dispatch(tryToSend(outgoing, true));
+  // dispatch(tryToSend(outgoing, true));
+  dispatch({
+    // type: 'WRITE_TO_SOCKET',
+    payload: outgoing,
+    meta: { socket: true },
+  });
 };
 
 export const setClientId = clientId => ({

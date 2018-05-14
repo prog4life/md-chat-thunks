@@ -12,6 +12,8 @@ import {
   unsent,
 } from './reducers';
 
+import websocket from './routeWebsocket';
+
 // exporting of rootReducer
 export default combineReducers({
   client,
@@ -23,6 +25,7 @@ export default combineReducers({
   whoIsTyping,
   unsent,
   isWebsocketOpen,
+  websocket,
 });
 
 export const getClientId = state => state.client.id;

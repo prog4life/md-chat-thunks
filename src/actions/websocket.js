@@ -7,8 +7,9 @@ import {
   handleServerPong,
   sendUnsentMessages,
   stopTypingNotification,
-} from './actions';
+} from 'actions';
 
+// TODO: from 'actions'; for next 2
 import { getClientId, setClientId, setToken } from './client';
 import { joinWallSuccess } from './wall';
 

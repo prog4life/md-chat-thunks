@@ -26,7 +26,7 @@ class ConnectionManager {
     this.ws = websocket;
     this.wss = websocketServer;
     this.handleSpecificMessageType = this.mapMessageTypeHandlers();
-    this.clientId = null;
+    this.clientId = null; // TODO: assign temp id on connection
   }
   mapMessageTypeHandlers() {
     const messageTypesMap = {
