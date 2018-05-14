@@ -3,16 +3,14 @@ import * as aT from 'constants/actionTypes';
 
 import {
   addChat, receiveTyping, receiveMessage, handleServerPong, sendUnsentMessages,
-  getClientId, setClientId, setToken, stopTypingNotification, joinWallSuccess,
+  requestClientId, setClientId, setToken, stopTypingNotification,
+  websocketOpen, websocketClosed, joinWallSuccess,
 } from 'actions';
 
 const {
   WEBSOCKET_CONNECTED, WEBSOCKET_DISCONNECTED, RECEIVED_WEBSOCKET_DATA,
   // WEBSOCKET_ERROR,
 } = ActionTypes;
-
-export const websocketOpen = () => ({ type: aT.WEBSOCKET_OPEN });
-export const websocketClosed = () => ({ type: aT.WEBSOCKET_CLOSED });
 
 const writeToWebsocket = (outgoing, dispatch) => {
   dispatch({
@@ -35,13 +33,13 @@ const createIncomingHandler = typesToHandlersMap => (
 );
 
 const handleIncoming = createIncomingHandler({
-  SET_ID: ({ clientId }, next) => next(setClientId(clientId)),
+  // SET_ID: ({ clientId }, next) => next(setClientId(clientId)),
   SIGN_IN: ({ clientId, token }, next) => {
-    next(setClientId(clientId));
+    // next(setClientId(clientId));
     next(setToken(token));
   },
   SIGN_UP: ({ clientId, token }, next) => {
-    next(setClientId(clientId));
+    // next(setClientId(clientId));
     next(setToken(token));
   },
   Join_Wall: (incoming, next) => {
@@ -51,9 +49,10 @@ const handleIncoming = createIncomingHandler({
 });
 
 export default function createWebsocketHandler(actions) {
-  // middleware
+  // MIDDLEWARE itself
   return ({ dispatch, getState }) => next => (action) => {
-    if (!action.meta.socket || !ActionTypes.hasOwnProperty(action.type)) {
+    if (!action.meta || !action.meta.socket ||
+        !ActionTypes.hasOwnProperty(action.type)) {
       return next(action);
     }
 
@@ -62,14 +61,15 @@ export default function createWebsocketHandler(actions) {
         // NOTE: websocket server should send new client id after client action
         // without id, or right after connection, this way it will be
         // unnecessary to request id on open
-        if (getState().clientId) {
-          return next(websocketOpen());
-        }
-        const outgoing = { type: 'GET_ID' };
+        // if (getState().clientId) {
+        //   return next(websocketOpen());
+        // }
+        return next(websocketOpen());
+        // const outgoing = { type: 'GET_ID' };
 
-        writeToWebsocket(outgoing, dispatch);
-        return next(getClientId());
-        // return next({ type: aT.GET_CLIENT_ID });
+        // writeToWebsocket(outgoing, dispatch);
+        // return next(requestClientId());
+        // return next({ type: aT.REQUEST_CLIENT_ID });
       }
       case WEBSOCKET_DISCONNECTED:
         return next(websocketClosed());

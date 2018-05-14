@@ -29,21 +29,23 @@ const assignId = () => shortId.generate();
 
 const signUp = (login) => {
   const newUserId = shortId.generate();
+  const token = shortId.generate();
+  const newUser = { id: newUserId, login, token };
   // const newUser = new User(newUserId, login);
   //
   // users[newUserId] = newUser;
 
   db.get('users')
-    .set(newUserId, { id: newUserId, login, nickname: login })
+    .set(newUserId, newUser)
     .write();
 
-  const newUser = db.get('users')
+  const createdUser = db.get('users')
     .find({ id: newUserId })
     .value();
 
-  console.log('new user ', newUser);
+  console.log('new user ', createdUser);
 
-  return newUser;
+  return createdUser;
 };
 
 const signIn = (login) => {

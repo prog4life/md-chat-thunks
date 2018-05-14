@@ -1,8 +1,12 @@
 import {
-  SET_TOKEN, GET_CLIENT_ID, SET_CLIENT_ID, SET_NICKNAME,
+  SIGN_IN, SET_TOKEN, REQUEST_CLIENT_ID, SET_CLIENT_ID, SET_NICKNAME,
 } from 'constants/actionTypes';
 
-import { tryToSend } from './connection';
+import { send, tryToSend } from 'actions';
+import { getClientId } from 'reducers';
+
+// TODO: replace to constants
+export const WEBSOCKET_ENDPOINT = 'ws://localhost:8787';
 
 // export const setLogin = login => ({
 //   type: SET_LOGIN,
@@ -12,19 +16,27 @@ import { tryToSend } from './connection';
 export const signIn = login => (dispatch) => {
   const outgoing = { type: 'SIGN_IN', login };
 
-  dispatch(tryToSend(outgoing, true));
+  dispatch({ type: SIGN_IN });
+  // dispatch(tryToSend(outgoing, true));
+  dispatch(send(outgoing));
 };
 
-export const getClientId = () => (dispatch) => {
+export const requestClientId = () => (dispatch) => {
   const outgoing = { type: 'GET_ID' };
 
-  dispatch({ type: GET_CLIENT_ID });
+  dispatch({ type: REQUEST_CLIENT_ID });
   // dispatch(tryToSend(outgoing, true));
-  dispatch({
-    // type: 'WRITE_TO_SOCKET',
-    payload: outgoing,
-    meta: { socket: true },
-  });
+  dispatch(send(outgoing));
+};
+
+export const checkClientId = id => (dispatch, getState) => {
+  const clientId = id || getClientId(getState());
+
+  if (!clientId) {
+    dispatch(requestClientId());
+    return null;
+  }
+  return clientId;
 };
 
 export const setClientId = clientId => ({

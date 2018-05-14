@@ -26,36 +26,44 @@ class ConnectionManager {
     this.ws = websocket;
     this.wss = websocketServer;
     this.handleSpecificMessageType = this.mapMessageTypeHandlers();
-    this.clientId = null; // TODO: assign temp id on connection
+    this.clientId = user.assignId();
   }
   mapMessageTypeHandlers() {
     const messageTypesMap = {
-      [GET_ID]: () => {
-        // const newClient = client.addOne(websocket);
-        // // send back to client his new id
-        // this.sendNewClientId(newClient.id, websocket);
-        // // create chats between new client and each other
-        // this.createChats(newClient.id);
-        this.clientId = user.assignId();
-        this.ws.send(JSON.stringify({ type: SET_ID, clientId: this.clientId }));
-      },
+      // [GET_ID]: () => {
+      //   // const newClient = client.addOne(websocket);
+      //   // // send back to client his new id
+      //   // this.sendNewClientId(newClient.id, websocket);
+      //   // // create chats between new client and each other
+      //   // this.createChats(newClient.id);
+      //   this.clientId = user.assignId();
+      //   this.ws.send(JSON.stringify({ type: SET_ID, clientId: this.clientId }));
+      // },
       [SIGN_IN]: (incoming) => {
         const authData = user.signIn(incoming.login);
 
         if (authData) {
+          // TODO: create user id on connection and just add login/token on
+          // sign in/sign up OR this.changeId with resubscribing to wall
           this.clientId = authData.id;
           this.ws.send(JSON.stringify({
             type: SIGN_IN, clientId: authData.id, token: authData.token,
           }));
-        // TODO: extract as SIGN_UP
-        } else {
-          const newUser = user.signUp(incoming.login);
-          this.clientId = newUser.id;
-          this.ws.send(JSON.stringify({ type: SIGN_UP, clientId: this.clientId }));
         }
+        // TODO: send fail message, perhaps without token with reason
       },
-      [JOIN_WALL]: incoming => wall.subscribe(incoming.clientId),
-      [LEAVE_WALL]: incoming => wall.unsubscribe(incoming.clientId),
+      [SIGN_UP]: (incoming) => {
+        // TODO: check if user with same login is present
+        const newUser = user.signUp(incoming.login);
+        this.clientId = newUser.id;
+        this.ws.send(JSON.stringify({
+          type: SIGN_UP, clientId: this.clientId, token: newUser.token,
+        }));
+      },
+      // [JOIN_WALL]: incoming => wall.subscribe(incoming.clientId),
+      [JOIN_WALL]: () => wall.subscribe(this.clientId),
+      // [LEAVE_WALL]: incoming => wall.unsubscribe(incoming.clientId),
+      [LEAVE_WALL]: () => wall.unsubscribe(this.clientId),
       [MESSAGE]: incoming => this.resendMessageToAll(websocket, incoming),
       [IS_TYPING]: incoming => this.sendTypingNotification(websocket, incoming),
       [PING]: () => this.sendPong(websocket),

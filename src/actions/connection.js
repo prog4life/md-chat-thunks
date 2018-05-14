@@ -1,4 +1,4 @@
-import { getWebsocket, setupWebsocket, getClientId } from 'actions';
+import { getWebsocket, setupWebsocket, requestClientId } from 'actions';
 
 let monitoringIntervalId;
 let heartbeat;
@@ -15,7 +15,7 @@ export const prepareWebsocketAndClientId = clientId => (dispatch, getState) => {
   }
 
   if (!id) {
-    dispatch(getClientId());
+    dispatch(requestClientId());
   }
 };
 

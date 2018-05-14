@@ -96,7 +96,7 @@ export const sendUnsentMessages = () => (dispatch, getState) => {
 
 export const sendTyping = (nickname, clientId) => (dispatch) => {
   if (!clientId) {
-    dispatch(getClientId());
+    dispatch(requestClientId());
     return;
   }
 
@@ -134,7 +134,7 @@ export const sendMessage = text => (dispatch, getState) => {
 
   if (!clientId) {
     dispatch(sendMessageFail(message));
-    dispatch(getClientId());
+    dispatch(requestClientId());
     return;
   }
 

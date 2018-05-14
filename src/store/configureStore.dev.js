@@ -6,6 +6,7 @@ import { createLogger } from 'redux-logger';
 import createWebsocketMiddleware from 'redux-mw-ws';
 // import logger from 'redux-logger'; // to get logger mw with default options
 import appReducer from 'reducers';
+import * as actions from 'actions';
 
 import createWebsocketHandler from 'middleware/websocketHandler';
 
@@ -23,7 +24,7 @@ const websocketMw = createWebsocketMiddleware({
   defaultEndpoint: 'ws://localhost:8787',
 });
 
-const websocketHandler = createWebsocketHandler();
+const websocketHandler = createWebsocketHandler(actions);
 
 const watcher = immutabilityWatcher();
 
