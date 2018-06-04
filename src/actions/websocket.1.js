@@ -9,7 +9,7 @@ import {
   stopTypingNotification,
 } from 'actions';
 
-// TODO: from 'actions'; for next 2
+// TODO: from 'actions' to avoid circular dependencies; for next 2
 import { requestClientId, setClientId, setToken } from './client';
 import { joinWallSuccess } from './wall';
 

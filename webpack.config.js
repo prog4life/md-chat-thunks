@@ -51,6 +51,7 @@ module.exports = {
     ],
     splitChunks: {
       chunks: 'all',
+      // name: false, // switch off name generation
     },
     // splitChunks: {
     //   cacheGroups: {
