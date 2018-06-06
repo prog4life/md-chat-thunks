@@ -19,7 +19,6 @@ exports.logger = new (winston.Logger)({
     new (winston.transports.Console)({
       timestamp() {
         return (new Date()).toLocaleTimeString();
-        // return (new Date()).toISOString();
       },
       formatter(options) {
         // - Return string will be passed to logger.
