@@ -1,16 +1,16 @@
 const http = require('http');
 const path = require('path');
 const express = require('express');
-
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const loggers = require('./server/loggers');
 // const webpack = require('webpack');
 // const webpackDevMiddleWare = require('webpack-dev-middleware');
 // const config = require('./webpack.config.js');
 // const compiler = webpack(config);
-
 const websocketServer = require('./server/websocket-server');
 
 const app = express();
-
 const server = http.createServer(app);
 
 websocketServer.start(server);
@@ -18,6 +18,7 @@ websocketServer.start(server);
 const port = process.env.PORT || 8787;
 // can be something like: path.join(__dirname, '..', 'public')
 const publicPath = path.join(__dirname, 'public');
+const { logger, requestLogger, errorLogger } = loggers;
 
 app.set('port', port);
 
@@ -28,7 +29,18 @@ app.set('port', port);
 //   }
 // }));
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(morgan(':remote-addr :date - HTTP/1.1 :method ":url" :status - :response-time[0] ms - :res[content-length] Kb :referrer'));
+app.use(requestLogger);
 app.use(express.static(publicPath));
+
+logger.log('info', 'Hello distributed log files!');
+logger.info('Hello again distributed logs');
+
+logger.level = 'debug';
+logger.log('debug', 'Now my debug messages are written to console!');
+logger.warn('Some warning');
 
 app.get('/favicon.ico', (req, res) => {
   res.set('Content-Type', 'image/x-icon');
@@ -46,13 +58,21 @@ app.use((req, res, next) => {
   next(error);
 });
 
+app.use(errorLogger);
+
+// optionally can include custom error handler
+// app.use(express.errorLogger({
+//   dumpExceptions: true,
+//   showStack: true,
+// }));
+
 app.use((error, req, res, next) => {
-  console.log(error.message);
+  logger.error(error.message);
   res.status(error.code || 500).end(error);
 });
 
 server.listen(port);
 
 server.on('listening', () => {
-  console.log(`Server is listening at ${server.address().port} port`);
+  logger.info(`Server is listening at ${server.address().port} port`);
 });
