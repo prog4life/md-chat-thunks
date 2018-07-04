@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const loggers = require('./server/loggers');
+require('./server/db/mongoose');
 // const webpack = require('webpack');
 // const webpackDevMiddleWare = require('webpack-dev-middleware');
 // const config = require('./webpack.config.js');
@@ -28,19 +29,14 @@ app.set('port', port);
 //     colors: true
 //   }
 // }));
+const morganMsgFormat = ':remote-addr :date - HTTP/1.1 :method ":url" ' +
+  ':status - :response-time[0] ms - :res[content-length] Kb :referrer';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(morgan(':remote-addr :date - HTTP/1.1 :method ":url" :status - :response-time[0] ms - :res[content-length] Kb :referrer'));
+app.use(morgan(morganMsgFormat));
 app.use(requestLogger);
 app.use(express.static(publicPath));
-
-logger.log('info', 'Hello distributed log files!');
-logger.info('Hello again distributed logs');
-
-logger.level = 'debug';
-logger.log('debug', 'Now my debug messages are written to console!');
-logger.warn('Some warning');
 
 app.get('/favicon.ico', (req, res) => {
   res.set('Content-Type', 'image/x-icon');

@@ -1,6 +1,8 @@
 const ws = require('ws');
+const { Wall } = require('./models/Wall');
+const { logger } = require('./loggers');
 const { Messenger } = require('./messenger');
-const ConnectionManager = require('./connection-manager');
+const WebsocketConnection = require('./websocket-connection');
 
 const DEF_PING_INTRVL = 10000;
 /* eslint-disable no-param-reassign */
@@ -28,7 +30,7 @@ const disablePing = wss => clearInterval(wss.checkInterval);
 // };
 
 const handleConnection = (websocket, wss) => {
-  const connectionManager = new ConnectionManager(websocket, wss);
+  const connection = new WebsocketConnection(websocket, wss);
 
   websocket.isAlive = true;
   // heartbeat callback
@@ -43,7 +45,7 @@ const handleConnection = (websocket, wss) => {
     // after websocket connection request
     // console.log('Socket message received: %s', incoming);
     // messenger.handleIncoming(incoming, websocket); // OR this
-    connectionManager.handleIncoming(incoming); // OR this
+    connection.handleIncoming(incoming); // OR this
   });
 
   websocket.on('error', (error) => {
@@ -55,10 +57,10 @@ const handleConnection = (websocket, wss) => {
   websocket.on('close', (code, reason) => {
     // messenger.removeChats(websocket);
     // messenger.removeClient(websocket);
-    connectionManager.handleClose();
+    connection.handleClose();
     console.log('websocket onclose code: %s and reason: %s ', code, reason);
     // console.log('websocket onclose clients size', messenger.wss.clients.size);
-    console.log('websocket onclose clients size', connectionManager.wss.clients.size);
+    console.log('websocket onclose clients size', connection.wss.clients.size);
   });
 };
 
@@ -72,11 +74,34 @@ const startServer = (httpServer, pingInterval) => {
 
   // const messenger = new Messenger(wss);
   // wss.on('connection', handleConnection(messenger));
+  let wallId;
+
+  const makeSingleWall = () => {
+    Wall.createOne({ subscribers: [] })
+      .then((newWall) => { wallId = newWall.id; });
+  };
+
+  Wall.count({}, (error, count) => {
+    if (error) return logger.error(error);
+
+    if (count === 0) {
+      logger.debug('Wall count is 0: ', count);
+      return makeSingleWall();
+    }
+
+    if (count > 1) {
+      logger.debug('Wall count is > 1 ', count);
+
+      return Wall.deleteAll(makeSingleWall);
+    }
+    logger.debug('Wall count is < 0 || 1 : ', count);
+    return count;
+  });
 
   wss.on('connection', (websocket) => {
-    // const connectionManager = new ConnectionManager(websocket, wss);
-    // connections.add(connectionManager);
-    // handleConnection(websocket, connections, connectionManager);
+    // const connection = new WebsocketConnection(websocket, wss);
+    // connections.add(connection);
+    // handleConnection(websocket, connections, connection);
     handleConnection(websocket, wss);
   });
   wss.on('error', (error) => {

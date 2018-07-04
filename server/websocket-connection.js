@@ -1,5 +1,8 @@
-const user = require('./user');
-const wall = require('./wall');
+const { Wall } = require('./models/Wall');
+const { User } = require('./models/User');
+const { logger } = require('./loggers');
+// const user = require('./user');
+// const wall = require('./wall');
 
 const GET_ID = 'GET_ID';
 const SET_ID = 'SET_ID';
@@ -21,12 +24,19 @@ const validator = {
   validateIncoming() { return true; },
 };
 
-class ConnectionManager {
+class WebsocketConnection {
   constructor(websocket, websocketServer) {
     this.ws = websocket;
     this.wss = websocketServer;
     this.handleSpecificMessageType = this.setMessageTypeHandlers();
-    this.clientId = user.assignId();
+
+    Wall.findOne().exec().then((wall) => {
+      logger.debug('wall 1 id: ', wall.id);
+      this.wall = wall;
+    }).catch(err => logger.error(err));
+
+    // this.clientId = user.assignId();
+    User.createOne().then((newUser) => { this.clientId = newUser.id; });
   }
   changeId(newId) {
     if (wall.isSubscriber(this.clientId)) {
@@ -56,9 +66,7 @@ class ConnectionManager {
           this.ws.send(JSON.stringify({
             type: SIGN_IN, clientId: authData.id, token: authData.token,
           }));
-        } else {
-          
-        }
+        } else {}
         // TODO: send fail message, perhaps without token with reason
       },
       [SIGN_UP]: (incoming) => {
@@ -70,9 +78,9 @@ class ConnectionManager {
         }));
       },
       // [JOIN_WALL]: incoming => wall.subscribe(incoming.clientId),
-      [JOIN_WALL]: () => wall.subscribe(this.clientId),
+      [JOIN_WALL]: () => this.wall.subscribe(this.clientId),
       // [LEAVE_WALL]: incoming => wall.unsubscribe(incoming.clientId),
-      [LEAVE_WALL]: () => wall.unsubscribe(this.clientId),
+      [LEAVE_WALL]: () => this.wall.unsubscribe(this.clientId),
       [MESSAGE]: incoming => this.resendMessageToAll(websocket, incoming),
       [IS_TYPING]: incoming => this.sendTypingNotification(websocket, incoming),
       [PING]: () => this.sendPong(websocket),
@@ -109,9 +117,9 @@ class ConnectionManager {
     this.handleSpecificMessageType(type, incoming);
   }
   handleClose() {
-    wall.unsubscribe(this.clientId);
+    this.wall.unsubscribe(this.clientId);
     // user.signOut(this.clientId);
   }
 }
 
-module.exports = ConnectionManager;
+module.exports = WebsocketConnection;

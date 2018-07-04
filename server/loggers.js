@@ -4,6 +4,13 @@ const expressWinston = require('express-winston');
 const { config } = winston;
 const level = process.env.LOG_LEVEL || 'debug';
 
+// logger.log('info', 'Hello distributed log files!');
+// logger.info('Hello again distributed logs');
+
+// logger.level = 'debug';
+// logger.log('debug', 'Now my debug messages are written to console!');
+// logger.warn('Some warning');
+
 // alternative config manners
 // winston.add(winston.transports.File, { filename: 'winston.log' });
 // winston.configure({
@@ -74,7 +81,7 @@ exports.requestLogger = expressWinston.logger({
 });
 
 // Error logger needs to be added AFTER the express router (app.router) and
-// BEFORE any of your custom error handlers (express.handler)
+// BEFORE any custom error handlers (express.handler)
 exports.errorLogger = expressWinston.errorLogger({
   transports: [
     new winston.transports.Console({
