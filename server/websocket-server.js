@@ -5,9 +5,16 @@ const { logger } = require('./loggers');
 const { Messenger } = require('./messenger');
 const WebsocketConnection = require('./websocket-connection');
 
+const pingIntervals = [];
+
 const DEF_PING_INTRVL = 10000;
+const PING_MIN_INTRVL = 5000;
 /* eslint-disable no-param-reassign */
 const enablePing = (wss, interval = DEF_PING_INTRVL) => {
+  if (!Number.isInteger(interval) || interval < PING_MIN_INTRVL) {
+    throw new Error(`Expected ping interval to be integer and more than
+      ${PING_MIN_INTRVL - 1}`);
+  }
   wss.checkInterval = setInterval(() => {
     wss.clients.forEach((websocket) => {
       if (!websocket.isAlive) {
@@ -19,6 +26,8 @@ const enablePing = (wss, interval = DEF_PING_INTRVL) => {
       websocket.ping('', false, true); // TODO: websocket.ping(noop);
     });
   }, interval); // NOTE: was 30000 in example
+
+  pingIntervals.push(wss.checkInterval);
 };
 
 const disablePing = wss => clearInterval(wss.checkInterval);
@@ -46,7 +55,7 @@ const handleConnection = (websocket, wss) => {
     // after websocket connection request
     // console.log('Socket message received: %s', incoming);
     // messenger.handleIncoming(incoming, websocket); // OR this
-    connection.handleIncoming(incoming); // OR this
+    connection.handleIncoming(incoming);
   });
 
   websocket.on('error', (error) => {
@@ -72,9 +81,15 @@ const startServer = (httpServer, pingInterval) => {
     // port: 8484
   });
   // const connections = new Set();
-
+  pingIntervals.forEach(clearInterval); // doublecheck
   // const messenger = new Messenger(wss);
   // wss.on('connection', handleConnection(messenger));
+
+  User.count({}).exec().then((count) => {
+    logger.debug('Current ⁽ƈ ͡ (ुŏ̥̥̥̥םŏ̥̥̥̥) ु count: ', String(count));
+  }).catch(e => logger.error('Users count error: ', e));
+
+  User.deleteAll();
 
   const makeSingleWall = () => Wall.createOne({ subscribers: [] });
 
@@ -95,31 +110,34 @@ const startServer = (httpServer, pingInterval) => {
     return count;
   });
 
-  // TEMP:
-  User.count({}).exec().then((count) => {
-    logger.debug('Current ⁽ƈ ͡ (ुŏ̥̥̥̥םŏ̥̥̥̥) ु count: ', String(count));
-    if (count > 0) User.deleteAll();
-  }).catch(e => logger.error('users count error: ', e));
-
-  wss.on('connection', (websocket) => {
+  wss.on('connection', (websocket, req) => {
     // const connection = new WebsocketConnection(websocket, wss);
     // connections.add(connection);
     // handleConnection(websocket, connections, connection);
     handleConnection(websocket, wss);
   });
   wss.on('error', (error) => {
+    disablePing(wss);
+    // pingIntervals.forEach(clearInterval); // doublecheck
     logger.error('Websocket Server error ', error);
+
     wss.close(() => {
-      setTimeout(() => startServer(httpServer), 1000);
+      setTimeout(() => startServer(httpServer), 1000); // maybe remove timeout
     });
   });
 
-  if (pingInterval !== false) {
-    enablePing(wss, Number.isInteger(pingInterval) ? pingInterval : undefined);
+  if (pingInterval !== null) {
+    enablePing(wss, pingInterval);
   }
   return wss;
 };
 
+const stopServer = (wss) => {
+  pingIntervals.forEach(clearInterval);
+  wss.close(() => logger.info('Websocket Server was stopped'));
+};
+
 exports.start = startServer;
+exports.stop = stopServer;
 exports.enablePing = enablePing;
 exports.disablePing = disablePing;

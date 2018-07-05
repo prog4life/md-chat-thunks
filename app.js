@@ -3,7 +3,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const loggers = require('./server/loggers');
+const { logger, requestLogger, errorLogger } = require('./server/loggers');
 require('./server/db/mongoose');
 
 // TODO: rename this file to app.js / index.js / etc
@@ -22,7 +22,6 @@ websocketServer.start(server);
 const port = process.env.PORT || 8787;
 // can be something like: path.join(__dirname, '..', 'public')
 const publicPath = path.join(__dirname, 'public');
-const { logger, requestLogger, errorLogger } = loggers;
 
 app.set('port', port);
 
@@ -32,12 +31,12 @@ app.set('port', port);
 //     colors: true
 //   }
 // }));
-const morganMsgFormat = ':remote-addr :date - HTTP/1.1 :method ":url" ' +
+const morganMessageFormat = ':remote-addr :date - HTTP/1.1 :method ":url" ' +
   ':status - :response-time[0] ms - :res[content-length] Kb :referrer';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(morgan(morganMsgFormat));
+app.use(morgan(morganMessageFormat));
 app.use(requestLogger);
 app.use(express.static(publicPath));
 
