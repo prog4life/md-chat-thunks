@@ -42,11 +42,11 @@ class Messenger {
     if (!incoming || !validateIncomingData(incoming)) {
       return;
     }
-    const { type } = incoming;
+    const { key } = incoming;
 
     let newClient;
 
-    switch (type) {
+    switch (key) {
       case 'GET_ID':
         newClient = client.addOne(websocket);
         // send back to client his new id
@@ -77,14 +77,14 @@ class Messenger {
       case 'LEAVE_CHAT':
         break;
       default:
-        console.error('Unknown type of incoming message');
+        console.error('Unknown key of incoming message');
     }
   }
 
   /* eslint-disable class-methods-use-this */
   sendNewClientId(clientId, websocket) {
     this.sendToOne(websocket, {
-      type: 'SET_ID',
+      key: 'SET_ID',
       clientId
     });
   }
@@ -108,7 +108,7 @@ class Messenger {
       const currentClient = clients[clientId];
 
       this.sendToOne(currentClient.websocket, {
-        type: 'ADD_CHAT',
+        key: 'ADD_CHAT',
         chatId: newChat.id,
         // currentClient's own id is not included
         participants: participants.filter(id => id !== clientId)
@@ -188,7 +188,7 @@ class Messenger {
   sendPong(websocket) {
     console.log('get ping from client, send pong');
     this.sendToOne(websocket, {
-      type: 'PONG'
+      key: 'PONG'
     });
   }
 
@@ -250,7 +250,7 @@ class Messenger {
   resendMessageToAll(websocket, incoming) {
     // NOTE: this method is added for further additional processing of incoming
     const {
-      id, clientId, nickname, text, type
+      id, clientId, nickname, text, key
     } = incoming;
 
     const outgoing = JSON.stringify({
@@ -258,7 +258,7 @@ class Messenger {
       clientId,
       nickname,
       text,
-      type
+      key
     });
 
     this.broadcast(websocket, outgoing);
@@ -266,12 +266,12 @@ class Messenger {
 
   sendTypingNotification(websocket, incoming) {
     // NOTE: this method is added for further additional processing of incoming
-    // const { clientId, nickname, type } = incoming;
+    // const { clientId, nickname, key } = incoming;
     //
     // const outgoing = JSON.stringify({
     //   clientId,
     //   nickname,
-    //   type
+    //   key
     // });
     //
     // this.broadcast(websocket, outgoing);

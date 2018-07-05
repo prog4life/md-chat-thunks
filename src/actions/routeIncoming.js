@@ -9,13 +9,13 @@ const websocketMsgHandlers = {
 };
 
 const routeIncoming = (incoming, handlers = websocketMsgHandlers) => {
-  handlers[incoming.type](incoming);
+  handlers[incoming.key](incoming);
 };
 
 // const routeIncoming = (incoming, handlers) => {
 //   let handlerName = '';
 
-//   handlerName = incoming.type.toLowerCase().split('_').map((piece, index) => (
+//   handlerName = incoming.key.toLowerCase().split('_').map((piece, index) => (
 //     index === 0
 //       ? piece
 //       : piece.charAt(0).toUpperCase() + piece.slice(1)
@@ -24,7 +24,7 @@ const routeIncoming = (incoming, handlers = websocketMsgHandlers) => {
 //   handlers[handlerName]();
 // };
 
-// routeIncoming({ type: 'ANOTHER_TYPE', msg: 'Yay' }, websocketMsgHandlers);
-routeIncoming({ type: 'ANOTHER_TYPE', msg: 'Yay' });
+// routeIncoming({ key: 'ANOTHER_TYPE', msg: 'Yay' }, websocketMsgHandlers);
+routeIncoming({ key: 'ANOTHER_TYPE', msg: 'Yay' });
 
 // export default routeIncoming;

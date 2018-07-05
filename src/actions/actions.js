@@ -14,8 +14,8 @@ export const sendMessageAttempt = ({ id, clientId, nickname, text }) => ({
     nickname,
     text,
     isOwn: true,
-    status: 'UNSENT'
-  }
+    status: 'UNSENT',
+  },
 });
 
 // will also remove message from unsent
@@ -28,32 +28,32 @@ export const sendMessageSuccess = ({ id, clientId, nickname, text }) => ({
     text,
     isOwn: true,
     // TODO: think over adding 3 separate boolean props: sent, delivered, seen
-    status: 'SENT'
-  }
+    status: 'SENT',
+  },
 });
 
 // will add message to unsent
 export const sendMessageFail = message => ({
   type: SEND_MESSAGE_FAIL,
-  message
+  message,
 });
 
 export const receiveMessage = message => ({
   type: RECEIVE_MESSAGE,
-  message
+  message,
 });
 
 export const addChat = (chatId, participants) => ({
   type: 'ADD_CHAT',
   chatId,
-  participants
+  participants,
 });
 
 export const deleteChat = (chatId, clientId) => {
   const outgoing = {
-    type: 'DELETE_CHAT',
+    key: 'Delete_Chat',
     chatId,
-    clientId
+    clientId,
   };
 
   // TODO: add 3rd arg with action that postpones chat deleting command
@@ -62,19 +62,19 @@ export const deleteChat = (chatId, clientId) => {
 
   return {
     type: 'DELETE_CHAT',
-    chatId
+    chatId,
   };
 };
 
 export const receiveTyping = nickname => ({
   type: RECEIVE_TYPING,
-  nickname
+  nickname,
 });
 
 // TODO: track one who is typing by clientId
 export const stopTypingNotification = nickname => ({
   type: STOP_TYPING_NOTIFICATION,
-  nickname
+  nickname,
 });
 
 // TODO: limit sending to last * messages ?
@@ -89,7 +89,7 @@ export const sendUnsentMessages = () => (dispatch, getState) => {
 
   unsent.forEach((unsentMessage) => {
     dispatch(tryToSend(unsentMessage, true, {
-      successAction: sendMessageSuccess(unsentMessage)
+      successAction: sendMessageSuccess(unsentMessage),
     }));
   });
 };
@@ -107,7 +107,7 @@ export const sendTyping = (nickname, clientId) => (dispatch) => {
   const outgoing = {
     clientId,
     nickname,
-    type: 'IS_TYPING'
+    key: 'Is_Typing',
   };
 
   dispatch(tryToSend(outgoing, false));
@@ -121,7 +121,7 @@ export const sendMessage = text => (dispatch, getState) => {
     clientId,
     nickname,
     text,
-    type: 'MESSAGE'
+    key: 'Message',
   };
 
   // TEMP: replace it later to connected ChatForm or elsewhere,
@@ -147,6 +147,6 @@ export const sendMessage = text => (dispatch, getState) => {
 
   dispatch(tryToSend(message, true, {
     successAction: sendMessageSuccess(message),
-    failAction: sendMessageFail(message)
+    failAction: sendMessageFail(message),
   }));
 };

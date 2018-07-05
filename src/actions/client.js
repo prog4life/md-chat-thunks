@@ -1,6 +1,7 @@
 import {
   SIGN_IN, SET_TOKEN, REQUEST_CLIENT_ID, SET_CLIENT_ID, SET_NICKNAME,
 } from 'constants/actionTypes';
+import * as wsKeys from 'constants/websocket-keys';
 
 import { send, tryToSend } from 'actions';
 import { getClientId } from 'reducers';
@@ -14,7 +15,7 @@ export const WEBSOCKET_ENDPOINT = 'ws://localhost:8787';
 // });
 
 export const signIn = login => (dispatch) => {
-  const outgoing = { type: 'SIGN_IN', login };
+  const outgoing = { key: wsKeys.SIGN_IN, login };
 
   dispatch({ type: SIGN_IN });
   // dispatch(tryToSend(outgoing, true));
@@ -22,7 +23,7 @@ export const signIn = login => (dispatch) => {
 };
 
 export const requestClientId = () => (dispatch) => {
-  const outgoing = { type: 'GET_ID' };
+  const outgoing = { key: wsKeys.GET_ID };
 
   dispatch({ type: REQUEST_CLIENT_ID });
   // dispatch(tryToSend(outgoing, true));

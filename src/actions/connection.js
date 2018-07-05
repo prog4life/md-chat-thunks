@@ -56,7 +56,7 @@ export const startMonitoring = () => (dispatch) => {
       return;
     }
     heartbeat = false;
-    dispatch(tryToSend({ type: 'PING' }, false));
+    dispatch(tryToSend({ key: 'Ping' }, false));
   }, MONITORING_INTRVL);
 
   heartbeat = true;

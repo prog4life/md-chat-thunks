@@ -38,7 +38,7 @@ class WebsocketConnection {
       //   // // create chats between new client and each other
       //   // this.createChats(newClient.id);
       //   this.clientId = user.assignId();
-      //   this.ws.send(JSON.stringify({ type: SET_ID, clientId: this.clientId }));
+      //   this.ws.send(JSON.stringify({ key: SET_ID, clientId: this.clientId }));
       // },
       [SIGN_IN]: (incoming) => {
         const authData = user.signIn(incoming.login);
@@ -49,7 +49,7 @@ class WebsocketConnection {
           // this.clientId = authData.id;
           this.changeId(authData.id);
           this.ws.send(JSON.stringify({
-            type: SIGN_IN, clientId: authData.id, token: authData.token,
+            key: SIGN_IN, clientId: authData.id, token: authData.token,
           }));
         } else {}
         // TODO: send fail message, perhaps without token with reason
@@ -59,7 +59,7 @@ class WebsocketConnection {
         const newUser = user.signUp(incoming.login);
         this.clientId = newUser.id;
         this.ws.send(JSON.stringify({
-          type: SIGN_UP, clientId: this.clientId, token: newUser.token,
+          key: SIGN_UP, clientId: this.clientId, token: newUser.token,
         }));
       },
       [JOIN_WALL]: () => Promise.all([this.getWall(), this.getClientId()])
@@ -145,12 +145,12 @@ class WebsocketConnection {
     if (!incoming || !validator.validateIncoming(incoming)) {
       return;
     }
-    const { type } = incoming;
+    const { key } = incoming;
 
-    if (this.incomingMessageHandlers.hasOwnProperty(type)) {
-      this.incomingMessageHandlers[type](incoming);
+    if (this.incomingMessageHandlers.hasOwnProperty(key)) {
+      this.incomingMessageHandlers[key](incoming);
     } else {
-      logger.error('Unknown type of incoming message');
+      logger.error('Unknown key of incoming message');
     }
   }
   handleClose() {
@@ -172,7 +172,7 @@ class WebsocketConnection {
   //     //   // // create chats between new client and each other
   //     //   // this.createChats(newClient.id);
   //     //   this.clientId = user.assignId();
-  //     //   this.ws.send(JSON.stringify({ type: SET_ID, clientId: this.clientId }));
+  //     //   this.ws.send(JSON.stringify({ key: SET_ID, clientId: this.clientId }));
   //     // },
   //     [SIGN_IN]: (incoming) => {
   //       const authData = user.signIn(incoming.login);
@@ -183,7 +183,7 @@ class WebsocketConnection {
   //         // this.clientId = authData.id;
   //         this.changeId(authData.id);
   //         this.ws.send(JSON.stringify({
-  //           type: SIGN_IN, clientId: authData.id, token: authData.token,
+  //           key: SIGN_IN, clientId: authData.id, token: authData.token,
   //         }));
   //       } else {}
   //       // TODO: send fail message, perhaps without token with reason
@@ -193,7 +193,7 @@ class WebsocketConnection {
   //       const newUser = user.signUp(incoming.login);
   //       this.clientId = newUser.id;
   //       this.ws.send(JSON.stringify({
-  //         type: SIGN_UP, clientId: this.clientId, token: newUser.token,
+  //         key: SIGN_UP, clientId: this.clientId, token: newUser.token,
   //       }));
   //     },
   //     [JOIN_WALL]: () => Promise.all([this.getWall(), this.getClientId()])
@@ -219,11 +219,11 @@ class WebsocketConnection {
   //   };
   //
   //   // this function will become this.handleSpecificMessageType
-  //   return (type, incoming) => {
-  //     if (messageTypesMap.hasOwnProperty(type)) {
-  //       messageTypesMap[type](incoming);
+  //   return (key, incoming) => {
+  //     if (messageTypesMap.hasOwnProperty(key)) {
+  //       messageTypesMap[key](incoming);
   //     } else {
-  //       console.error('Unknown type of incoming message');
+  //       console.error('Unknown key of incoming message');
   //     }
   //   };
   // }

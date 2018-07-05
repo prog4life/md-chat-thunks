@@ -29,7 +29,7 @@ export default function createWebsocketHandler(handleIncoming) {
       //     return next(websocketOpen());
       //   }
       //   return next(websocketOpen());
-      //   const outgoing = { type: 'GET_ID' };
+      //   const outgoing = { key: 'GET_ID' };
       //
       //   writeToWebsocket(outgoing, dispatch);
       //   return next(requestClientId());
@@ -52,7 +52,7 @@ export default function createWebsocketHandler(handleIncoming) {
 }
 
 // const handleReceivedData = (next, incoming) => {
-//   switch (incoming.type) {
+//   switch (incoming.key) {
 //     case 'IS_TYPING':
 //       next(receiveTyping(nickname));
 //       break;
@@ -91,6 +91,6 @@ export default function createWebsocketHandler(handleIncoming) {
 //     case 'LEAVE_CHAT':
 //       break;
 //     default:
-//       console.warn('Unknown websocket incoming message type');
+//       console.warn('Unknown websocket incoming message key');
 //   }
 // };

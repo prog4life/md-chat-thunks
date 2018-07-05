@@ -4,6 +4,7 @@
 import {
   JOIN_WALL, JOIN_WALL_SUCCESS, JOIN_WALL_FAIL, LEAVE_WALL,
 } from 'constants/actionTypes';
+import * as wsKeys from 'constants/websocket-keys';
 
 import { send, tryToSend } from 'actions';
 import { getClientId } from 'reducers';
@@ -28,8 +29,8 @@ export const joinWall = id => (dispatch, getState) => {
   }
   dispatch({ type: JOIN_WALL });
 
-  // const outgoing = { type: 'Join_Wall', clientId };
-  const outgoing = { type: 'Join_Wall' };
+  // const outgoing = { key: wsKeys.JOIN_WALL, clientId };
+  const outgoing = { key: wsKeys.JOIN_WALL };
 
   // return dispatch(tryToSend(outgoing, null, {
   //   failAction: joinWallFail(),
@@ -44,7 +45,7 @@ export const leaveWall = id => (dispatch, getState) => {
 
   dispatch({ type: LEAVE_WALL });
 
-  // dispatch(tryToSend({ type: 'Leave_Wall', clientId }));
-  // return dispatch(send({ type: 'Leave_Wall', clientId }));
-  return dispatch(send({ type: 'Leave_Wall' }));
+  // dispatch(tryToSend({ key: wsKeys.LEAVE_WALL, clientId }));
+  // return dispatch(send({ key: wsKeys.LEAVE_WALL, clientId }));
+  return dispatch(send({ key: wsKeys.LEAVE_WALL }));
 };

@@ -1,4 +1,5 @@
 import { WEBSOCKET_OPEN, WEBSOCKET_CLOSED } from 'constants/actionTypes';
+import * as wsKeys from 'constants/websocket-keys';
 
 import {
   addChat,
@@ -40,49 +41,49 @@ const createMessageEventHandler = (dispatch, getState) => (messageEvent) => {
   const incoming = JSON.parse(messageEvent.data);
 
   const {
-    id, clientId, login, token, chatId, type, nickname, text, participants
+    id, clientId, login, token, chatId, key, nickname, text, participants
   } = incoming;
 
-  switch (type) {
-    case 'IS_TYPING':
+  switch (key) {
+    case wsKeys.IS_TYPING:
       dispatch(receiveTyping(nickname));
       break;
-    case 'MESSAGE':
+    case wsKeys.MESSAGE:
       dispatch(receiveMessage({ ...incoming, isOwn: false }));
       // to terminate showing typing notification if new message is received
       // from one whose typing notification is showing
       dispatch(stopTypingNotification(nickname));
       break;
-    case 'SET_ID':
+    case wsKeys.SET_ID:
       dispatch(setClientId(clientId));
       dispatch(sendUnsentMessages());
       break;
-    case 'SIGN_IN':
+    case wsKeys.SIGN_IN:
       dispatch(setClientId(clientId));
       dispatch(setToken(token));
       break;
-    case 'SIGN_UP':
+    case wsKeys.SIGN_UP:
       dispatch(setClientId(clientId));
       dispatch(setToken(token));
       break;
-    case 'Join_Wall':
+    case wsKeys.JOIN_WALL:
       console.log('Joined the wall');
       // dispatch(joinWallSuccess(incoming));
       break;
-    case 'PONG':
+    case wsKeys.PONG:
       handleServerPong();
       break;
-    case 'ADD_CHAT':
+    case wsKeys.ADD_CHAT:
       dispatch(addChat(chatId, participants));
       break;
-    case 'CHANGE_NAME':
+    case wsKeys.CHANGE_NAME:
       break;
-    case 'JOIN_CHAT':
+    case wsKeys.JOIN_CHAT:
       break;
-    case 'LEAVE_CHAT':
+    case wsKeys.LEAVE_CHAT:
       break;
     default:
-      console.warn('Unknown websocket incoming message type');
+      console.warn('Unknown websocket incoming message key');
   }
 };
 
