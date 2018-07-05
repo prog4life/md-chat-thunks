@@ -1,5 +1,5 @@
-const { Wall } = require('./models/Wall');
-const { User } = require('./models/User');
+const Wall = require('./models/Wall');
+const User = require('./models/User');
 const { logger } = require('./loggers');
 // const user = require('./user');
 // const wall = require('./wall');
@@ -29,14 +29,37 @@ class WebsocketConnection {
     this.ws = websocket;
     this.wss = websocketServer;
     this.handleSpecificMessageType = this.setMessageTypeHandlers();
-
-    Wall.findOne().exec().then((wall) => {
-      logger.debug('wall 1 id: ', wall.id);
-      this.wall = wall;
-    }).catch(err => logger.error(err));
-
+    this.getWall();
     // this.clientId = user.assignId();
-    User.createOne().then((newUser) => { this.clientId = newUser.id; });
+    this.getClientId();
+  }
+  async getWall() {
+    if (this.wall) { // combine with next if
+      return this.wall;
+    }
+    // let wall;
+    // if (this.getWallPromise) {
+    //   wall = await this.getWallPromise;
+    // } else {
+    //   const getWallPromise = Wall.findSingle();
+    //   this.getWallPromise = getWallPromise;
+    //   wall = await getWallPromise;
+    // }
+    // this.getWallPromise = null;
+
+    const wall = await Wall.findSingle();
+
+    this.wall = wall;
+    return wall;
+  }
+  async getClientId() {
+    if (this.clientId) {
+      return this.clientId;
+    }
+    const newUser = await User.createOne();
+
+    this.clientId = newUser.id;
+    return newUser.id;
   }
   changeId(newId) {
     if (wall.isSubscriber(this.clientId)) {
@@ -77,10 +100,18 @@ class WebsocketConnection {
           type: SIGN_UP, clientId: this.clientId, token: newUser.token,
         }));
       },
-      // [JOIN_WALL]: incoming => wall.subscribe(incoming.clientId),
-      [JOIN_WALL]: () => this.wall.subscribe(this.clientId),
-      // [LEAVE_WALL]: incoming => wall.unsubscribe(incoming.clientId),
-      [LEAVE_WALL]: () => this.wall.unsubscribe(this.clientId),
+      [JOIN_WALL]: () => Promise.all([this.getWall(), this.getClientId()])
+        .then(([wall, clientId]) => wall.subscribe(clientId)),
+      // .catch(), /* do something */
+      [LEAVE_WALL]: () => this.getWall()
+        .then((wall) => {
+          return this.getClientId().then((clientId) => {
+            return ({ wall, clientId });
+          });
+        })
+        .then(({ wall, clientId }) => {
+          return wall.unsubscribe(clientId);
+        }),
       [MESSAGE]: incoming => this.resendMessageToAll(websocket, incoming),
       [IS_TYPING]: incoming => this.sendTypingNotification(websocket, incoming),
       [PING]: () => this.sendPong(websocket),
@@ -117,7 +148,7 @@ class WebsocketConnection {
     this.handleSpecificMessageType(type, incoming);
   }
   handleClose() {
-    this.wall.unsubscribe(this.clientId);
+    // this.wall.unsubscribe(this.clientId);
     // user.signOut(this.clientId);
   }
 }

@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 // (monogdb uri, options, callback) => Promise
 mongoose.connect('mongodb://localhost:27017/md-chat').then(
   () => console.log('Connection is open'),
-  err => console.error.bind(console, 'connection error: ', err),
+  err => console.error.bind(console, 'Connection error: ', err),
 );
 
 // const db = mongoose.connection;

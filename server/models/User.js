@@ -29,6 +29,17 @@ userSchema.statics.createOne = function createOne(userData = {}) {
     .catch(err => logger.error('User creation error ', err));
 };
 
+userSchema.statics.deleteAll = function deleteAll(callback = () => {}) {
+  this.deleteMany({}, (err) => {
+    if (err) {
+      logger.error(err);
+      callback(err);
+    }
+    logger.debug('All users deleted');
+    return callback();
+  });
+};
+
 const User = mongoose.model('User', userSchema);
 
-exports.User = User;
+module.exports = User;

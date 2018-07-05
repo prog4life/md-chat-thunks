@@ -5,6 +5,9 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const loggers = require('./server/loggers');
 require('./server/db/mongoose');
+
+// TODO: rename this file to app.js / index.js / etc
+
 // const webpack = require('webpack');
 // const webpackDevMiddleWare = require('webpack-dev-middleware');
 // const config = require('./webpack.config.js');
