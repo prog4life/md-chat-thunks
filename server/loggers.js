@@ -20,12 +20,12 @@ const level = process.env.LOG_LEVEL || 'debug';
 //   ],
 // });
 
-exports.logger = new (winston.Logger)({
+exports.logger = new winston.Logger({
   level,
   transports: [
-    new (winston.transports.Console)({
+    new winston.transports.Console({
       timestamp() {
-        return (new Date()).toLocaleTimeString();
+        return (new Date()).toLocaleTimeString('en-GB', { hour12: false });
       },
       formatter(options) {
         // - Return string will be passed to logger.

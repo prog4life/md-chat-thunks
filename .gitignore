@@ -2,23 +2,21 @@
 node_modules/
 
 # production:
-# build/
-build/dist/
+dist/
+build/
+
+# TEMP:
 build/assets/
 
-dist/
-
 # public/
-public/dist/
 public/assets/
+src/assets/
 
 public/**/*.js
 public/**/*.js.map
 public/**/*.css
 public/**/*.css.map
 public/report.html
-
-src/assets/
 
 # config/
 **/.env
