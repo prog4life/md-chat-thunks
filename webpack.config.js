@@ -3,7 +3,8 @@ const path = require('path');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+// const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+// const OptimizeCSSNanoPlugin = require('@intervolga/optimize-cssnano-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const DuplPkgCheckrPlugin = require('duplicate-package-checker-webpack-plugin');
@@ -11,8 +12,8 @@ const DuplPkgCheckrPlugin = require('duplicate-package-checker-webpack-plugin');
 // const CompressionPlugin = require('compression-webpack-plugin');
 // const VisualizerPlugin = require('webpack-visualizer-plugin');
 const autoprefixer = require('autoprefixer');
+const cssnano = require('cssnano');
 // const scssSyntax = require('postcss-scss');
-// const cssnano = require('cssnano');
 
 process.traceDeprecation = true; // or run process with --trace-deprecation flag
 
@@ -47,7 +48,8 @@ module.exports = {
         parallel: 2, // if "true": os.cpus().length -1 (default)
         sourceMap: true, // set to true if you want JS source maps
       }),
-      new OptimizeCSSAssetsPlugin({}),
+      // use this or 'cssnano' or 'optimize-cssnano-plugin'
+      // new OptimizeCSSAssetsPlugin({}), // source maps are not created
     ],
     splitChunks: {
       chunks: 'all',
@@ -71,6 +73,8 @@ module.exports = {
       filename: isProduction ? 'css/styles.[contenthash].css' : '[name].css',
       chunkFilename: isProduction ? 'css/[name].[contenthash].css' : '[id].css',
     }),
+    // alternative to 'optimize-css-assets-webpack-plugin' or 'cssnano'
+    // new OptimizeCSSNanoPlugin({ sourceMap: 'nextSourceMap' }),
     // new webpack.DefinePlugin({
     //   'process.env': {
     //     NODE_ENV: JSON.stringify(env)
@@ -167,14 +171,14 @@ module.exports = {
           { // not translates url() that starts with "/"
             loader: 'css-loader',
             // options: { importLoaders: 3, url: false }
-            options: { minimize: true, sourceMap: true },
+            options: { sourceMap: true },
           },
           {
             loader: 'postcss-loader',
             options: {
               ident: 'postcss',
               // syntax: scssSyntax,
-              plugins: [autoprefixer],
+              plugins: isProduction ? [autoprefixer, cssnano] : [],
               sourceMap: true,
             },
           },

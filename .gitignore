@@ -7,8 +7,8 @@ build/
 
 # TEMP:
 build/assets/
+public/**
 
-# public/
 public/assets/
 src/assets/
 
@@ -30,7 +30,7 @@ npm-debug.log
 yarn-error.log
 **/.idea/
 **/.vscode/
-TEMP/
-TMP/
-temp/
-tmp/
+**/TEMP/
+**/TMP/
+**/temp/
+**/tmp/
