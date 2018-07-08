@@ -28,5 +28,5 @@ export default combineReducers({
 export const getClientId = state => state.client.id;
 export const getChats = state => state.chats;
 export const getPosts = state => Object.values(state.wall.postsById);
-export const isWebsocketOpenSelector = state => state.websocket.isOpen;
+export const isConnectionOpen = state => state.websocket.isOpen;
 export const isWallTrackedSelector = state => state.wall.isTracked;

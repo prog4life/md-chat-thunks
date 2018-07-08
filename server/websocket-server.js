@@ -2,7 +2,6 @@ const ws = require('ws');
 const Wall = require('./models/Wall');
 const User = require('./models/User');
 const { logger } = require('./loggers');
-const { Messenger } = require('./messenger');
 const WebsocketConnection = require('./websocket-connection');
 
 const pingIntervals = [];

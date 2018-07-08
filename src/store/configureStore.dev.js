@@ -7,7 +7,8 @@ import createWebsocketMiddleware from 'redux-mw-ws';
 // import logger from 'redux-logger'; // to get logger mw with default options
 import appReducer from 'reducers';
 
-import createWebsocketHandler, { handleIncoming } from 'middleware/websocketHandler';
+import createWebsocketHelper from 'middleware/websocketHelper';
+import { websocketMessageHandlers } from 'actions';
 
 // must be the last middleware in chain
 const logger = createLogger({
@@ -18,17 +19,17 @@ const logger = createLogger({
   },
 });
 
-// 1st - options, 2nd - reconnectCallback
+// args: 1st - options, 2nd - reconnectCallback
 const websocketMw = createWebsocketMiddleware({
   defaultEndpoint: 'ws://localhost:8787',
 });
 
-const websocketHandler = createWebsocketHandler(handleIncoming);
+const websocketHelper = createWebsocketHelper(websocketMessageHandlers);
 
 const watcher = immutabilityWatcher();
 
 const middleware = process.env.NODE_ENV === 'development'
-  ? [watcher, freeze, websocketHandler, websocketMw, thunk, logger]
+  ? [watcher, freeze, websocketHelper, websocketMw, thunk, logger]
   : [thunk];
 
 const configureStore = (preloadedState = {}) => {

@@ -6,7 +6,6 @@ import {
 } from 'constants/actionTypes';
 import * as wsKeys from 'constants/websocket-keys';
 
-import { send, tryToSend } from 'actions';
 import { getClientId } from 'reducers';
 
 export const joinWallSuccess = ({ entities, result }) => ({
@@ -35,7 +34,7 @@ export const joinWall = id => (dispatch, getState) => {
   // return dispatch(tryToSend(outgoing, null, {
   //   failAction: joinWallFail(),
   // }));
-  return dispatch(send(outgoing));
+  return dispatch({ payload: outgoing, meta: { socket: true } });
 };
 
 export const leaveWall = id => (dispatch, getState) => {
@@ -45,7 +44,8 @@ export const leaveWall = id => (dispatch, getState) => {
 
   dispatch({ type: LEAVE_WALL });
 
+  const outgoing = { key: wsKeys.LEAVE_WALL };
   // dispatch(tryToSend({ key: wsKeys.LEAVE_WALL, clientId }));
   // return dispatch(send({ key: wsKeys.LEAVE_WALL, clientId }));
-  return dispatch(send({ key: wsKeys.LEAVE_WALL }));
+  return dispatch({ payload: outgoing, meta: { socket: true } });
 };

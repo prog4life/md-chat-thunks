@@ -2,13 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ListGroup, ListGroupItem } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import shortId from 'shortid';
-
-// const posts = [
-//   { author: shortId.generate() },
-//   { author: shortId.generate() },
-//   { author: shortId.generate() },
-// ];
 
 class PublicWall extends React.Component {
   static propTypes = {
@@ -19,20 +12,24 @@ class PublicWall extends React.Component {
     leaveWall: PropTypes.func.isRequired,
     posts: PropTypes.arrayOf(PropTypes.object).isRequired,
   }
+
   componentDidMount() {
     // prepareWebsocketAndClientId();
     this.joinWallConditionally();
   }
+
   componentDidUpdate() {
     console.log('PUBLIC WALL UPDATE');
 
     this.joinWallConditionally();
   }
+
   componentWillUnmount() {
     const { leaveWall } = this.props;
 
     leaveWall();
   }
+
   joinWallConditionally() {
     const { isWallTracked, joinWall, clientId, checkClientId } = this.props;
 
@@ -42,17 +39,24 @@ class PublicWall extends React.Component {
       joinWall();
     }
   }
+
   render() {
     const { posts } = this.props;
 
     return (
       <ListGroup>
-        {posts.map(({ author }, index) => {
+        {posts.map(({ authorId, nickname, createdAt }, index) => {
           return (
-            <ListGroupItem key={shortId.generate()}>
+            <ListGroupItem key={authorId}>
               {`List Item ${index + 1}`}
+              <div style={{ backgroundColor: 'violet' }}>
+                {`Author: ${nickname}`}
+              </div>
+              <div style={{ backgroundColor: 'lemonchifon' }}>
+                {`Created at: ${(new Date(createdAt)).toLocaleString('en-GB')}`}
+              </div>
               {' '}
-              <Link to={`/chats/${author}`}>
+              <Link to={`/chats/${authorId}`}>
                 {'Chat'}
               </Link>
             </ListGroupItem>

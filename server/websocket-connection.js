@@ -1,24 +1,25 @@
 const Wall = require('./models/Wall');
+const WallPost = require('./models/WallPost');
 const User = require('./models/User');
 const { logger } = require('./loggers');
 // const user = require('./user');
 // const wall = require('./wall');
 
-const GET_ID = 'GET_ID';
-const SET_ID = 'SET_ID';
-const SIGN_IN = 'SIGN_IN';
-const SIGN_UP = 'SIGN_UP';
-// const JOIN_THE_WALL = 'JOIN-THE-WALL';
+const GET_ID = 'Get_Id';
+const SET_ID = 'Set_Id';
+const INITIALIZATION = 'Initialization';
+const SIGN_IN = 'Sign_In';
+const SIGN_UP = 'Sign_Up';
 const JOIN_WALL = 'Join_Wall';
 const LEAVE_WALL = 'Leave_Wall';
-const MESSAGE = 'MESSAGE';
-const IS_TYPING = 'IS_TYPING';
-const PING = 'PING';
-const CHANGE_NAME = 'CHANGE_NAME';
+const MESSAGE = 'Message';
+const IS_TYPING = 'Is_Typing';
+const PING = 'Ping';
+const CHANGE_NAME = 'Change_Name';
 const DELETE_CHAT = 'DELETE_CHAT';
 const OPEN_CHAT = 'OPEN_CHAT';
 const LEAVE_CHAT = 'LEAVE_CHAT';
-const HAS_ID = 'HAS_ID';
+const HAS_ID = 'Has_Id';
 
 const validator = {
   validateIncoming() { return true; },
@@ -40,6 +41,9 @@ class WebsocketConnection {
       //   this.clientId = user.assignId();
       //   this.ws.send(JSON.stringify({ key: SET_ID, clientId: this.clientId }));
       // },
+      [INITIALIZATION]: (incoming) => {
+        logger.debug('Initializtion message received ', incoming);
+      },
       [SIGN_IN]: (incoming) => {
         const authData = user.signIn(incoming.login);
 
@@ -62,18 +66,26 @@ class WebsocketConnection {
           key: SIGN_UP, clientId: this.clientId, token: newUser.token,
         }));
       },
-      [JOIN_WALL]: () => Promise.all([this.getWall(), this.getClientId()])
-        .then(([wall, clientId]) => wall.subscribe(clientId)),
+      [JOIN_WALL]: () => this.getWall().then((wall) => {
+        wall.subscribe(this.clientId, () => {
+          this.sendBack({ key: JOIN_WALL, posts: WallPost.getTempPosts() });
+        });
+      }),
       // .catch(), /* do something */
-      [LEAVE_WALL]: () => this.getWall()
-        .then((wall) => {
-          return this.getClientId().then((clientId) => {
-            return ({ wall, clientId });
-          });
-        })
-        .then(({ wall, clientId }) => {
-          return wall.unsubscribe(clientId);
-        }),
+      [LEAVE_WALL]: () => this.getWall().then((wall) => {
+        wall.unsubscribe(this.clientId);
+      }),
+      // [JOIN_WALL]: () => Promise.all([this.getWall(), this.getClientId()])
+      //   .then(([wall, clientId]) => wall.subscribe(clientId)),
+      // [LEAVE_WALL]: () => this.getWall()
+      //   .then((wall) => {
+      //     return this.getClientId().then((clientId) => {
+      //       return ({ wall, clientId });
+      //     });
+      //   })
+      //   .then(({ wall, clientId }) => {
+      //     return wall.unsubscribe(clientId);
+      //   }),
       [MESSAGE]: incoming => this.resendMessageToAll(websocket, incoming),
       [IS_TYPING]: incoming => this.sendTypingNotification(websocket, incoming),
       [PING]: () => this.sendPong(websocket),
@@ -87,6 +99,7 @@ class WebsocketConnection {
     this.getWall();
     this.getClientId();
   }
+
   async getWall() {
     if (this.wall) { // combine with next if
       return this.wall;
@@ -106,6 +119,7 @@ class WebsocketConnection {
     this.wall = wall;
     return wall;
   }
+
   async getClientId() {
     if (this.clientId) {
       return this.clientId;
@@ -127,12 +141,14 @@ class WebsocketConnection {
     this.clientId = newUser.id;
     return newUser.id;
   }
+
   changeId(newId) {
     if (wall.isSubscriber(this.clientId)) {
       wall.replaceSubscriber(this.clientId, newId);
     }
     this.clientId = newId;
   }
+
   handleIncoming(rawIncoming) {
     let incoming = null;
 
@@ -145,14 +161,22 @@ class WebsocketConnection {
     if (!incoming || !validator.validateIncoming(incoming)) {
       return;
     }
+    // const { key, clientId } = incoming; // if clientId is stored on client
     const { key } = incoming;
 
-    if (this.incomingMessageHandlers.hasOwnProperty(key)) {
-      this.incomingMessageHandlers[key](incoming);
-    } else {
+    if (!this.incomingMessageHandlers.hasOwnProperty(key)) {
       logger.error('Unknown key of incoming message');
+    } else if (!this.clientId) { // !clientId - if clientId is stored on client
+      this.getClientId()
+        // .then(id => this.ws.send({ key: INITIALIZATION, clientId: id }))
+        .then(() => this.incomingMessageHandlers[key](incoming));
+      // catch() do something if failed, repeat or whatever needed
+    } else {
+      // this.clientId = clientId; // if clientId is stored on client
+      this.incomingMessageHandlers[key](incoming);
     }
   }
+
   handleClose() {
     if (this.clientId) {
       User.deleteOneById(this.clientId); // TEMP:
@@ -162,6 +186,11 @@ class WebsocketConnection {
     }
     // user.signOut(this.clientId);
   }
+
+  sendBack(outgoing) {
+    this.ws.send(JSON.stringify(outgoing));
+  }
+
   // call it from constructor
   // setMessageTypeHandlers() {
   //   const messageTypesMap = {

@@ -8,6 +8,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const DuplPkgCheckrPlugin = require('duplicate-package-checker-webpack-plugin');
+const CircularDependencyPlugin = require('circular-dependency-plugin');
 // const BabelPluginTransformImports = require('babel-plugin-transform-imports');
 // const CompressionPlugin = require('compression-webpack-plugin');
 // const VisualizerPlugin = require('webpack-visualizer-plugin');

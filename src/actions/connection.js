@@ -1,3 +1,4 @@
+import * as aT from 'constants/actionTypes';
 import { getWebsocket, setupWebsocket, requestClientId } from 'actions';
 
 let monitoringIntervalId;

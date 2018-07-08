@@ -47,7 +47,7 @@ const isConnecting = (state = false, action) => {
   }
 };
 
-// is client subscribed to the wall
+// whether this client subscribed to the wall or not
 const isTracked = (state = false, action) => {
   switch (action.type) {
     case JOIN_WALL_SUCCESS:

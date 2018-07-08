@@ -12,7 +12,7 @@ const wallSchema = Schema({
 });
 
 
-wallSchema.methods.subscribe = function subscribe(clientId) {
+wallSchema.methods.subscribe = function subscribe(clientId, callback) {
   this.model('Wall').update( // TODO: replace by document.update()
     { _id: this.id },
     { $push: { subscribers: clientId } },
@@ -23,6 +23,8 @@ wallSchema.methods.subscribe = function subscribe(clientId) {
         'Updated subscribers truthy length: ',
         this.subscribers.filter(Boolean).length,
       );
+      // TODO: replace by promise later
+      callback();
       return logger.debug(`Add ${clientId} to wall subscribers, response: `, rawRes);
     },
   );
