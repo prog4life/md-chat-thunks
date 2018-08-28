@@ -1,6 +1,6 @@
 const socketIO = require('socket.io');
-const Wall = require('./models/Wall');
-const User = require('./models/User');
+const Wall = require('./models/wall-model');
+const User = require('./models/user-model');
 const { logger } = require('./loggers');
 const WebsocketConnection = require('./connection');
 
@@ -35,13 +35,11 @@ const handleConnection = (socket, wss) => {
     // messenger.removeChat(chat);
   });
 
-  socket.on('disconnect', (code, reason) => {
+  socket.on('disconnect', () => {
     // messenger.removeChats(socket);
     // messenger.removeClient(socket);
-    connection.handleClose();
-    logger.debug('Websocket onclose code: %s and reason: %s ', code, reason);
-    // console.log('socket onclose clients size', messenger.wss.clients.size);
-    logger.debug('Websocket onclose clients size', connection.wss.clients.size);
+    // connection.handleClose();
+    logger.debug('socket disconnect, connected clients amount: ');
   });
 };
 

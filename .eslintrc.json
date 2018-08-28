@@ -3,6 +3,7 @@
   "parserOptions": {
     "ecmaVersion": 2017,
     "sourceType": "module",
+    "allowImportExportEverywhere": false,
     "ecmaFeatures": {
       "globalReturn": false,
       "impliedStrict": false,
@@ -18,7 +19,8 @@
     "jquery": true,
     "commonjs": true,
     "mocha": true,
-    "jest": true
+    "jest": true,
+    "serviceworker": true
   },
   "root": true,
   "globals": {},
@@ -63,10 +65,11 @@
         "config": {
           "resolve": {
             "modules": ["./src"],
-            "extensions": [".js", ".jsx"]
+            "extensions": [".js", ".jsx", "*"]
           }
         }
       }
-    }
+    },
+    "polyfills": ["fetch", "promises"]
   }
 }

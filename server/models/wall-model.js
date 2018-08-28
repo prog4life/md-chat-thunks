@@ -11,63 +11,32 @@ const wallSchema = Schema({
   subscribers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
 
+// Statics
+wallSchema.statics.subscribe = async function subscribe(userIds, city) {
+  const wall = await this.findOne({ city }).exec();
+  const subs = wall.subscribers;
+  const isMany = Array.isArray(userIds);
+  let exists = false;
 
-wallSchema.methods.subscribe = function subscribe(clientId, callback) {
-  this.model('Wall').update( // TODO: replace by document.update()
-    { _id: this.id },
-    { $push: { subscribers: clientId } },
-    (err, rawRes) => {
-      if (err) return logger.error('Fail to add to wall subscribers: ', err);
-      logger.debug('Updated subscribers length: ', this.subscribers.length);
-      logger.debug(
-        'Updated subscribers truthy length: ',
-        this.subscribers.filter(Boolean).length,
-      );
-      // TODO: replace by promise later
-      callback();
-      return logger.debug(`Add ${clientId} to wall subscribers, response: `, rawRes);
-    },
+  if (isMany) {
+    exists = userIds.some(id => subs.includes(id));
+  } else {
+    exists = subs.includes(userIds);
+  }
+  if (exists) {
+    throw new Error('User with such id is present in wall subscribers already');
+  }
+  wall.subscribers = subs.concat(userIds);
+
+  const updatedWall = await wall.save();
+  // TEMP:
+  logger.debug('Updated subscribers length: ', updatedWall.subscribers.length);
+  logger.debug(
+    'Updated subscribers truthy length: ',
+    updatedWall.subscribers.filter(Boolean).length,
   );
+  return updatedWall;
 };
-
-wallSchema.methods.unsubscribe = function subscribe(clientId) {
-  this.model('Wall').update( // TODO: replace by document.update()
-    { _id: this.id },
-    { $pull: { subscribers: clientId } },
-    (err, rawRes) => {
-      if (err) return logger.error('Fail to del wall subscriber: ', err);
-      return logger.debug(`Delete subscriber ${clientId}, response: `, rawRes);
-    },
-  );
-};
-
-
-// wallSchema.statics.subscribe = function subscribe(clientId) {
-//   this.update(
-//     { _id: this.id },
-//     { $push: { subscribers: clientId } },
-//     (err, rawRes) => {
-//       if (err) return logger.error('Fail to add to wall subscribers: ', err);
-//       logger.debug('Updated subscribers length: ', this.subscribers.length);
-//       logger.debug(
-//         'Updated subscribers truthy length: ',
-//         this.subscribers.filter(Boolean).length,
-//       );
-//       return logger.debug(`Add ${clientId} to wall subscribers, response: `, rawRes);
-//     },
-//   );
-// };
-
-// wallSchema.statics.unsubscribe = function subscribe(clientId) {
-//   this.update(
-//     { _id: this.id },
-//     { $pull: { subscribers: clientId } },
-//     (err, rawRes) => {
-//       if (err) return logger.error('Fail to del wall subscriber: ', err);
-//       return logger.debug(`Delete subscriber ${clientId}, response: `, rawRes);
-//     },
-//   );
-// };
 
 wallSchema.statics.createOne = function createOne(params) {
   return this.create(params)
@@ -105,13 +74,59 @@ wallSchema.statics.deleteAll = function deleteAll(callback = () => {}) {
   });
 };
 
-// const commonWall = new Wall({ subscribers: [] });
+// Methods
+wallSchema.methods.unsubscribe = function subscribe(clientId) {
+  this.model('Wall').update( // TODO: replace by document.update()
+    { _id: this.id },
+    { $pull: { subscribers: clientId } },
+    (err, rawRes) => {
+      if (err) return logger.error('Fail to del wall subscriber: ', err);
+      return logger.debug(`Delete subscriber ${clientId}, response: `, rawRes);
+    },
+  );
+};
 
-// commonWall.save().then(
-//   (wall) => {
-//     logger.debug('new wall saved: ', JSON.stringify(wall, null, 4), wall.id);
+// wallSchema.statics.subscribe = function subscribe(clientId) {
+//   this.update(
+//     { _id: this.id },
+//     { $push: { subscribers: clientId } }, // NOTE: push
+//     (err, rawRes) => {
+//       if (err) return logger.error('Fail to add to wall subscribers: ', err);
+//       logger.debug('Updated subscribers length: ', this.subscribers.length);
+//       logger.debug(
+//         'Updated subscribers truthy length: ',
+//         this.subscribers.filter(Boolean).length,
+//       );
+//       return logger.debug(`Add ${clientId} to wall subscribers, response: `, rawRes);
+//     },
+//   );
+// };
+
+// wallSchema.statics.unsubscribe = function subscribe(clientId) {
+//   this.update(
+//     { _id: this.id },
+//     { $pull: { subscribers: clientId } }, // NOTE: pull
+//     (err, rawRes) => {
+//       if (err) return logger.error('Fail to del wall subscriber: ', err);
+//       return logger.debug(`Delete subscriber ${clientId}, response: `, rawRes);
+//     },
+//   );
+// };
+
+// wall.update( // TODO: replace by document.update()
+//   { _id: this.id },
+//   { $push: { subscribers: clientId } },
+//   (err, rawRes) => {
+//     if (err) return logger.error('Fail to add to wall subscribers: ', err);
+//     logger.debug('Updated subscribers length: ', this.subscribers.length);
+//     logger.debug(
+//       'Updated subscribers truthy length: ',
+//       this.subscribers.filter(Boolean).length,
+//     );
+//     // TODO: replace by promise later
+//     callback();
+//     return logger.debug(`Add ${clientId} to wall subscribers, response: `, rawRes);
 //   },
-//   err => logger.error('Wall creation error ', err),
 // );
 
 // 2nd - optional, to select only such prop
@@ -125,6 +140,4 @@ wallSchema.statics.deleteAll = function deleteAll(callback = () => {}) {
 //   err => logger.error(err),
 // );
 
-const Wall = mongoose.model('Wall', wallSchema);
-
-module.exports = Wall;
+module.exports = mongoose.model('Wall', wallSchema);

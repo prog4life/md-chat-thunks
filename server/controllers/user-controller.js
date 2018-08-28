@@ -1,7 +1,13 @@
 const { User } = require('../models/user-model');
+const { Wall } = require('../models/wall-model');
 const { logger } = require('../loggers');
 
-// TODO: consider to create assitional AnonymousUser model
+// TODO: consider to create additional AnonymousUser model
+/**
+ * Create new user with anonymous flag
+ * @returns {Array[Error] | Array[null, Object]}
+ * @public
+ */
 exports.createAnon = async () => {
   try {
     const user = new User({ isAnon: true });
@@ -9,12 +15,13 @@ exports.createAnon = async () => {
 
     logger.debug('New user created: ', JSON.stringify(savedUser, null, 2));
 
-    // TEMP:
-    this.find({}, (e, users) => {
+    /* TEMP: start */
+    Wall.find({}, (e, users) => {
       if (e) return logger.error(e);
       const userIds = users.map(u => u.id);
-      return logger.debug('Current ⁽ƈ ͡ (ुŏ̥̥̥̥םŏ̥̥̥̥) ु : ', userIds.join(', '));
+      return logger.debug('Current ⁽ƈ ͡ (ुŏ̥̥̥̥םŏ̥̥̥̥) ु ids: ', userIds.join(', '));
     });
+    /* TEMP: end */
 
     return [null, savedUser.transform()];
   } catch (error) {
