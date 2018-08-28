@@ -18,7 +18,7 @@ public/**/*.css
 public/**/*.css.map
 public/report.html
 
-# config/
+# environment variables
 **/.env
 
 # .eslintrc.json

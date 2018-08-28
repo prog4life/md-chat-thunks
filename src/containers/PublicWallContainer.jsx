@@ -1,18 +1,29 @@
 import { connect } from 'react-redux';
 
-import { joinWall, leaveWall, checkClientId } from 'actions';
-import { getClientId, getPosts, isWallTrackedSelector } from 'reducers';
+import { signInIfNeeded } from 'state/auth';
+import { joinWall, leaveWall, fetchWallId } from 'state/wall';
+import { fetchPosts, deletePost } from 'state/posts';
+import {
+  getUserId, getWallId, getPosts,
+  isSubscribedToWall, isSubscribingToWall, isFetchingPosts,
+} from 'state/selectors';
 
 import PublicWall from 'components/PublicWall';
 
 const mapStateToProps = state => ({
-  clientId: getClientId(state),
+  userId: getUserId(state),
+  wallId: getWallId(state),
   posts: getPosts(state),
-  isWallTracked: isWallTrackedSelector(state),
+  isFetchingPosts: isFetchingPosts(state),
+  isSubscribed: isSubscribedToWall(state),
+  isSubscribing: isSubscribingToWall(state),
 });
 
 export default connect(mapStateToProps, {
+  signInIfNeeded,
   joinWall,
   leaveWall,
-  checkClientId,
+  fetchWallId,
+  deletePost,
+  fetchPosts,
 })(PublicWall);

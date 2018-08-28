@@ -8,16 +8,37 @@ const userSchema = Schema({
   //   type: [Schema.Types.ObjectId], // String, Array,
   //   required: true,
   // },
-  login: { type: String },
+  login: {
+    type: String,
+    match: /^\S+@\S+\.\S+$/,
+    required: false, // NOTE: was true
+    unique: true,
+    trim: true,
+    lowercase: true,
+    // set to true if have two possible unique keys that are optional, like
+    // email and phone number
+    // sparse: true,
+  },
+  password: {
+    type: String,
+    required: false, // NOTE: was true
+    minlength: 4, // TODO: change to 6-8
+    maxlength: 128,
+  },
+  isAnon: {
+    type: Boolean,
+    required: false,
+    // default: true, // for now will be disabled to test when { isAnon: true } passed
+  },
   subscribedToWall: { type: Schema.Types.ObjectId, ref: 'Wall' },
-});
+}, { timestamps: true });
 
 // user._someId = new mongoose.Types.ObjectId;
 
 userSchema.statics.createOne = function createOne(userData = {}) {
   return this.create(userData)
     .then((user) => {
-      logger.debug('New user created: ', JSON.stringify(user, null, 4));
+      logger.debug('New user created: ', JSON.stringify(user, null, 2));
 
       this.find({}, (e, users) => {
         if (e) return logger.error(e);
@@ -47,6 +68,24 @@ userSchema.statics.deleteAll = function deleteAll(callback = () => {}) {
   });
 };
 
-const User = mongoose.model('User', userSchema);
+userSchema.methods.transform = () => {
+  const transformed = {};
+  // const fields = ['id', 'name', 'email', 'picture', 'role', 'createdAt'];
+  const fields = ['id', 'subscribedToWall', 'createdAt'];
 
-module.exports = User;
+  fields.forEach((field) => {
+    transformed[field] = this[field];
+  });
+
+  return transformed;
+};
+
+// TODO: rename later to toJSON | makeJSON | transfor
+userSchema.methods.toWeb = () => {
+  const json = this.toJSON();
+  // eslint-disable-next-line no-underscore-dangle
+  json.id = this._id; // this is for the front end
+  return json;
+};
+
+module.exports = mongoose.model('User', userSchema);

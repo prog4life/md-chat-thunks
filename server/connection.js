@@ -1,6 +1,7 @@
-const Wall = require('./models/Wall');
-const WallPost = require('./models/WallPost');
-const User = require('./models/User');
+const UserController = require('./controllers/user-controller');
+const Wall = require('./models/wall-model');
+const WallPost = require('./models/wall-post-model');
+const User = require('./models/user-model');
 const { logger } = require('./loggers');
 // const user = require('./user');
 // const wall = require('./wall');
@@ -29,8 +30,10 @@ class WebsocketConnection {
   constructor(websocket, websocketServer) {
     this.ws = websocket;
     this.wss = websocketServer;
-    this.clientIdQueue = [];
+    this.userIdQueue = [];
     this.wallQueue = [];
+    this.getWall();
+    this.getClientId();
     this.incomingMessageHandlers = {
       // [GET_ID]: () => {
       //   // const newClient = client.addOne(websocket);
@@ -38,8 +41,8 @@ class WebsocketConnection {
       //   // this.sendNewClientId(newClient.id, websocket);
       //   // // create chats between new client and each other
       //   // this.createChats(newClient.id);
-      //   this.clientId = user.assignId();
-      //   this.ws.send(JSON.stringify({ key: SET_ID, clientId: this.clientId }));
+      //   this.userId = user.assignId();
+      //   this.ws.send(JSON.stringify({ key: SET_ID, userId: this.userId }));
       // },
       [INITIALIZATION]: (incoming) => {
         logger.debug('Initializtion message received ', incoming);
@@ -50,10 +53,10 @@ class WebsocketConnection {
         if (authData) {
           // TODO: create user id on connection and just add login/token on
           // sign in/sign up OR this.changeId with resubscribing to wall
-          // this.clientId = authData.id;
+          // this.userId = authData.id;
           this.changeId(authData.id);
           this.ws.send(JSON.stringify({
-            key: SIGN_IN, clientId: authData.id, token: authData.token,
+            key: SIGN_IN, userId: authData.id, token: authData.token,
           }));
         } else {}
         // TODO: send fail message, perhaps without token with reason
@@ -61,30 +64,46 @@ class WebsocketConnection {
       [SIGN_UP]: (incoming) => {
         // TODO: check if user with same login is present
         const newUser = user.signUp(incoming.login);
-        this.clientId = newUser.id;
+        this.userId = newUser.id;
         this.ws.send(JSON.stringify({
-          key: SIGN_UP, clientId: this.clientId, token: newUser.token,
+          key: SIGN_UP, userId: this.userId, token: newUser.token,
         }));
       },
-      [JOIN_WALL]: () => this.getWall().then((wall) => {
-        wall.subscribe(this.clientId, () => {
-          this.sendBack({ key: JOIN_WALL, posts: WallPost.getTempPosts() });
+      [JOIN_WALL]: async ({ userId }) => {
+        let user;
+        let err;
+
+        if (this.userId || this.user)
+
+        if (!userId) {
+          [err, user] = await UserController.createAnon();
+        }
+        if (err) {
+          // TODO: return some fail message to client
+          logger.error('Cant connect to wall, failed to create anon user');
+        }
+        const id = userId || (user && user.id);
+
+        const wallIdPromise = this.getWall().then((wall) => {
+          wall.subscribe(this.userId, () => {
+            this.sendBack({ key: JOIN_WALL, posts: WallPost.getTempPosts() });
+          });
         });
-      }),
+      },
       // .catch(), /* do something */
       [LEAVE_WALL]: () => this.getWall().then((wall) => {
-        wall.unsubscribe(this.clientId);
+        wall.unsubscribe(this.userId);
       }),
       // [JOIN_WALL]: () => Promise.all([this.getWall(), this.getClientId()])
-      //   .then(([wall, clientId]) => wall.subscribe(clientId)),
+      //   .then(([wall, userId]) => wall.subscribe(userId)),
       // [LEAVE_WALL]: () => this.getWall()
       //   .then((wall) => {
-      //     return this.getClientId().then((clientId) => {
-      //       return ({ wall, clientId });
+      //     return this.getClientId().then((userId) => {
+      //       return ({ wall, userId });
       //     });
       //   })
-      //   .then(({ wall, clientId }) => {
-      //     return wall.unsubscribe(clientId);
+      //   .then(({ wall, userId }) => {
+      //     return wall.unsubscribe(userId);
       //   }),
       [MESSAGE]: incoming => this.resendMessageToAll(websocket, incoming),
       [IS_TYPING]: incoming => this.sendTypingNotification(websocket, incoming),
@@ -93,11 +112,8 @@ class WebsocketConnection {
       [DELETE_CHAT]: incoming => this.removeChat(incoming),
       [OPEN_CHAT]: incoming => this.createChat(websocket, incoming),
       [LEAVE_CHAT]: () => {},
-      [HAS_ID]: incoming => console.log('Has clientId: ', incoming.clientId),
+      [HAS_ID]: incoming => console.log('Has userId: ', incoming.userId),
     };
-
-    this.getWall();
-    this.getClientId();
   }
 
   async getWall() {
@@ -121,32 +137,32 @@ class WebsocketConnection {
   }
 
   async getClientId() {
-    if (this.clientId) {
-      return this.clientId;
+    if (this.userId) {
+      return this.userId;
     }
     // store promise to prevent duplicated queries for new user creation
     // need to create only one user for single connection
     let newUser;
 
-    if (this.clientIdPromise) {
-      newUser = await this.clientIdPromise;
+    if (this.userIdPromise) {
+      newUser = await this.userIdPromise;
     } else {
-      const clientIdPromise = User.createOne();
+      const userIdPromise = User.createOne();
 
-      this.clientIdPromise = clientIdPromise;
-      newUser = await clientIdPromise;
+      this.userIdPromise = userIdPromise;
+      newUser = await userIdPromise;
     }
-    this.clientIdPromise = null;
+    this.userIdPromise = null;
 
-    this.clientId = newUser.id;
+    this.userId = newUser.id;
     return newUser.id;
   }
 
   changeId(newId) {
-    if (wall.isSubscriber(this.clientId)) {
-      wall.replaceSubscriber(this.clientId, newId);
+    if (wall.isSubscriber(this.userId)) {
+      wall.replaceSubscriber(this.userId, newId);
     }
-    this.clientId = newId;
+    this.userId = newId;
   }
 
   handleIncoming(rawIncoming) {
@@ -161,30 +177,30 @@ class WebsocketConnection {
     if (!incoming || !validator.validateIncoming(incoming)) {
       return;
     }
-    // const { key, clientId } = incoming; // if clientId is stored on client
+    // const { key, userId } = incoming; // if userId is stored on client
     const { key } = incoming;
 
     if (!this.incomingMessageHandlers.hasOwnProperty(key)) {
       logger.error('Unknown key of incoming message');
-    } else if (!this.clientId) { // !clientId - if clientId is stored on client
+    } else if (!this.userId) { // !userId - if userId is stored on client
       this.getClientId()
-        // .then(id => this.ws.send({ key: INITIALIZATION, clientId: id }))
+        // .then(id => this.ws.send({ key: INITIALIZATION, userId: id }))
         .then(() => this.incomingMessageHandlers[key](incoming));
       // catch() do something if failed, repeat or whatever needed
     } else {
-      // this.clientId = clientId; // if clientId is stored on client
+      // this.userId = userId; // if userId is stored on client
       this.incomingMessageHandlers[key](incoming);
     }
   }
 
   handleClose() {
-    if (this.clientId) {
-      User.deleteOneById(this.clientId); // TEMP:
+    if (this.userId) {
+      User.deleteOneById(this.userId); // TEMP:
     }
-    if (this.wall && this.clientId) {
-      this.wall.unsubscribe(this.clientId);
+    if (this.wall && this.userId) {
+      this.wall.unsubscribe(this.userId);
     }
-    // user.signOut(this.clientId);
+    // user.signOut(this.userId);
   }
 
   sendBack(outgoing) {
@@ -200,8 +216,8 @@ class WebsocketConnection {
   //     //   // this.sendNewClientId(newClient.id, websocket);
   //     //   // // create chats between new client and each other
   //     //   // this.createChats(newClient.id);
-  //     //   this.clientId = user.assignId();
-  //     //   this.ws.send(JSON.stringify({ key: SET_ID, clientId: this.clientId }));
+  //     //   this.userId = user.assignId();
+  //     //   this.ws.send(JSON.stringify({ key: SET_ID, userId: this.userId }));
   //     // },
   //     [SIGN_IN]: (incoming) => {
   //       const authData = user.signIn(incoming.login);
@@ -209,10 +225,10 @@ class WebsocketConnection {
   //       if (authData) {
   //         // TODO: create user id on connection and just add login/token on
   //         // sign in/sign up OR this.changeId with resubscribing to wall
-  //         // this.clientId = authData.id;
+  //         // this.userId = authData.id;
   //         this.changeId(authData.id);
   //         this.ws.send(JSON.stringify({
-  //           key: SIGN_IN, clientId: authData.id, token: authData.token,
+  //           key: SIGN_IN, userId: authData.id, token: authData.token,
   //         }));
   //       } else {}
   //       // TODO: send fail message, perhaps without token with reason
@@ -220,22 +236,22 @@ class WebsocketConnection {
   //     [SIGN_UP]: (incoming) => {
   //       // TODO: check if user with same login is present
   //       const newUser = user.signUp(incoming.login);
-  //       this.clientId = newUser.id;
+  //       this.userId = newUser.id;
   //       this.ws.send(JSON.stringify({
-  //         key: SIGN_UP, clientId: this.clientId, token: newUser.token,
+  //         key: SIGN_UP, userId: this.userId, token: newUser.token,
   //       }));
   //     },
   //     [JOIN_WALL]: () => Promise.all([this.getWall(), this.getClientId()])
-  //       .then(([wall, clientId]) => wall.subscribe(clientId)),
+  //       .then(([wall, userId]) => wall.subscribe(userId)),
   //     // .catch(), /* do something */
   //     [LEAVE_WALL]: () => this.getWall()
   //       .then((wall) => {
-  //         return this.getClientId().then((clientId) => {
-  //           return ({ wall, clientId });
+  //         return this.getClientId().then((userId) => {
+  //           return ({ wall, userId });
   //         });
   //       })
-  //       .then(({ wall, clientId }) => {
-  //         return wall.unsubscribe(clientId);
+  //       .then(({ wall, userId }) => {
+  //         return wall.unsubscribe(userId);
   //       }),
   //     [MESSAGE]: incoming => this.resendMessageToAll(websocket, incoming),
   //     [IS_TYPING]: incoming => this.sendTypingNotification(websocket, incoming),
@@ -244,7 +260,7 @@ class WebsocketConnection {
   //     [DELETE_CHAT]: incoming => this.removeChat(incoming),
   //     [OPEN_CHAT]: incoming => this.createChat(websocket, incoming),
   //     [LEAVE_CHAT]: () => {},
-  //     [HAS_ID]: () => console.log('Has clientId: ', clientId),
+  //     [HAS_ID]: () => console.log('Has userId: ', userId),
   //   };
   //
   //   // this function will become this.handleSpecificMessageType

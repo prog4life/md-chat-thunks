@@ -1,17 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import shortid from 'shortid';
 import { ListGroup, ListGroupItem } from 'reactstrap';
-import { Link } from 'react-router-dom';
+
+import Post from './Post';
 
 class PublicWall extends React.Component {
   static propTypes = {
     checkClientId: PropTypes.func.isRequired,
-    clientId: PropTypes.string.isRequired,
-    isWallTracked: PropTypes.bool.isRequired,
+    deletePost: PropTypes.func.isRequired,
+    fetchPosts: PropTypes.func.isRequired,
+    fetchWallId: PropTypes.func.isRequired,
+    isFetchingPosts: PropTypes.bool.isRequired,
+    isSubscribed: PropTypes.bool.isRequired,
+    isSubscribing: PropTypes.bool.isRequired,
     joinWall: PropTypes.func.isRequired,
     leaveWall: PropTypes.func.isRequired,
-    posts: PropTypes.arrayOf(PropTypes.object).isRequired,
+    posts: PropTypes.arrayOf(PropTypes.object),
+    signInIfNeeded: PropTypes.func.isRequired,
+    userId: PropTypes.string,
+    wallId: PropTypes.string,
   }
+
+  static defaultProps = {
+    posts: null,
+    userId: null,
+    wallId: null,
+  };
 
   componentDidMount() {
     // prepareWebsocketAndClientId();
@@ -31,34 +46,31 @@ class PublicWall extends React.Component {
   }
 
   joinWallConditionally() {
-    const { isWallTracked, joinWall, clientId, checkClientId } = this.props;
+    const { isWallTracked, joinWall, userId, checkClientId } = this.props;
 
-    // if (!isWallTracked && checkClientId(clientId)) {
+    // if (!isWallTracked && checkClientId(userId)) {
     if (!isWallTracked) {
-      // joinWall(clientId);
+      // joinWall(userId);
       joinWall();
     }
   }
 
   render() {
-    const { posts } = this.props;
+    const {
+      posts, userId, isSubscribing, isSubscribed, isFetchingPosts,
+    } = this.props;
 
     return (
       <ListGroup>
-        {posts.map(({ authorId, nickname, createdAt }, index) => {
+        {posts.map((post, index) => {
           return (
-            <ListGroupItem key={authorId}>
-              {`List Item ${index + 1}`}
-              <div style={{ backgroundColor: 'violet' }}>
-                {`Author: ${nickname}`}
-              </div>
-              <div style={{ backgroundColor: 'lemonchifon' }}>
-                {`Created at: ${(new Date(createdAt)).toLocaleString('en-GB')}`}
-              </div>
-              {' '}
-              <Link to={`/chats/${authorId}`}>
-                {'Chat'}
-              </Link>
+            // TODO: replace authorId by post.id
+            <ListGroupItem key={shortid.generate()}>
+              <Post
+                userId={userId}
+                {...post}
+                onDelete={this.handleDeletePost}
+              />
             </ListGroupItem>
           );
         })}
