@@ -15,7 +15,7 @@ const SIGN_IN = 'Sign_In';
 const SIGN_UP = 'Sign_Up';
 
 const AUTH_ANON = 'Auth::Sign-In-Anon';
-const AUTH_ANON_OK = 'Auth::Sign-In-Anon::OK'; // or _OK at he end
+const AUTH_ANON_OK = 'Auth::Sign-In-Anon::OK'; // or _OK at the end
 const AUTH_ANON_ERR = 'Auth::Sign-In-Anon::Error';
 
 const AUTH_LOGIN = 'Auth::Login';
@@ -129,7 +129,7 @@ class WebsocketConnection {
       [LEAVE_CHAT]: () => {},
       [HAS_ID]: incoming => console.log('Has userId: ', incoming.userId),
     };
-    // apply handlers to
+    // apply handlers to socket events
     Object.keys(this.socketEventHandlers).forEach((eventName) => {
       socket.on(eventName, (data) => {
         logger.debug(

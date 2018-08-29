@@ -16,6 +16,7 @@ class PublicWall extends React.Component {
     isSubscribing: PropTypes.bool.isRequired,
     joinWall: PropTypes.func.isRequired,
     leaveWall: PropTypes.func.isRequired,
+    maybeLogin: PropTypes.func.isRequired,
     posts: PropTypes.arrayOf(PropTypes.object),
     signInIfNeeded: PropTypes.func.isRequired,
     userId: PropTypes.string,
@@ -30,12 +31,13 @@ class PublicWall extends React.Component {
 
   componentDidMount() {
     // prepareWebsocketAndClientId();
+    // this.login();
     this.joinWallConditionally();
   }
 
   componentDidUpdate() {
     console.log('PUBLIC WALL UPDATE');
-
+    // this.login();
     this.joinWallConditionally();
   }
 
@@ -43,6 +45,11 @@ class PublicWall extends React.Component {
     const { leaveWall } = this.props;
 
     leaveWall();
+  }
+
+  login() {
+    const { maybeLogin } = this.props;
+    maybeLogin();
   }
 
   joinWallConditionally() {

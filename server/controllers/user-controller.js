@@ -1,5 +1,5 @@
-const { User } = require('../models/user-model');
-const { Wall } = require('../models/wall-model');
+const User = require('../models/user-model');
+const Wall = require('../models/wall-model');
 const { logger } = require('../loggers');
 
 // TODO: consider to create additional AnonymousUser model

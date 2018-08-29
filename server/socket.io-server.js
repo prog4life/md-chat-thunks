@@ -21,6 +21,10 @@ const handleConnection = (socket, wss) => {
     socket.emit('pong');
   });
 
+  // IDEA: bund events to handlers with forEach/reduce, then pass to each
+  // handler connController as 2nd argument to utilize senBack, broadcast and
+  // others
+
   socket.on('message', (incoming) => {
     // TODO: some unknown additional GET request to 8080 happens
     // after websocket connection request

@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import { signInIfNeeded } from 'state/auth';
+import { signInIfNeeded, maybeLogin } from 'state/auth';
 import { joinWall, leaveWall, fetchWallId } from 'state/wall';
 import { fetchPosts, deletePost } from 'state/posts';
 import {
@@ -21,6 +21,7 @@ const mapStateToProps = state => ({
 
 export default connect(mapStateToProps, {
   signInIfNeeded,
+  maybeLogin,
   joinWall,
   leaveWall,
   fetchWallId,

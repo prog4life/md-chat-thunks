@@ -2,22 +2,27 @@
   align-items: center;
   display: flex;
   // min-width: 22rem;
-}
 
-.app-logo__img {
-  animation: app-logo-spin infinite 10s linear;
-  height: 3rem; // TODO: calc from app-bar height ?
-}
+  &__img {
+    height: 3rem; // TODO: calc from app-bar height ?
+    animation: app-logo-spin infinite 10s linear;
+  }
 
-.app-logo__text {
-  color: #ea8f8f;
-  // font-family: 'Monoton', cursive;
-  // font-family: 'Bungee Inline', cursive;
-  // font-family: 'Sirin Stencil', cursive;
-  // font-family: 'Carter One', cursive;
-  font-family: 'Bungee Shade', cursive;
-  margin: 0;
-  padding: 0 0.5rem;
+  &__textual {
+    height: 3rem; // TODO: calc from app-bar height ?
+  }
+
+  // replaced by logo img
+  &__text {
+    color: #ea8f8f;
+    // font-family: 'Monoton', cursive;
+    // font-family: 'Bungee Inline', cursive;
+    // font-family: 'Sirin Stencil', cursive;
+    // font-family: 'Carter One', cursive;
+    font-family: 'Bungee Shade', cursive;
+    margin: 0;
+    padding: 0 0.5rem;
+  }
 }
 
 @keyframes app-logo-spin {

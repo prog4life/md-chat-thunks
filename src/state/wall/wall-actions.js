@@ -2,10 +2,8 @@ import {
   JOIN_WALL, JOIN_WALL_SUCCESS, JOIN_WALL_FAIL, LEAVE_WALL, FETCH_WALL_ID,
 } from 'state/action-types';
 import shortId from 'shortid';
-
-const WALL_CONNECT = 'Wall::Connect';
-const WALL_CONNECT_OK = 'Wall::Connect::OK';
-const WALL_CONNECT_ERR = 'Wall::Connect::Error';
+import * as sE from 'constants/socket-events';
+import { toJSON } from 'utils';
 
 // export const joinWall = (userId, wallId) => ({
 //   type: JOIN_WALL,
@@ -15,13 +13,13 @@ export const joinWall = (userId, wallId) => (dispatch, getState, socket) => {
   const city = 'Singapore';
   dispatch({ type: JOIN_WALL, userId, city });
 
-  const outgoing = JSON.stringify({ userId: shortId.generate(), city });
+  const outgoing = toJSON({ userId: shortId.generate(), city });
 
-  socket.emit(WALL_CONNECT, outgoing);
-  socket.on(WALL_CONNECT_OK, (data) => {
+  socket.emit(sE.WALL_CONNECT, outgoing);
+  socket.on(sE.WALL_CONNECT_DONE, (data) => {
     dispatch({ type: 'JOIN_WALL_OK', data });
   });
-  socket.on(WALL_CONNECT_ERR, (data) => {
+  socket.on(sE.WALL_CONNECT_ERR, (data) => {
     dispatch({ type: 'JOIN_WALL_ERROR', data });
   });
 };

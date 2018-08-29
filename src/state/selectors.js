@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ AUTH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 export const getUserId = state => state.auth.userId;
 export const isAnonymousSelector = state => state.auth.isAnonymous;
+export const getToken = state => state.auth.token;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ WALL ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 export const getWallId = state => state.wall.id;
