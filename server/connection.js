@@ -15,11 +15,23 @@ const SIGN_IN = 'Sign_In';
 const SIGN_UP = 'Sign_Up';
 
 const AUTH_ANON = 'Auth::Sign-In-Anon';
-const AUTH_ANON_OK = 'Auth::Sign-In-Anon::OK';
+const AUTH_ANON_OK = 'Auth::Sign-In-Anon::OK'; // or _OK at he end
 const AUTH_ANON_ERR = 'Auth::Sign-In-Anon::Error';
 
+const AUTH_LOGIN = 'Auth::Login';
+const AUTH_LOGIN_DONE = 'Auth::Login::Done';
+const AUTH_LOGIN_ERR = 'Auth::Login::Error';
+
+const AUTH_SIGN_UP = 'Auth::Sign-Up';
+const AUTH_SIGN_UP_DONE = 'Auth::Sign-Up::Done';
+const AUTH_SIGN_UP_ERR = 'Auth::Sign-Up::Error';
+
+const AUTH_SIGN_OUT = 'Auth::Sign-Out';
+const AUTH_SIGN_OUT_DONE = 'Auth::Sign-Out::Done';
+const AUTH_SIGN_OUT_ERR = 'Auth::Sign-Out::Error';
+
 const WALL_CONNECT = 'Wall::Connect';
-const WALL_CONNECT_OK = 'Wall::Connect::OK';
+const WALL_CONNECT_DONE = 'Wall::Connect::Done';
 const WALL_CONNECT_ERR = 'Wall::Connect::Error';
 
 const LEAVE_WALL = 'Leave_Wall';
@@ -76,27 +88,9 @@ class WebsocketConnection {
           this.sendBack(AUTH_ANON_ERR, { message: e.message });
         }
       },
-      [SIGN_IN]: async ({ userId, jwt }) => {
-        const authData = user.signIn(incoming.login);
-
-        if (authData) {
-          // TODO: create user id on connection and just add login/token on
-          // sign in/sign up OR this.changeId with resubscribing to wall
-          // this.userId = authData.id;
-          this.changeId(authData.id);
-          this.socket.send(JSON.stringify({
-            key: SIGN_IN, userId: authData.id, token: authData.token,
-          }));
-        } else {}
-        // TODO: send fail message, perhaps without token with reason
-      },
-      [SIGN_UP]: (incoming) => {
+      [AUTH_LOGIN]: async ({ userId, jwt }) => {},
+      [AUTH_SIGN_UP]: (incoming) => {
         // TODO: check if user with same login is present
-        const newUser = user.signUp(incoming.login);
-        this.userId = newUser.id;
-        this.socket.send(JSON.stringify({
-          key: SIGN_UP, userId: this.userId, token: newUser.token,
-        }));
       },
       [WALL_CONNECT]: async ({ userId, city }) => {
         // NOTE: can get city-to-wallId lookup table at client boot with
@@ -108,7 +102,7 @@ class WebsocketConnection {
           this.sendBack(WALL_CONNECT_ERR, { message: err.message });
         } else {
           logger.debug('Connected to wall with id: ', wall.id);
-          this.sendBack(WALL_CONNECT_OK, { wall });
+          this.sendBack(WALL_CONNECT_DONE, { wall });
         }
       },
       // .catch(), /* do something */
