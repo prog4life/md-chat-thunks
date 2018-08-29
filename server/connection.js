@@ -52,7 +52,7 @@ const toJSON = obj => JSON.stringify(obj);
 
 class WebsocketConnection {
   constructor(socket, websocketServer) {
-    this.ws = socket;
+    this.socket = socket;
     this.wss = websocketServer;
     this.userIdQueue = [];
     this.wallQueue = [];
