@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// mongoose.Promise = global.Promise;
+mongoose.Promise = global.Promise;
 
 // (monogdb uri, options, callback) => Promise
 mongoose.connect('mongodb://localhost:27017/md-chat', {
@@ -8,14 +8,40 @@ mongoose.connect('mongodb://localhost:27017/md-chat', {
   // and will be removed in a future version. To use the new parser, pass
   // option { useNewUrlParser: true } to MongoClient.connect.
   useNewUrlParser: true,
-}).then(
-  () => console.log('Connection is open'),
-  err => console.error.bind(console, 'Connection error: ', err),
-);
+  keepAlive: 1,
+});
+// .then(
+//   () => console.log('MongoDB connection is open'),
+//   err => console.error('MongoDB connection error ', err),
+// );
 
-// const db = mongoose.connection;
+// Exit application on error
+// mongoose.connection.on('error', (err) => {
+//   console.error(`MongoDB connection error: ${err}`);
+//   process.exit(-1);
+// });
 
-// db.on('error', console.error.bind(console, 'connection error: '));
-// db.once('open', () => console.log('Connection is open'));
+const db = mongoose.connection;
 
+db.on('error', console.error.bind(console, 'MongoDB connection error: '));
+db.once('open', () => console.log('MongoDB connection is open'));
+
+// print mongoose logs in dev env
+if (process.env.NODE_ENV === 'development') {
+  mongoose.set('debug', true);
+}
+
+/**
+* Connect to mongo db
+*
+* @returns {object} Mongoose connection
+* @public
+*/
+exports.connect = () => {
+  mongoose.connect(mongo.uri, {
+    keepAlive: 1,
+    useMongoClient: true,
+  });
+  return mongoose.connection;
+};
 exports.mongoose = mongoose;

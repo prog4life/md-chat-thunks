@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import { combineActions } from 'redux-actions';
 
 import * as aT from 'state/action-types';
 

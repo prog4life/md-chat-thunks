@@ -1,7 +1,5 @@
 import * as aT from 'state/action-types';
-import { getUid, isAnonymousSelector } from 'state/selectors';
-import firebase from 'firebase/app';
-import firebaseClient from '../../services/firebase-client';
+import { getUserId, isAnonymousSelector } from 'state/selectors';
 
 export const signIn = () => ({ type: aT.SIGN_IN });
 export const signOut = () => ({ type: aT.SIGN_OUT });
@@ -9,7 +7,7 @@ export const signOut = () => ({ type: aT.SIGN_OUT });
 export const signInIfNeeded = () => (dispatch, getState) => {
   // TODO: add backoff                                                           !!!
   const state = getState();
-  const uid = getUid(state);
+  const uid = getUserId(state);
   // null - signed out, true - signed in anonymously, false - signed in w email
   const isAnonymous = isAnonymousSelector(state);
   console.log('Sign In UID: ', uid, ', is Anonymous: ', isAnonymous);

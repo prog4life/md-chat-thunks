@@ -7,7 +7,7 @@ import Post from './Post';
 
 class PublicWall extends React.Component {
   static propTypes = {
-    checkClientId: PropTypes.func.isRequired,
+    // checkClientId: PropTypes.func.isRequired,
     deletePost: PropTypes.func.isRequired,
     fetchPosts: PropTypes.func.isRequired,
     fetchWallId: PropTypes.func.isRequired,
@@ -62,7 +62,7 @@ class PublicWall extends React.Component {
 
     return (
       <ListGroup>
-        {posts.map((post, index) => {
+        {posts && posts.map((post, index) => {
           return (
             // TODO: replace authorId by post.id
             <ListGroupItem key={shortid.generate()}>

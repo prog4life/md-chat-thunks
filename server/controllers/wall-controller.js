@@ -1,4 +1,4 @@
-const { Wall } = require('../models/wall-model');
+const Wall = require('../models/wall-model');
 const { logger } = require('../loggers');
 
 /**

@@ -8,26 +8,30 @@ const wallSchema = Schema({
   //   type: [Schema.Types.ObjectId], // String, Array,
   //   required: true,
   // },
+  city: { type: String, unique: true },
   subscribers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
 
 // Statics
 wallSchema.statics.subscribe = async function subscribe(userIds, city) {
+  logger.debug('wall.model.subscribe params: ', userIds, city);
   const wall = await this.findOne({ city }).exec();
   const subs = wall.subscribers;
   const isMany = Array.isArray(userIds);
   let exists = false;
+  logger.debug('wall.model.subscribe exists and subs: ', exists, subs);
 
   if (isMany) {
     exists = userIds.some(id => subs.includes(id));
   } else {
     exists = subs.includes(userIds);
   }
+  logger.debug('wall.model.subscribe exists and subs: ', exists, subs);
   if (exists) {
     throw new Error('User with such id is present in wall subscribers already');
   }
   wall.subscribers = subs.concat(userIds);
-
+  logger.debug('wall.model.subscribe upd subscribers: ', wall.subscribers);
   const updatedWall = await wall.save();
   // TEMP:
   logger.debug('Updated subscribers length: ', updatedWall.subscribers.length);

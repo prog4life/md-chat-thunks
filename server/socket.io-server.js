@@ -50,25 +50,25 @@ const startServer = (httpServer, pingInterval) => {
   // const messenger = new Messenger(socketIOServer);
   // socketIOServer.on('connection', handleConnection(messenger));
 
-  User.count({}).exec().then((count) => {
+  User.countDocuments({}).exec().then((count) => {
     logger.debug('Current ⁽ƈ ͡ (ुŏ̥̥̥̥םŏ̥̥̥̥) ु count: ', String(count));
   }).catch(e => logger.error('Users count error: ', e));
 
   User.deleteAll();
 
-  const makeSingleWall = () => Wall.createOne({ subscribers: [] });
+  const makeSingleWall = () => Wall.createOne({
+    city: 'Singapore',
+    subscribers: [],
+  });
 
-  Wall.count({}, (error, count) => {
+  Wall.countDocuments({}, (error, count) => {
     if (error) return logger.error(error);
-
     if (count === 0) {
       logger.debug('Wall count is 0: ', String(count));
       return makeSingleWall();
     }
-
     if (count > 1) {
-      logger.debug('Wall count is > 1 ', count);
-
+      logger.debug('Wall count is: ', count);
       return Wall.deleteAll(makeSingleWall);
     }
     logger.debug('Wall count is: ', count);

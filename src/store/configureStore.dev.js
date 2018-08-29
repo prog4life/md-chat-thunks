@@ -2,13 +2,10 @@ import { createStore, compose, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import immutabilityWatcher from 'redux-immutable-state-invariant';
 import freeze from 'redux-freeze';
+import socketIO from 'socket.io-client';
 import { createLogger } from 'redux-logger';
-import createWebsocketMiddleware from 'redux-mw-ws';
 // import logger from 'redux-logger'; // to get logger mw with default options
-import appReducer from 'reducers';
-
-import createWebsocketHelper from 'middleware/websocketHelper';
-import { websocketMessageHandlers } from 'actions';
+import appReducer from 'state/reducer';
 
 // must be the last middleware in chain
 const logger = createLogger({
@@ -19,22 +16,18 @@ const logger = createLogger({
   },
 });
 
-// args: 1st - options, 2nd - reconnectCallback
-const websocketMw = createWebsocketMiddleware({
-  defaultEndpoint: 'ws://localhost:8787',
-});
-
-const websocketHelper = createWebsocketHelper(websocketMessageHandlers);
-
 const watcher = immutabilityWatcher();
 
+const socket = socketIO('http://localhost:3000');
+
 const middleware = process.env.NODE_ENV === 'development'
-  ? [watcher, freeze, websocketHelper, websocketMw, thunk, logger]
+  ? [watcher, freeze, thunk.withExtraArgument(socket), logger]
   : [thunk];
 
 const configureStore = (preloadedState = {}) => {
-  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ||
-    compose;
+  // eslint-disable-next-line no-underscore-dangle
+  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    || compose;
 
   return createStore(
     appReducer,

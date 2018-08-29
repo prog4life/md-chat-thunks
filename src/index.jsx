@@ -15,37 +15,37 @@ import 'styles/index.scss';
 console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
 
 const initialState = {
-  // client: {
-  //   clientId: '',
-  //   nickname: '',
-  // },
-  chats: [
-    // {
-    //   id: 'tfhn523'
-    // },
-    // {
-    //   id: 'bpxv98'
-    // }
-  ],
-  messages: [
-    {
-      id: 'first',
-      clientId: '32425gser27408908',
-      nickname: 'test user',
-      text: 'Sample test user message',
-      isOwn: false,
-      status: 'SENT', // must be not viewed as not own
-    },
-    {
-      id: 'scnd',
-      clientId: 'wdadr27408908',
-      nickname: 'Like Me',
-      text: 'Whatever You want',
-      isOwn: true,
-      status: 'UNSENT',
-    },
-  ],
-  whoIsTyping: '',
+  // // client: {
+  // //   clientId: '',
+  // //   nickname: '',
+  // // },
+  // chats: [
+  //   // {
+  //   //   id: 'tfhn523'
+  //   // },
+  //   // {
+  //   //   id: 'bpxv98'
+  //   // }
+  // ],
+  // messages: [
+  //   {
+  //     id: 'first',
+  //     clientId: '32425gser27408908',
+  //     nickname: 'test user',
+  //     text: 'Sample test user message',
+  //     isOwn: false,
+  //     status: 'SENT', // must be not viewed as not own
+  //   },
+  //   {
+  //     id: 'scnd',
+  //     clientId: 'wdadr27408908',
+  //     nickname: 'Like Me',
+  //     text: 'Whatever You want',
+  //     isOwn: true,
+  //     status: 'UNSENT',
+  //   },
+  // ],
+  // whoIsTyping: '',
 };
 
 const persistedState = loadState('md-chat-state') || {};

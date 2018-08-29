@@ -20,6 +20,23 @@ const level = process.env.LOG_LEVEL || 'debug';
 //   ],
 // });
 
+// Alternative to show log source file
+// const getLabel = (callingModule) => {
+//   const parts = callingModule.filename.split('/');
+//   return `${parts[parts.length - 2]}/${parts.pop()}`;
+// };
+//
+// module.exports = function createLogger(callingModule) {
+//   return new winston.Logger({
+//     transports: [
+//       new winston.transports.Console({
+//         label: getLabel(callingModule),
+//         depth: true, // ???
+//       }),
+//     ],
+//   });
+// };
+
 exports.logger = new winston.Logger({
   level,
   transports: [
@@ -31,10 +48,10 @@ exports.logger = new winston.Logger({
         // - Return string will be passed to logger.
         // - Optionally, use options.colorize(options.level, <string>) to
         //   colorize output based on the log level.
-        return `${options.timestamp()} ` +
-          `${config.colorize(options.level, options.level.toUpperCase())} ` +
-          `${options.message ? options.message : ''} ` +
-          `${options.meta && Object.keys(options.meta).length
+        return `${options.timestamp()} `
+          + `${config.colorize(options.level, options.level.toUpperCase())} `
+          + `${options.message ? options.message : ''} `
+          + `${options.meta && Object.keys(options.meta).length
             ? `\n\t ${JSON.stringify(options.meta)}`
             : ''
           }`;

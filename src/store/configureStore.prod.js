@@ -1,7 +1,7 @@
 import { createStore, compose, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 // import { createLogger } from 'redux-logger';
-import appReducer from 'reducers';
+import appReducer from 'state/reducer';
 
 // must be the last middleware in chain
 // const logger = createLogger({
@@ -16,13 +16,14 @@ import appReducer from 'reducers';
 const middleware = [thunk];
 
 const configureStore = (preloadedState = {}) => {
-  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ||
-    compose;
+  // eslint-disable-next-line no-underscore-dangle
+  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    || compose;
 
   return createStore(
     appReducer,
     preloadedState,
-    composeEnhancers(applyMiddleware(...middleware))
+    composeEnhancers(applyMiddleware(...middleware)),
   );
 };
 
