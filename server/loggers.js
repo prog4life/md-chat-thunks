@@ -1,75 +1,11 @@
+const path = require('path');
 const winston = require('winston');
 const expressWinston = require('express-winston');
 
 const { config } = winston;
 const level = process.env.LOG_LEVEL || 'debug';
 
-// logger.log('info', 'Hello distributed log files!');
-// logger.info('Hello again distributed logs');
-
-// logger.level = 'debug';
-// logger.log('debug', 'Now my debug messages are written to console!');
-// logger.warn('Some warning');
-
-// alternative config manners
-// winston.add(winston.transports.File, { filename: 'winston.log' });
-// winston.configure({
-//   transports: [
-//     new (winston.transports.File)({ filename: 'winston.log' }),
-//     new (winston.transports.Console)(),
-//   ],
-// });
-
-// Alternative to show log source file
-// const getLabel = (callingModule) => {
-//   const parts = callingModule.filename.split('/');
-//   return `${parts[parts.length - 2]}/${parts.pop()}`;
-// };
-//
-// module.exports = function createLogger(callingModule) {
-//   return new winston.Logger({
-//     transports: [
-//       new winston.transports.Console({
-//         label: getLabel(callingModule),
-//         depth: true, // ???
-//       }),
-//     ],
-//   });
-// };
-
-exports.logger = new winston.Logger({
-  level,
-  transports: [
-    new winston.transports.Console({
-      timestamp() {
-        return (new Date()).toLocaleTimeString('en-GB', { hour12: false });
-      },
-      formatter(options) {
-        // - Return string will be passed to logger.
-        // - Optionally, use options.colorize(options.level, <string>) to
-        //   colorize output based on the log level.
-        return `${options.timestamp()} `
-          + `${config.colorize(options.level, options.level.toUpperCase())} `
-          + `${options.message ? options.message : ''} `
-          + `${options.meta && Object.keys(options.meta).length
-            ? `\n\t ${JSON.stringify(options.meta)}`
-            : ''
-          }`;
-      },
-    }),
-    // new (winston.transports.File)({
-    //   level: 'debug',
-    //   filename: 'winston.log',
-    //   handleExceptions: true,
-    //   json: false,
-    //   colorize: true,
-    //   timestamp: true,
-    //   prettyPrint: true,
-    // }),
-  ],
-});
-
-exports.requestLogger = expressWinston.logger({
+const requestLogger = expressWinston.logger({
   transports: [
     new winston.transports.Console({
       json: true,
@@ -99,7 +35,7 @@ exports.requestLogger = expressWinston.logger({
 
 // Error logger needs to be added AFTER the express router (app.router) and
 // BEFORE any custom error handlers (express.handler)
-exports.errorLogger = expressWinston.errorLogger({
+const errorLogger = expressWinston.errorLogger({
   transports: [
     new winston.transports.Console({
       json: true,
@@ -107,3 +43,77 @@ exports.errorLogger = expressWinston.errorLogger({
     }),
   ],
 });
+
+const configureLoggers = (parentModule) => {
+  const isNotProd = process.env.NODE_ENV !== 'production';
+  if (isNotProd && !parentModule.id && !parentModule.exports) {
+    throw new Error('Expected "module" to be passed to require^d function');
+  }
+  const parts = path.parse(parentModule.filename); // obj of path parts
+  // const [lastDirPart] = parts.dir.split(path.sep).slice(-1);
+  // const logSourcePath = `${lastDirPart}/${parts.base}`;
+
+  // MAIN LOGGER
+  const logger = new winston.Logger({
+    level,
+    transports: [
+      new winston.transports.Console({
+        // level: 'debug',
+        handleExceptions: true,
+        json: false,
+        colorize: true,
+        label: parts.base, // OR logSourcePath,
+        timestamp() {
+          return (new Date()).toLocaleTimeString('en-GB', { hour12: false });
+        },
+        formatter(options) {
+          // - Return string will be passed to logger.
+          // - Optionally, use options.colorize(options.level, <string>) to
+          //   colorize output based on the log level.
+          return `${options.timestamp()} `
+            + `${config.colorize(options.level, options.level.toUpperCase())}`
+            + ` [${options.label}] `
+            + `${options.message ? options.message : ''} `
+            + `${options.meta && Object.keys(options.meta).length
+              ? `\n\t ${JSON.stringify(options.meta)}`
+              : ''
+            }`;
+        },
+      }),
+    ],
+    exitOnError: false,
+  });
+
+  return {
+    logger,
+    requestLogger,
+    errorLogger,
+  };
+};
+
+module.exports = configureLoggers;
+
+// logger.log('info', 'Hello distributed log files!');
+// logger.info('Hello again distributed logs');
+
+// logger.level = 'debug';
+// logger.log('debug', 'Now my debug messages are written to console!');
+// logger.warn('Some warning');
+
+// alternative config manners
+// winston.add(winston.transports.File, { filename: 'winston.log' });
+// winston.configure({
+//   transports: [
+//     new (winston.transports.File)({ filename: 'winston.log' }),
+//     new (winston.transports.File)({
+//       level: 'debug',
+//       filename: 'winston.log',
+//       handleExceptions: true,
+//       json: false,
+//       colorize: true,
+//       timestamp: true,
+//       prettyPrint: true,
+//     }),
+//     new (winston.transports.Console)(),
+//   ],
+// });

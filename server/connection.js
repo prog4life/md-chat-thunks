@@ -3,7 +3,7 @@ const WallController = require('./controllers/wall-controller');
 const Wall = require('./models/wall-model');
 const WallPost = require('./models/wall-post-model');
 const User = require('./models/user-model');
-const { logger } = require('./loggers');
+const { logger } = require('./loggers')(module);
 // const user = require('./user');
 // const wall = require('./wall');
 

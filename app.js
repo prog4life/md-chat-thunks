@@ -3,13 +3,12 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const { logger, requestLogger, errorLogger } = require('./server/loggers');
+const loggers = require('./server/loggers')(module);
 require('./server/db/mongoose');
 // TODO:
 require('dotenv-safe').config();
 
-// TODO: rename this file to app.js / index.js / etc
-
+const { logger, requestLogger, errorLogger } = loggers;
 // const webpack = require('webpack');
 // const webpackDevMiddleWare = require('webpack-dev-middleware');
 // const config = require('./webpack.config.js');

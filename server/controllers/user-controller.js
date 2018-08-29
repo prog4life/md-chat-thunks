@@ -1,6 +1,6 @@
 const User = require('../models/user-model');
 const Wall = require('../models/wall-model');
-const { logger } = require('../loggers');
+const { logger } = require('../loggers')(module);
 
 // TODO: consider to create additional AnonymousUser model
 /**

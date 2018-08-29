@@ -1,7 +1,7 @@
 const socketIO = require('socket.io');
 const Wall = require('./models/wall-model');
 const User = require('./models/user-model');
-const { logger } = require('./loggers');
+const { logger } = require('./loggers')(module);
 const WebsocketConnection = require('./connection');
 
 // const handleMessage = (socket, onMessage) => (incoming) => {
