@@ -6,6 +6,7 @@ import socketIO from 'socket.io-client';
 import { createLogger } from 'redux-logger';
 // import logger from 'redux-logger'; // to get logger mw with default options
 import appReducer from 'state/reducer';
+import socketEventHandlers from 'state/socket';
 
 // must be the last middleware in chain
 const logger = createLogger({

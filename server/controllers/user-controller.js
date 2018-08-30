@@ -1,4 +1,5 @@
 const User = require('../models/user-model');
+const AnonymousUser = require('../models/anonymous-user-model');
 const Wall = require('../models/wall-model');
 const { logger } = require('../loggers')(module);
 
@@ -10,7 +11,7 @@ const { logger } = require('../loggers')(module);
  */
 exports.createAnon = async () => {
   try {
-    const user = new User({ isAnon: true });
+    const user = new AnonymousUser();
     const savedUser = await user.save();
 
     logger.debug('New user created: ', JSON.stringify(savedUser, null, 2));
@@ -22,10 +23,32 @@ exports.createAnon = async () => {
       return logger.debug('Current ⁽ƈ ͡ (ुŏ̥̥̥̥םŏ̥̥̥̥) ु ids: ', userIds.join(', '));
     });
     /* TEMP: end */
+    const transformed = savedUser.transform();
+    logger.debug('New user transformed: ', transformed);
 
-    return [null, savedUser.transform()];
+    return [null, transformed];
   } catch (error) {
     logger.error('User creation error ', error);
+    return [error];
+  }
+};
+
+exports.deleteAnonUserById = async (userId) => {
+  try {
+    AnonymousUser.deleteOneById(userId);
+    logger.debug('Anonymous user with id %s deleted: ', userId);
+
+    /* TEMP: start */
+    Wall.find({}, (e, users) => {
+      if (e) return logger.error(e);
+      const userIds = users.map(u => u.id);
+      return logger.debug('Current ⁽ƈ ͡ (ुŏ̥̥̥̥םŏ̥̥̥̥) ु ids: ', userIds.join(', '));
+    });
+    /* TEMP: end */
+
+    return [null, userId];
+  } catch (error) {
+    logger.error('User deletion error ', error);
     return [error];
   }
 };

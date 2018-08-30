@@ -33,6 +33,7 @@ const AUTH_SIGN_OUT_ERR = 'Auth::Sign-Out::Error';
 const WALL_CONNECT = 'Wall::Connect';
 const WALL_CONNECT_DONE = 'Wall::Connect::Done';
 const WALL_CONNECT_ERR = 'Wall::Connect::Error';
+const WALL_DISCONNECT = 'Wall::Disconnect';
 
 const LEAVE_WALL = 'Leave_Wall';
 const MESSAGE = 'Message';
@@ -57,7 +58,7 @@ class WebsocketConnection {
     this.userIdQueue = [];
     this.wallQueue = [];
     // this.getWall();
-    // this.getUserId();
+    // this.createUser();
     this.socketEventHandlers = {
       // [GET_ID]: () => {
       //   // const newClient = client.addOne(socket);
@@ -71,26 +72,29 @@ class WebsocketConnection {
       [INITIALIZATION]: (incoming) => {
         logger.debug('Initializtion message received ', incoming);
       },
-      [AUTH_ANON]: async ({ userId }) => {
-        // TODO: authenticate in db
-        if (userId) {
-          this.userId = userId;
-          logger.debug('Auth anon with existing user id: ', userId);
-          this.sendBack(AUTH_ANON_OK, { id: userId });
-          return;
-        }
+      [AUTH_ANON]: async ({ userId, jwt }) => {
+        // TODO: authenticate in db if it has some token/session_id
+        // if (userId) {
+        //   this.userId = userId;
+        //   logger.debug('Auth anon with existing user id: ', userId);
+        //   this.sendBack(AUTH_ANON_OK, { id: userId });
+        //   return;
+        // }
         try {
-          const newUserId = await this.getUserId();
-          logger.debug('New user id that will be sent: ', newUserId);
-          this.sendBack(AUTH_ANON_OK, { id: newUserId });
+          const newUser = await this.createUser();
+          logger.debug('New user that will be sent: ', newUser);
+          this.sendBack(AUTH_ANON_OK, { newUser });
         } catch (e) {
           logger.error('Failed to create anon user ', e);
           this.sendBack(AUTH_ANON_ERR, { message: e.message });
         }
       },
-      [AUTH_LOGIN]: async ({ userId, jwt }) => {},
+      [AUTH_LOGIN]: async ({ userId, jwt }) => {
+        // TODO: delete anon user if present
+      },
       [AUTH_SIGN_UP]: (incoming) => {
         // TODO: check if user with same login is present
+        // TODO: delete anon user if present
       },
       [WALL_CONNECT]: async ({ userId, city }) => {
         // NOTE: can get city-to-wallId lookup table at client boot with
@@ -109,11 +113,11 @@ class WebsocketConnection {
       [LEAVE_WALL]: () => this.getWall().then((wall) => {
         wall.unsubscribe(this.userId);
       }),
-      // [JOIN_WALL]: () => Promise.all([this.getWall(), this.getUserId()])
+      // [JOIN_WALL]: () => Promise.all([this.getWall(), this.createUser()])
       //   .then(([wall, userId]) => wall.subscribe(userId)),
       // [LEAVE_WALL]: () => this.getWall()
       //   .then((wall) => {
-      //     return this.getUserId()().then((userId) => {
+      //     return this.createUser()().then((userId) => {
       //       return ({ wall, userId });
       //     });
       //   })
@@ -162,9 +166,13 @@ class WebsocketConnection {
     return wall;
   }
 
-  async getUserId() {
+  async createUser(params) {
+    if (params) {
+      // TODO: create usual user
+    }
     if (this.userId) {
-      return this.userId;
+      // TODO: get user by id
+      // return this.userId;
     }
     // store promise to prevent duplicated queries for new user creation
     // need to create only one user per single connection
@@ -177,7 +185,7 @@ class WebsocketConnection {
 
     if (newUser) {
       this.userId = newUser.id;
-      return this.userId;
+      return newUser;
     }
     return Promise.reject(err);
   }
@@ -207,7 +215,7 @@ class WebsocketConnection {
     if (!this.socketEventHandlers.hasOwnProperty(key)) {
       logger.error('Unknown key of incoming message');
     } else if (!this.userId) { // !userId - if userId is stored on client
-      this.getUserId()()
+      this.createUser()()
         // .then(id => this.socket.send({ key: INITIALIZATION, userId: id }))
         .then(() => this.socketEventHandlers[key](incoming));
       // catch() do something if failed, repeat or whatever needed
@@ -218,8 +226,9 @@ class WebsocketConnection {
   }
 
   handleClose() {
+    logger.debug('Disconnected, current user id: ', this.userId);
     if (this.userId) {
-      User.deleteOneById(this.userId); // TEMP:
+      UserController.deleteAnonUserById(this.userId);
     }
     if (this.wall && this.userId) {
       this.wall.unsubscribe(this.userId);
@@ -265,12 +274,12 @@ class WebsocketConnection {
   //         key: SIGN_UP, userId: this.userId, token: newUser.token,
   //       }));
   //     },
-  //     [JOIN_WALL]: () => Promise.all([this.getWall(), this.getUserId()()])
+  //     [JOIN_WALL]: () => Promise.all([this.getWall(), this.createUser()()])
   //       .then(([wall, userId]) => wall.subscribe(userId)),
   //     // .catch(), /* do something */
   //     [LEAVE_WALL]: () => this.getWall()
   //       .then((wall) => {
-  //         return this.getUserId()().then((userId) => {
+  //         return this.createUser()().then((userId) => {
   //           return ({ wall, userId });
   //         });
   //       })

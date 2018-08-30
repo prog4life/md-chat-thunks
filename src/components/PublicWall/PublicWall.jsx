@@ -42,9 +42,9 @@ class PublicWall extends React.Component {
   }
 
   componentWillUnmount() {
-    const { leaveWall } = this.props;
+    const { userId, wallId, leaveWall } = this.props;
 
-    leaveWall();
+    leaveWall(userId, wallId);
   }
 
   login() {

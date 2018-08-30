@@ -23,6 +23,7 @@ export const AUTH_SIGN_OUT_ERR = 'Auth::Sign-Out::Error';
 export const WALL_CONNECT = 'Wall::Connect';
 export const WALL_CONNECT_DONE = 'Wall::Connect::Done';
 export const WALL_CONNECT_ERR = 'Wall::Connect::Error';
+export const WALL_DISCONNECT = 'Wall::Disconnect';
 
 export const LEAVE_WALL = 'Leave_Wall';
 export const MESSAGE = 'Message';

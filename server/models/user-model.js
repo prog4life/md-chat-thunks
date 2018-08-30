@@ -12,7 +12,7 @@ const userSchema = Schema({
     type: String,
     match: /^\S+@\S+\.\S+$/,
     required: false, // NOTE: was true
-    unique: true,
+    unique: false, // TEMP: change later
     trim: true,
     lowercase: true,
     // set to true if have two possible unique keys that are optional, like
@@ -25,11 +25,11 @@ const userSchema = Schema({
     minlength: 4, // TODO: change to 6-8
     maxlength: 128,
   },
-  isAnon: {
-    type: Boolean,
-    required: false,
-    // default: true, // for now will be disabled to test when { isAnon: true } passed
-  },
+  // isAnon: {
+  //   type: Boolean,
+  //   required: false,
+  //   // default: true, // for now will be disabled to test when { isAnon: true } passed
+  // },
   subscribedToWall: { type: Schema.Types.ObjectId, ref: 'Wall' },
 }, { timestamps: true });
 
@@ -68,12 +68,20 @@ userSchema.statics.deleteAll = function deleteAll(callback = () => {}) {
   });
 };
 
-userSchema.methods.transform = () => {
+// userSchema.methods = Object.assign(userSchema.methods, {
+//
+// });
+
+userSchema.methods.transform = function transform() {
   const transformed = {};
   // const fields = ['id', 'name', 'email', 'picture', 'role', 'createdAt'];
   const fields = ['id', 'subscribedToWall', 'createdAt'];
 
   fields.forEach((field) => {
+    if (field === 'createdAt' || field === 'updatedAt') {
+      transformed[field] = this[field].getTime();
+      return;
+    }
     transformed[field] = this[field];
   });
 
@@ -81,7 +89,7 @@ userSchema.methods.transform = () => {
 };
 
 // TODO: rename later to toJSON | makeJSON | transfor
-userSchema.methods.toWeb = () => {
+userSchema.methods.toWeb = function toWeb() {
   const json = this.toJSON();
   // eslint-disable-next-line no-underscore-dangle
   json.id = this._id; // this is for the front end

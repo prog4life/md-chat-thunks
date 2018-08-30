@@ -1,7 +1,7 @@
 import * as aT from 'state/action-types';
 import { getUserId, getToken, isAnonymousSelector } from 'state/selectors';
 import * as sE from 'constants/socket-events';
-import { toJSON } from 'utils';
+import { toJSON, parseJSON } from 'utils';
 
 export const signIn = () => ({ type: aT.SIGN_IN });
 export const signOut = () => ({ type: aT.SIGN_OUT });
@@ -16,7 +16,7 @@ export const maybeLogin = passedToken => (dispatch, getState, socket) => {
   dispatch({ type: 'LOGIN_ANON' });
   socket.emit(sE.AUTH_ANON, toJSON({ userId: null }));
   socket.on(sE.AUTH_ANON_OK, (data) => {
-    dispatch({ type: 'LOGIN_ANON_SUCCESS', data });
+    dispatch({ type: 'LOGIN_ANON_SUCCESS', data: parseJSON(data) });
   });
   socket.on(sE.AUTH_ANON_ERR, (data) => {
     dispatch({ type: 'LOGIN_ANON_FAIL', data });

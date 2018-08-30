@@ -4,3 +4,5 @@
 
 // eslint-disable-next-line import/prefer-default-export
 export const toJSON = obj => JSON.stringify(obj);
+// TODO: toObject | parseObj
+export const parseJSON = json => JSON.parse(json);

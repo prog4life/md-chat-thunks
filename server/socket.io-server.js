@@ -40,9 +40,7 @@ const handleConnection = (socket, wss) => {
   });
 
   socket.on('disconnect', () => {
-    // messenger.removeChats(socket);
-    // messenger.removeClient(socket);
-    // connection.handleClose();
+    connection.handleClose();
     logger.debug('socket disconnect, connected clients amount: ');
   });
 };

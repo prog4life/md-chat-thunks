@@ -3,7 +3,7 @@ import {
 } from 'state/action-types';
 import shortId from 'shortid';
 import * as sE from 'constants/socket-events';
-import { toJSON } from 'utils';
+import { toJSON, parseJSON } from 'utils';
 
 // export const joinWall = (userId, wallId) => ({
 //   type: JOIN_WALL,
@@ -28,9 +28,10 @@ export const joinWallSuccess = ({ entities, result }) => ({
   payload: { byId: entities.posts, ids: result },
 });
 export const joinWallFail = () => ({ type: JOIN_WALL_FAIL });
-export const leaveWall = (userId, wallId) => ({
-  type: LEAVE_WALL,
-  payload: { userId, wallId },
-});
+
+export const leaveWall = (userId, wallId) => (dispatch, getState, socket) => {
+  dispatch({ type: JOIN_WALL, payload: { userId, wallId } });
+  socket.emit(sE.WALL_DISCONNECT, toJSON({ userId, wallId }));
+};
 
 export const fetchWallId = city => ({ type: FETCH_WALL_ID, city });
