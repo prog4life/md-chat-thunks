@@ -6,22 +6,27 @@ import { toJSON, parseJSON } from 'utils';
 export const signIn = () => ({ type: aT.SIGN_IN });
 export const signOut = () => ({ type: aT.SIGN_OUT });
 
-export const maybeLogin = passedToken => (dispatch, getState, socket) => {
-  const token = passedToken || getToken(getState());
+export const maybeLogin = thatToken => (dispatch, getState, socket) => {
+  const token = thatToken || getToken(getState());
 
   if (token) {
     // TODO: auth with token
     return;
   }
-  dispatch({ type: 'LOGIN_ANON' });
+  dispatch({ type: aT.LOGIN_ANON });
   socket.emit(sE.AUTH_ANON, toJSON({ userId: null }));
-  socket.on(sE.AUTH_ANON_OK, (data) => {
-    dispatch({ type: 'LOGIN_ANON_SUCCESS', data: parseJSON(data) });
-  });
-  socket.on(sE.AUTH_ANON_ERR, (data) => {
-    dispatch({ type: 'LOGIN_ANON_FAIL', data });
-  });
 };
+
+export const loginAnonSucces = data => ({
+  type: aT.LOGIN_ANON_SUCCESS,
+  payload: { ...data, userId: data.id },
+});
+
+export const loginAnonFail = ({ message }) => ({
+  type: aT.LOGIN_ANON_FAIL,
+  payload: new Error(message),
+  error: true,
+});
 
 export const signInIfNeeded = () => (dispatch, getState) => {
   // TODO: add backoff                                                           !!!

@@ -6,7 +6,6 @@ import socketIO from 'socket.io-client';
 import { createLogger } from 'redux-logger';
 // import logger from 'redux-logger'; // to get logger mw with default options
 import appReducer from 'state/reducer';
-import socketEventHandlers from 'state/socket';
 
 // must be the last middleware in chain
 const logger = createLogger({
@@ -20,9 +19,10 @@ const logger = createLogger({
 const watcher = immutabilityWatcher();
 
 const socket = socketIO('http://localhost:3000');
+const thunkWithSocket = thunk.withExtraArgument(socket);
 
 const middleware = process.env.NODE_ENV === 'development'
-  ? [watcher, freeze, thunk.withExtraArgument(socket), logger]
+  ? [watcher, freeze, thunkWithSocket, logger]
   : [thunk];
 
 const configureStore = (preloadedState = {}) => {

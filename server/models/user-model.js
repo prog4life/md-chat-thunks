@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const jwt = require('jwt-simple');
 const { logger } = require('../loggers')(module);
 
 const { Schema } = mongoose;
@@ -35,6 +36,7 @@ const userSchema = Schema({
 
 // user._someId = new mongoose.Types.ObjectId;
 
+// OR: userSchema.statics = { methodName() {} };
 userSchema.statics.createOne = function createOne(userData = {}) {
   return this.create(userData)
     .then((user) => {
@@ -71,6 +73,10 @@ userSchema.statics.deleteAll = function deleteAll(callback = () => {}) {
 // userSchema.methods = Object.assign(userSchema.methods, {
 //
 // });
+// OR:
+// userSchema.method({
+//   someMethod() {},
+// });
 
 userSchema.methods.transform = function transform() {
   const transformed = {};
@@ -86,6 +92,22 @@ userSchema.methods.transform = function transform() {
   });
 
   return transformed;
+};
+
+// - make a connection with the server,
+// - pass email and password into the request body,
+// - receive token and save inside browser’s memory - localStorage,
+// - redirect user to specific route - Secret,
+// - handle errors
+
+userSchema.methods.token = function token() {
+  const playload = {
+    exp: moment().add(jwtExpirationInterval, 'minutes').unix(),
+    iat: moment().unix(),
+    sub: this._id,
+  };
+
+  return jwt.encode(playload, jwtSecret);
 };
 
 // TODO: rename later to toJSON | makeJSON | transfor

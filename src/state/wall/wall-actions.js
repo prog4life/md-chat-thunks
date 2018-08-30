@@ -9,25 +9,25 @@ import { toJSON, parseJSON } from 'utils';
 //   type: JOIN_WALL,
 //   payload: { userId, wallId },
 // });
+
 export const joinWall = (userId, wallId) => (dispatch, getState, socket) => {
   const city = 'Singapore';
-  dispatch({ type: JOIN_WALL, userId, city });
-
   const outgoing = toJSON({ userId: shortId.generate(), city });
 
+  dispatch({ type: JOIN_WALL, userId, city });
   socket.emit(sE.WALL_CONNECT, outgoing);
-  socket.on(sE.WALL_CONNECT_DONE, (data) => {
-    dispatch({ type: 'JOIN_WALL_OK', data });
-  });
-  socket.on(sE.WALL_CONNECT_ERR, (data) => {
-    dispatch({ type: 'JOIN_WALL_ERROR', data });
-  });
 };
-export const joinWallSuccess = ({ entities, result }) => ({
+
+export const joinWallSucces = ({ wallId, city }) => ({
   type: JOIN_WALL_SUCCESS,
-  payload: { byId: entities.posts, ids: result },
+  payload: { wallId, city },
 });
-export const joinWallFail = () => ({ type: JOIN_WALL_FAIL });
+
+export const joinWallFail = ({ message }) => ({
+  type: JOIN_WALL_FAIL,
+  payload: new Error(message), // TODO: converError({ code, message });
+  error: true,
+});
 
 export const leaveWall = (userId, wallId) => (dispatch, getState, socket) => {
   dispatch({ type: JOIN_WALL, payload: { userId, wallId } });

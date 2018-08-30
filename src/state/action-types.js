@@ -16,6 +16,10 @@ export const SIGN_IN_SUCCESS = 'SIGN_IN_SUCCESS';
 export const SIGN_IN_ANON = 'SIGN_IN_ANON';
 export const SIGN_IN_ANON_FAIL = 'SIGN_IN_ANON_FAIL';
 
+export const LOGIN_ANON = 'LOGIN_ANON';
+export const LOGIN_ANON_SUCCESS = 'LOGIN_ANON_SUCCESS';
+export const LOGIN_ANON_FAIL = 'LOGIN_ANON_FAIL';
+
 export const SIGN_IN_EMAIL = 'SIGN_IN_EMAIL';
 // export const SIGN_IN_EMAIL_SUCCESS = 'SIGN_IN_EMAIL_SUCCESS';
 export const SIGN_IN_EMAIL_FAIL = 'SIGN_IN_EMAIL_FAIL';

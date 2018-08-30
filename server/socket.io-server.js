@@ -4,10 +4,10 @@ const User = require('./models/user-model');
 const { logger } = require('./loggers')(module);
 const WebsocketConnection = require('./connection');
 
-// const handleMessage = (socket, onMessage) => (incoming) => {
-//   // console.log('Socket message received: %s', incoming);
+// const handleMessage = (socket, onMessage) => (income) => {
+//   // console.log('Socket message received: %s', income);
 //   if (typeof onMessage === 'function') {
-//     onMessage(socket, incoming);
+//     onMessage(socket, income);
 //   }
 // };
 
@@ -25,12 +25,12 @@ const handleConnection = (socket, wss) => {
   // handler connController as 2nd argument to utilize senBack, broadcast and
   // others
 
-  socket.on('message', (incoming) => {
+  socket.on('message', (income) => {
     // TODO: some unknown additional GET request to 8080 happens
     // after websocket connection request
-    // console.log('Socket message received: %s', incoming);
-    // messenger.handleIncoming(incoming, socket); // OR this
-    connection.handleIncoming(incoming);
+    // console.log('Socket message received: %s', income);
+    // messenger.handleIncoming(income, socket); // OR this
+    connection.handleIncoming(income);
   });
 
   socket.on('error', (error) => {

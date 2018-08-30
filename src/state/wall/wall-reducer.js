@@ -4,6 +4,8 @@ import * as aT from 'state/action-types';
 // TODO: change to wallIdByCity: { 'CityName': 'some-city-id' }
 const id = (state = null, action) => {
   switch (action.type) {
+    case aT.JOIN_WALL_SUCCESS:
+      return action.payload.id;
     case aT.FETCH_WALL_ID:
       return null;
     case aT.FETCH_WALL_ID_SUCCESS:

@@ -15,13 +15,13 @@ const userId = (state = null, action) => {
   switch (action.type) {
     // case aT.SIGN_IN:
     //   return null;
-    case aT.SIGN_IN_ANON:
-    case aT.SIGN_IN_EMAIL:
+    // case aT.SIGN_IN_EMAIL:
+    case aT.LOGIN_ANON:
       return null;
-    case aT.SIGN_IN_SUCCESS:
+    case aT.LOGIN_ANON_SUCCESS:
       return action.payload.userId;
-    case aT.SIGN_IN_ANON_FAIL:
-    case aT.SIGN_IN_EMAIL_FAIL:
+    // case aT.SIGN_IN_ANON_FAIL:
+    // case aT.SIGN_IN_EMAIL_FAIL:
     case aT.SIGN_OUT:
       return null;
     default:
@@ -29,17 +29,19 @@ const userId = (state = null, action) => {
   }
 };
 
+// TODO: isAuthenticating
+
 const isAnonymous = (state = null, { type, payload }) => {
   switch (type) {
-    case aT.SIGN_IN_ANON:
+    // case aT.LOGIN_ANON:
+    //   return true;
+    // case aT.SIGN_IN_EMAIL:
+    //   return false;
+    case aT.LOGIN_ANON_SUCCESS:
       return true;
-    case aT.SIGN_IN_EMAIL:
-      return false;
-    case aT.SIGN_IN_SUCCESS:
-      return (payload.userId && payload.isAnonymous) || false;
-    case aT.SIGN_IN_ANON_FAIL:
-    case aT.SIGN_IN_EMAIL_FAIL:
-    case aT.SIGN_OUT:
+    // case aT.SIGN_IN_EMAIL_FAIL:
+    // case aT.SIGN_OUT:
+    case aT.LOGIN_ANON_FAIL:
       return null;
     default:
       return state;

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import App from 'components/App';
 
 import configureStore from 'store/configureStore';
+import setSocketListeners from 'state/socket';
 import { loadState, saveState } from 'utils/localStorage';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -51,6 +52,8 @@ const initialState = {
 const persistedState = loadState('md-chat-state') || {};
 
 const store = configureStore(initialState);
+
+store.dispatch(setSocketListeners());
 
 // store.subscribe(() => console.log('New state from store: ', store.getState()));
 

@@ -69,8 +69,8 @@ class WebsocketConnection {
       //   this.userId = user.assignId();
       //   this.socket.send(JSON.stringify({ key: SET_ID, userId: this.userId }));
       // },
-      [INITIALIZATION]: (incoming) => {
-        logger.debug('Initializtion message received ', incoming);
+      [INITIALIZATION]: (income) => {
+        logger.debug('Initializtion message received ', income);
       },
       [AUTH_ANON]: async ({ userId, jwt }) => {
         // TODO: authenticate in db if it has some token/session_id
@@ -83,7 +83,7 @@ class WebsocketConnection {
         try {
           const newUser = await this.createUser();
           logger.debug('New user that will be sent: ', newUser);
-          this.sendBack(AUTH_ANON_OK, { newUser });
+          this.sendBack(AUTH_ANON_OK, newUser);
         } catch (e) {
           logger.error('Failed to create anon user ', e);
           this.sendBack(AUTH_ANON_ERR, { message: e.message });
@@ -92,7 +92,7 @@ class WebsocketConnection {
       [AUTH_LOGIN]: async ({ userId, jwt }) => {
         // TODO: delete anon user if present
       },
-      [AUTH_SIGN_UP]: (incoming) => {
+      [AUTH_SIGN_UP]: (income) => {
         // TODO: check if user with same login is present
         // TODO: delete anon user if present
       },
@@ -124,14 +124,14 @@ class WebsocketConnection {
       //   .then(({ wall, userId }) => {
       //     return wall.unsubscribe(userId);
       //   }),
-      [MESSAGE]: incoming => this.resendMessageToAll(socket, incoming),
-      [IS_TYPING]: incoming => this.sendTypingNotification(socket, incoming),
+      [MESSAGE]: income => this.resendMessageToAll(socket, income),
+      [IS_TYPING]: income => this.sendTypingNotification(socket, income),
       [PING]: () => this.sendPong(socket),
       [CHANGE_NAME]: () => {},
-      [DELETE_CHAT]: incoming => this.removeChat(incoming),
-      [OPEN_CHAT]: incoming => this.createChat(socket, incoming),
+      [DELETE_CHAT]: income => this.removeChat(income),
+      [OPEN_CHAT]: income => this.createChat(socket, income),
       [LEAVE_CHAT]: () => {},
-      [HAS_ID]: incoming => console.log('Has userId: ', incoming.userId),
+      [HAS_ID]: income => console.log('Has userId: ', income.userId),
     };
     // apply handlers to socket events
     Object.keys(this.socketEventHandlers).forEach((eventName) => {
@@ -198,30 +198,30 @@ class WebsocketConnection {
   }
 
   handleIncoming(rawIncoming) {
-    let incoming = null;
+    let income = null;
 
     try {
-      incoming = JSON.parse(rawIncoming);
+      income = JSON.parse(rawIncoming);
     } catch (e) {
-      logger.error('Failed to parse incoming JSON ', e);
+      logger.error('Failed to parse income JSON ', e);
     }
 
-    if (!incoming || !validator.validateIncoming(incoming)) {
+    if (!income || !validator.validateIncoming(income)) {
       return;
     }
-    // const { key, userId } = incoming; // if userId is stored on client
-    const { key } = incoming;
+    // const { key, userId } = income; // if userId is stored on client
+    const { key } = income;
 
     if (!this.socketEventHandlers.hasOwnProperty(key)) {
-      logger.error('Unknown key of incoming message');
+      logger.error('Unknown key of income message');
     } else if (!this.userId) { // !userId - if userId is stored on client
       this.createUser()()
         // .then(id => this.socket.send({ key: INITIALIZATION, userId: id }))
-        .then(() => this.socketEventHandlers[key](incoming));
+        .then(() => this.socketEventHandlers[key](income));
       // catch() do something if failed, repeat or whatever needed
     } else {
       // this.userId = userId; // if userId is stored on client
-      this.socketEventHandlers[key](incoming);
+      this.socketEventHandlers[key](income);
     }
   }
 
@@ -252,8 +252,8 @@ class WebsocketConnection {
   //     //   this.userId = user.assignId();
   //     //   this.socket.send(JSON.stringify({ key: SET_ID, userId: this.userId }));
   //     // },
-  //     [SIGN_IN]: (incoming) => {
-  //       const authData = user.signIn(incoming.login);
+  //     [SIGN_IN]: (income) => {
+  //       const authData = user.signIn(income.login);
   //
   //       if (authData) {
   //         // TODO: create user id on connection and just add login/token on
@@ -266,9 +266,9 @@ class WebsocketConnection {
   //       } else {}
   //       // TODO: send fail message, perhaps without token with reason
   //     },
-  //     [SIGN_UP]: (incoming) => {
+  //     [SIGN_UP]: (income) => {
   //       // TODO: check if user with same login is present
-  //       const newUser = user.signUp(incoming.login);
+  //       const newUser = user.signUp(income.login);
   //       this.userId = newUser.id;
   //       this.socket.send(JSON.stringify({
   //         key: SIGN_UP, userId: this.userId, token: newUser.token,
@@ -286,22 +286,22 @@ class WebsocketConnection {
   //       .then(({ wall, userId }) => {
   //         return wall.unsubscribe(userId);
   //       }),
-  //     [MESSAGE]: incoming => this.resendMessageToAll(socket, incoming),
-  //     [IS_TYPING]: incoming => this.sendTypingNotification(socket, incoming),
+  //     [MESSAGE]: income => this.resendMessageToAll(socket, income),
+  //     [IS_TYPING]: income => this.sendTypingNotification(socket, income),
   //     [PING]: () => this.sendPong(socket),
   //     [CHANGE_NAME]: () => {},
-  //     [DELETE_CHAT]: incoming => this.removeChat(incoming),
-  //     [OPEN_CHAT]: incoming => this.createChat(socket, incoming),
+  //     [DELETE_CHAT]: income => this.removeChat(income),
+  //     [OPEN_CHAT]: income => this.createChat(socket, income),
   //     [LEAVE_CHAT]: () => {},
   //     [HAS_ID]: () => console.log('Has userId: ', userId),
   //   };
   //
   //   // this function will become this.handleSpecificMessageType
-  //   return (key, incoming) => {
+  //   return (key, income) => {
   //     if (messageTypesMap.hasOwnProperty(key)) {
-  //       messageTypesMap[key](incoming);
+  //       messageTypesMap[key](income);
   //     } else {
-  //       console.error('Unknown key of incoming message');
+  //       console.error('Unknown key of income message');
   //     }
   //   };
   // }
