@@ -8,7 +8,7 @@ require('./server/db/mongoose');
 // TODO:
 require('dotenv-safe').config();
 
-const { logger, requestLogger, errorLogger } = loggers;
+const { log, requestLogger, errorLogger } = loggers;
 // const webpack = require('webpack');
 // const webpackDevMiddleWare = require('webpack-dev-middleware');
 // const config = require('./webpack.config.js');
@@ -66,12 +66,12 @@ app.use(errorLogger);
 // }));
 
 app.use((error, req, res, next) => {
-  logger.error(error.message);
+  log.error(error.message);
   res.status(error.code || 500).end(error);
 });
 
 server.listen(port);
 
 server.on('listening', () => {
-  logger.info(`Server is listening at ${server.address().port} port`);
+  log.info(`Server is listening at ${server.address().port} port`);
 });

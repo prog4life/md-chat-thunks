@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const jwt = require('jwt-simple');
-const { logger } = require('../loggers')(module);
+const jwt = require('jsonwebtoken');
+const { log } = require('../loggers')(module);
 
 const { Schema } = mongoose;
 
@@ -40,32 +40,32 @@ const userSchema = Schema({
 userSchema.statics.createOne = function createOne(userData = {}) {
   return this.create(userData)
     .then((user) => {
-      logger.debug('New user created: ', JSON.stringify(user, null, 2));
+      log.debug('New user created: ', JSON.stringify(user, null, 2));
 
       this.find({}, (e, users) => {
-        if (e) return logger.error(e);
+        if (e) return log.error(e);
         const userIds = users.map(u => u.id);
-        return logger.debug('Current ⁽ƈ ͡ (ुŏ̥̥̥̥םŏ̥̥̥̥) ु : ', userIds.join(', '));
+        return log.debug('Current ⁽ƈ ͡ (ुŏ̥̥̥̥םŏ̥̥̥̥) ु : ', userIds.join(', '));
       });
 
       return user;
     })
-    .catch(err => logger.error('User creation error ', err));
+    .catch(err => log.error('User creation error ', err));
 };
 
 userSchema.statics.deleteOneById = function deleteOneById(id) {
   return this.deleteOne({ _id: id }).exec()
-    .then(res => logger.debug(`User with id ${id} deleted, response: `, res))
-    .catch(e => logger.error(`Failed to delete user with id ${id} `, e));
+    .then(res => log.debug(`User with id ${id} deleted, response: `, res))
+    .catch(e => log.error(`Failed to delete user with id ${id} `, e));
 };
 
 userSchema.statics.deleteAll = function deleteAll(callback = () => {}) {
   this.deleteMany({}, (err) => {
     if (err) {
-      logger.error(err);
+      log.error(err);
       callback(err);
     }
-    logger.debug('All users deleted');
+    log.debug('All users deleted');
     return callback();
   });
 };
@@ -101,13 +101,13 @@ userSchema.methods.transform = function transform() {
 // - handle errors
 
 userSchema.methods.token = function token() {
-  const playload = {
+  const payload = {
     exp: moment().add(jwtExpirationInterval, 'minutes').unix(),
     iat: moment().unix(),
     sub: this._id,
   };
 
-  return jwt.encode(playload, jwtSecret);
+  return jwt.sign(payload, jwtSecret);
 };
 
 // TODO: rename later to toJSON | makeJSON | transfor

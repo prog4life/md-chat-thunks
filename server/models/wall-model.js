@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { logger } = require('../loggers')(module);
+const { log } = require('../loggers')(module);
 
 const { Schema } = mongoose;
 
@@ -14,28 +14,28 @@ const wallSchema = Schema({
 
 // Statics
 wallSchema.statics.subscribe = async function subscribe(userIds, city) {
-  logger.debug('wall.model.subscribe params: ', userIds, city);
+  log.debug('wall.model.subscribe params: ', userIds, city);
   const wall = await this.findOne({ city }).exec();
   const subs = wall.subscribers;
   const isMany = Array.isArray(userIds);
   let exists = false;
-  logger.debug('wall.model.subscribe exists and subs: ', exists, subs);
+  log.debug('wall.model.subscribe exists and subs: ', exists, subs);
 
   if (isMany) {
     exists = userIds.some(id => subs.includes(id));
   } else {
     exists = subs.includes(userIds);
   }
-  logger.debug('wall.model.subscribe exists and subs: ', exists, subs);
+  log.debug('wall.model.subscribe exists and subs: ', exists, subs);
   if (exists) {
     throw new Error('User with such id is present in wall subscribers already');
   }
   wall.subscribers = subs.concat(userIds);
-  logger.debug('wall.model.subscribe upd subscribers: ', wall.subscribers);
+  log.debug('wall.model.subscribe upd subscribers: ', wall.subscribers);
   const updatedWall = await wall.save();
   // TEMP:
-  logger.debug('Updated subscribers length: ', updatedWall.subscribers.length);
-  logger.debug(
+  log.debug('Updated subscribers length: ', updatedWall.subscribers.length);
+  log.debug(
     'Updated subscribers truthy length: ',
     updatedWall.subscribers.filter(Boolean).length,
   );
@@ -45,35 +45,35 @@ wallSchema.statics.subscribe = async function subscribe(userIds, city) {
 wallSchema.statics.createOne = function createOne(params) {
   return this.create(params)
     .then((wall) => {
-      logger.debug('New wall saved: ', JSON.stringify(wall, null, 4));
+      log.debug('New wall saved: ', JSON.stringify(wall, null, 4));
 
       this.count({}, (e, count) => {
-        if (e) return logger.error(e);
-        return logger.debug('Current wall count: ', count);
+        if (e) return log.error(e);
+        return log.debug('Current wall count: ', count);
       });
 
       return wall;
     })
-    .catch(err => logger.error('Wall creation error ', err));
+    .catch(err => log.error('Wall creation error ', err));
 };
 
 wallSchema.statics.findSingle = function findSingle() {
   return this.findOne().exec()
     .then((wall) => {
-      logger.debug('Found main wall with id: ', wall.id);
+      log.debug('Found main wall with id: ', wall.id);
 
       return wall;
     })
-    .catch(err => logger.error('Failed to find main wall ', err));
+    .catch(err => log.error('Failed to find main wall ', err));
 };
 
 wallSchema.statics.deleteAll = function deleteAll(callback = () => {}) {
   this.deleteMany({}, (err) => {
     if (err) {
-      logger.error(err);
+      log.error(err);
       callback(err);
     }
-    logger.debug('All walls deleted');
+    log.debug('All walls deleted');
     return callback();
   });
 };
@@ -84,8 +84,8 @@ wallSchema.methods.unsubscribe = function subscribe(clientId) {
     { _id: this.id },
     { $pull: { subscribers: clientId } },
     (err, rawRes) => {
-      if (err) return logger.error('Fail to del wall subscriber: ', err);
-      return logger.debug(`Delete subscriber ${clientId}, response: `, rawRes);
+      if (err) return log.error('Fail to del wall subscriber: ', err);
+      return log.debug(`Delete subscriber ${clientId}, response: `, rawRes);
     },
   );
 };
@@ -95,13 +95,13 @@ wallSchema.methods.unsubscribe = function subscribe(clientId) {
 //     { _id: this.id },
 //     { $push: { subscribers: clientId } }, // NOTE: push
 //     (err, rawRes) => {
-//       if (err) return logger.error('Fail to add to wall subscribers: ', err);
-//       logger.debug('Updated subscribers length: ', this.subscribers.length);
-//       logger.debug(
+//       if (err) return log.error('Fail to add to wall subscribers: ', err);
+//       log.debug('Updated subscribers length: ', this.subscribers.length);
+//       log.debug(
 //         'Updated subscribers truthy length: ',
 //         this.subscribers.filter(Boolean).length,
 //       );
-//       return logger.debug(`Add ${clientId} to wall subscribers, response: `, rawRes);
+//       return log.debug(`Add ${clientId} to wall subscribers, response: `, rawRes);
 //     },
 //   );
 // };
@@ -111,8 +111,8 @@ wallSchema.methods.unsubscribe = function subscribe(clientId) {
 //     { _id: this.id },
 //     { $pull: { subscribers: clientId } }, // NOTE: pull
 //     (err, rawRes) => {
-//       if (err) return logger.error('Fail to del wall subscriber: ', err);
-//       return logger.debug(`Delete subscriber ${clientId}, response: `, rawRes);
+//       if (err) return log.error('Fail to del wall subscriber: ', err);
+//       return log.debug(`Delete subscriber ${clientId}, response: `, rawRes);
 //     },
 //   );
 // };
@@ -121,27 +121,27 @@ wallSchema.methods.unsubscribe = function subscribe(clientId) {
 //   { _id: this.id },
 //   { $push: { subscribers: clientId } },
 //   (err, rawRes) => {
-//     if (err) return logger.error('Fail to add to wall subscribers: ', err);
-//     logger.debug('Updated subscribers length: ', this.subscribers.length);
-//     logger.debug(
+//     if (err) return log.error('Fail to add to wall subscribers: ', err);
+//     log.debug('Updated subscribers length: ', this.subscribers.length);
+//     log.debug(
 //       'Updated subscribers truthy length: ',
 //       this.subscribers.filter(Boolean).length,
 //     );
 //     // TODO: replace by promise later
 //     callback();
-//     return logger.debug(`Add ${clientId} to wall subscribers, response: `, rawRes);
+//     return log.debug(`Add ${clientId} to wall subscribers, response: `, rawRes);
 //   },
 // );
 
 // 2nd - optional, to select only such prop
 // Wall.find({}, 'subscribers', (err, docs) => {
-//   if (err) return logger.error(err);
+//   if (err) return log.error(err);
 //   this.wallId = docs[0].id;
-//   return logger.debug('Single wall id: ', docs[0].id);
+//   return log.debug('Single wall id: ', docs[0].id);
 // });
 // Wall.find({}, 'subscribers').exec().then(
-//   docs => logger.debug('doc 1 id: ', docs[0].id),
-//   err => logger.error(err),
+//   docs => log.debug('doc 1 id: ', docs[0].id),
+//   err => log.error(err),
 // );
 
 module.exports = mongoose.model('Wall', wallSchema);

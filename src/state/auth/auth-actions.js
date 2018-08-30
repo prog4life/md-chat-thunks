@@ -19,7 +19,7 @@ export const maybeLogin = thatToken => (dispatch, getState, socket) => {
 
 export const loginAnonSucces = data => ({
   type: aT.LOGIN_ANON_SUCCESS,
-  payload: { ...data, userId: data.id },
+  payload: { ...data },
 });
 
 export const loginAnonFail = ({ message }) => ({

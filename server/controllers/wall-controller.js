@@ -1,5 +1,5 @@
 const Wall = require('../models/wall-model');
-const { logger } = require('../loggers')(module);
+const { log } = require('../loggers')(module);
 
 /**
  * Find wall by city, add user id(s) to wall subscibers, return array

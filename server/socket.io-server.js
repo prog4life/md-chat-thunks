@@ -1,7 +1,7 @@
 const socketIO = require('socket.io');
 const Wall = require('./models/wall-model');
 const User = require('./models/user-model');
-const { logger } = require('./loggers')(module);
+const { log } = require('./loggers')(module);
 const WebsocketConnection = require('./connection');
 
 // const handleMessage = (socket, onMessage) => (income) => {
@@ -17,7 +17,7 @@ const handleConnection = (socket, wss) => {
   // heartbeat
   socket.on('ping', () => {
     const timeNow = new Date().toLocaleTimeString('en-GB', { hour12: false });
-    logger.info(`ping from client received - ${timeNow}`);
+    log.info(`ping from client received - ${timeNow}`);
     socket.emit('pong');
   });
 
@@ -34,14 +34,14 @@ const handleConnection = (socket, wss) => {
   });
 
   socket.on('error', (error) => {
-    logger.error('Websocket onerror with error: ', error);
+    log.error('Websocket onerror with error: ', error);
     socket.terminate();
     // messenger.removeChat(chat);
   });
 
   socket.on('disconnect', () => {
     connection.handleClose();
-    logger.debug('socket disconnect, connected clients amount: ');
+    log.debug('socket disconnect, connected clients amount: ');
   });
 };
 
@@ -53,8 +53,8 @@ const startServer = (httpServer, pingInterval) => {
   // socketIOServer.on('connection', handleConnection(messenger));
 
   User.countDocuments({}).exec().then((count) => {
-    logger.debug('Current ⁽ƈ ͡ (ुŏ̥̥̥̥םŏ̥̥̥̥) ु count: ', String(count));
-  }).catch(e => logger.error('Users count error: ', e));
+    log.debug('Current ⁽ƈ ͡ (ुŏ̥̥̥̥םŏ̥̥̥̥) ु count: ', String(count));
+  }).catch(e => log.error('Users count error: ', e));
 
   User.deleteAll();
 
@@ -64,16 +64,16 @@ const startServer = (httpServer, pingInterval) => {
   });
 
   Wall.countDocuments({}, (error, count) => {
-    if (error) return logger.error(error);
+    if (error) return log.error(error);
     if (count === 0) {
-      logger.debug('Wall count is 0: ', String(count));
+      log.debug('Wall count is 0: ', String(count));
       return makeSingleWall();
     }
     if (count > 1) {
-      logger.debug('Wall count is: ', count);
+      log.debug('Wall count is: ', count);
       return Wall.deleteAll(makeSingleWall);
     }
-    logger.debug('Wall count is: ', count);
+    log.debug('Wall count is: ', count);
     return count;
   });
 
@@ -84,7 +84,7 @@ const startServer = (httpServer, pingInterval) => {
     handleConnection(socket, socketIOServer);
   });
   socketIOServer.on('error', (error) => {
-    logger.error('Websocket Server error ', error);
+    log.error('Websocket Server error ', error);
 
     // socketIOServer.close(() => {
     //   setTimeout(() => startServer(httpServer), 1000); // maybe remove timeout
@@ -95,7 +95,7 @@ const startServer = (httpServer, pingInterval) => {
 };
 
 const stopServer = (socketIOServer) => {
-  socketIOServer.close(() => logger.info('Websocket Server was stopped'));
+  socketIOServer.close(() => log.info('Websocket Server was stopped'));
 };
 
 exports.start = startServer;

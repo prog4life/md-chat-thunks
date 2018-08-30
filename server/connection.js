@@ -3,7 +3,7 @@ const WallController = require('./controllers/wall-controller');
 const Wall = require('./models/wall-model');
 const WallPost = require('./models/wall-post-model');
 const User = require('./models/user-model');
-const { logger } = require('./loggers')(module);
+const { log } = require('./loggers')(module);
 // const user = require('./user');
 // const wall = require('./wall');
 
@@ -70,22 +70,22 @@ class WebsocketConnection {
       //   this.socket.send(JSON.stringify({ key: SET_ID, userId: this.userId }));
       // },
       [INITIALIZATION]: (income) => {
-        logger.debug('Initializtion message received ', income);
+        log.debug('Initializtion message received ', income);
       },
       [AUTH_ANON]: async ({ userId, jwt }) => {
         // TODO: authenticate in db if it has some token/session_id
         // if (userId) {
         //   this.userId = userId;
-        //   logger.debug('Auth anon with existing user id: ', userId);
+        //   log.debug('Auth anon with existing user id: ', userId);
         //   this.sendBack(AUTH_ANON_OK, { id: userId });
         //   return;
         // }
         try {
           const newUser = await this.createUser();
-          logger.debug('New user that will be sent: ', newUser);
+          log.debug('New user that will be sent: ', newUser);
           this.sendBack(AUTH_ANON_OK, newUser);
         } catch (e) {
-          logger.error('Failed to create anon user ', e);
+          log.error('Failed to create anon user ', e);
           this.sendBack(AUTH_ANON_ERR, { message: e.message });
         }
       },
@@ -102,10 +102,10 @@ class WebsocketConnection {
         const [err, wall] = await WallController.addSubscribers(userId, city);
 
         if (err) {
-          logger.error('Cant connect to wall ', err);
+          log.error('Cant connect to wall ', err);
           this.sendBack(WALL_CONNECT_ERR, { message: err.message });
         } else {
-          logger.debug('Connected to wall with id: ', wall.id);
+          log.debug('Connected to wall with id: ', wall.id);
           this.sendBack(WALL_CONNECT_DONE, { wall });
         }
       },
@@ -136,7 +136,7 @@ class WebsocketConnection {
     // apply handlers to socket events
     Object.keys(this.socketEventHandlers).forEach((eventName) => {
       socket.on(eventName, (data) => {
-        logger.debug(
+        log.debug(
           'Received data: ',
           JSON.parse(data),
           ` on ${eventName} event`,
@@ -203,7 +203,7 @@ class WebsocketConnection {
     try {
       income = JSON.parse(rawIncoming);
     } catch (e) {
-      logger.error('Failed to parse income JSON ', e);
+      log.error('Failed to parse income JSON ', e);
     }
 
     if (!income || !validator.validateIncoming(income)) {
@@ -213,7 +213,7 @@ class WebsocketConnection {
     const { key } = income;
 
     if (!this.socketEventHandlers.hasOwnProperty(key)) {
-      logger.error('Unknown key of income message');
+      log.error('Unknown key of income message');
     } else if (!this.userId) { // !userId - if userId is stored on client
       this.createUser()()
         // .then(id => this.socket.send({ key: INITIALIZATION, userId: id }))
@@ -226,7 +226,7 @@ class WebsocketConnection {
   }
 
   handleClose() {
-    logger.debug('Disconnected, current user id: ', this.userId);
+    log.debug('Disconnected, current user id: ', this.userId);
     if (this.userId) {
       UserController.deleteAnonUserById(this.userId);
     }

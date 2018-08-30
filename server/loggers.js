@@ -54,7 +54,7 @@ const configureLoggers = (parentModule) => {
   // const logSourcePath = `${lastDirPart}/${parts.base}`;
 
   // MAIN LOGGER
-  const logger = new winston.Logger({
+  const log = new winston.Logger({
     level,
     transports: [
       new winston.transports.Console({
@@ -85,7 +85,7 @@ const configureLoggers = (parentModule) => {
   });
 
   return {
-    logger,
+    log,
     requestLogger,
     errorLogger,
   };
@@ -93,12 +93,12 @@ const configureLoggers = (parentModule) => {
 
 module.exports = configureLoggers;
 
-// logger.log('info', 'Hello distributed log files!');
-// logger.info('Hello again distributed logs');
+// log.log('info', 'Hello distributed log files!');
+// log.info('Hello again distributed logs');
 
-// logger.level = 'debug';
-// logger.log('debug', 'Now my debug messages are written to console!');
-// logger.warn('Some warning');
+// log.level = 'debug';
+// log.log('debug', 'Now my debug messages are written to console!');
+// log.warn('Some warning');
 
 // alternative config manners
 // winston.add(winston.transports.File, { filename: 'winston.log' });
