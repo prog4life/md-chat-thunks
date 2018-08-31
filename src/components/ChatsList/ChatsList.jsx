@@ -7,10 +7,8 @@ import { ListGroup, ListGroupItem } from 'reactstrap';
 import ChatPreview from './ChatPreview';
 
 const propTypes = {
-  chats: PropTypes.arrayOf(Object).isRequired,
-  clientId: PropTypes.string.isRequired,
-  deleteChat: PropTypes.func.isRequired,
-  // prepareWebsocketAndClientId: PropTypes.func.isRequired,
+  // chats: PropTypes.arrayOf(Object).isRequired,
+  userId: PropTypes.string.isRequired,
 };
 
 class ChatsList extends PureComponent {
@@ -19,10 +17,12 @@ class ChatsList extends PureComponent {
     this.handleChatListItemClick = this.handleChatListItemClick.bind(this);
     this.handleChatItemClose = this.handleChatItemClose.bind(this);
   }
+
   componentDidMount() {
     // const { prepareWebsocketAndClientId } = this.props;
     // prepareWebsocketAndClientId();
   }
+
   handleChatListItemClick(e, chatId) {
     const { history, match } = this.props;
     console.dir(e.target);
@@ -32,13 +32,15 @@ class ChatsList extends PureComponent {
     // history.push(`${match.url}/:${chatId}`);
     history.push(`/chat/${chatId}`);
   }
+
   handleChatItemClose(e, chatId) {
     e.stopPropagation();
-    const { clientId, deleteChat } = this.props;
+    const { userId, deleteChat } = this.props;
 
     console.dir(e.target, chatId);
-    deleteChat(chatId, clientId);
+    deleteChat(chatId, userId);
   }
+
   render() {
     const { chats } = this.props;
     return (

@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const { addMinutes, format, getTime } = require('date-fns');
 const { log } = require('../loggers')(module);
+const { jwtSecret, jwtExpInterval } = require('../env-vars');
 
 const { Schema } = mongoose;
 
@@ -101,13 +103,24 @@ userSchema.methods.transform = function transform() {
 // - handle errors
 
 userSchema.methods.token = function token() {
+  // OR Math.floor(Date.now() / 1000)
+  const currTimeInSec = parseInt(format(Date.now(), 'X'), 10);
+  const expirationDate = addMinutes(Date.now(), jwtExpInterval);
+  // claims, all optional
   const payload = {
-    exp: moment().add(jwtExpirationInterval, 'minutes').unix(),
-    iat: moment().unix(),
-    sub: this._id,
+    // expiration time, moment at which token becomes expired
+    exp: Math.floor(getTime(expirationDate) / 1000), // seconds, Integer
+    // only this one added for no options case
+    iat: currTimeInSec, // seconds, Integer
+    sub: this._id, // eslint-disable-line no-underscore-dangle
   };
 
-  return jwt.sign(payload, jwtSecret);
+  return jwt.sign(payload, jwtSecret, {
+    // After what time from now token will be expired
+    // Number will be interpreted as seconds,
+    // String without time units at the end - as milliseconds
+    // expiresIn: jwtExpirationInterval * 60,
+  });
 };
 
 // TODO: rename later to toJSON | makeJSON | transfor
