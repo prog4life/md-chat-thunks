@@ -198,7 +198,7 @@ module.exports = {
             options: {
               name: isProduction ? '[name].[hash].[ext]' : '[name].[ext]',
               // outputPath: 'assets/', // custom output path
-              useRelativePath: true, // isProd
+              // useRelativePath: true, // isProd
             },
           },
           // {
@@ -252,6 +252,7 @@ module.exports = {
       //     fallback: 'style-loader'
       //   })
       // },
+      // TODO: SVG should be excluded due to https://github.com/facebookincubator/create-react-app/issues/1153
       // {
       //   test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/,
       //   loader: 'url-loader',

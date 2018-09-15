@@ -5,18 +5,8 @@ node_modules/
 dist/
 build/
 
-# TEMP:
-build/assets/
-public/**
-
-public/assets/
-src/assets/
-
-public/**/*.js
-public/**/*.js.map
-public/**/*.css
-public/**/*.css.map
-public/report.html
+# TEMP (will be replaced by "dist" or "build" later):
+public/
 
 # environment variables
 **/.env
@@ -26,11 +16,13 @@ public/report.html
 
 # misc
 .DS_Store
-npm-debug.log
-yarn-error.log
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+express.log
+
 **/.idea/
 **/.vscode/
-**/TEMP/
-**/TMP/
 **/temp/
 **/tmp/

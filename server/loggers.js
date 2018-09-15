@@ -49,7 +49,7 @@ const configureLoggers = (parentModule) => {
   if (isNotProd && !parentModule.id && !parentModule.exports) {
     throw new Error('Expected "module" to be passed to require^d function');
   }
-  const parts = path.parse(parentModule.filename); // obj of path parts
+  const parts = path.parse(parentModule.filename); // => obj of path parts
   // const [lastDirPart] = parts.dir.split(path.sep).slice(-1);
   // const logSourcePath = `${lastDirPart}/${parts.base}`;
 

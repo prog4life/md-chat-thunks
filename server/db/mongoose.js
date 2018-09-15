@@ -1,30 +1,16 @@
 const mongoose = require('mongoose');
 
-mongoose.Promise = global.Promise;
+mongoose.Promise = global.Promise; // TODO: switch to bluebird Promise
 
-// (monogdb uri, options, callback) => Promise
-mongoose.connect('mongodb://localhost:27017/md-chat', {
-  // (node:5272) DeprecationWarning: current URL string parser is deprecated,
-  // and will be removed in a future version. To use the new parser, pass
-  // option { useNewUrlParser: true } to MongoClient.connect.
-  useNewUrlParser: true,
-  keepAlive: 1,
-});
-// .then(
-//   () => console.log('MongoDB connection is open'),
-//   err => console.error('MongoDB connection error ', err),
-// );
+const conn = mongoose.connection;
 
+conn.on('error', console.error.bind(console, 'MongoDB connection error: ')); //  !!!
+conn.once('open', () => console.log('MongoDB connection is open'));
 // Exit application on error
-// mongoose.connection.on('error', (err) => {
-//   console.error(`MongoDB connection error: ${err}`);
-//   process.exit(-1);
-// });
-
-const db = mongoose.connection;
-
-db.on('error', console.error.bind(console, 'MongoDB connection error: '));
-db.once('open', () => console.log('MongoDB connection is open'));
+conn.on('error', (err) => {
+  // console.error(`MongoDB connection error: ${err}`);
+  process.exit(-1);
+});
 
 // print mongoose logs in dev env
 if (process.env.NODE_ENV === 'development') {
@@ -38,10 +24,18 @@ if (process.env.NODE_ENV === 'development') {
 * @public
 */
 exports.connect = () => {
-  mongoose.connect(mongo.uri, {
-    keepAlive: 1,
-    useMongoClient: true,
+  // (monogdb uri, options, callback) => Promise
+  mongoose.connect('mongodb://localhost:27017/md-chat', { // TODO: mongo.uri
+    // (node:5272) DeprecationWarning: current URL string parser is deprecated,
+    // and will be removed in a future version. To use the new parser, pass
+    // option { useNewUrlParser: true } to MongoClient.connect.
+    useNewUrlParser: true,
+    keepAlive: true, // was 1
+    // useMongoClient: true, // from boilerplate
   });
+  // .then(
+  //   () => console.log('MongoDB connection is open'),
+  //   err => console.error('MongoDB connection error ', err),
+  // );
   return mongoose.connection;
 };
-exports.mongoose = mongoose;

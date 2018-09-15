@@ -4,7 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const loggers = require('./server/loggers')(module);
-require('./server/db/mongoose');
+const mongoose = require('./server/db/mongoose');
 // TODO:
 require('dotenv-safe').config();
 
@@ -14,6 +14,9 @@ const { log, requestLogger, errorLogger } = loggers;
 // const config = require('./webpack.config.js');
 // const compiler = webpack(config);
 const websocketServer = require('./server/socket.io-server');
+
+// open mongoose connection
+mongoose.connect(); // => mongoose.connection
 
 const app = express();
 const server = http.createServer(app);
@@ -41,6 +44,7 @@ app.use(morgan(morganMessageFormat));
 app.use(requestLogger);
 app.use(express.static(publicPath));
 
+// TEMP:
 app.get('/favicon.ico', (req, res) => {
   res.set('Content-Type', 'image/x-icon');
   res.status(200).end();
