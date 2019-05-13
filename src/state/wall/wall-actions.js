@@ -12,20 +12,20 @@ import { toJSON, parseJSON } from 'utils';
 
 export const joinWall = (userId, wallId) => (dispatch, getState, socket) => {
   const city = 'Singapore';
-  const outgoing = toJSON({ userId: shortId.generate(), city });
+  const outgoing = toJSON({ userId, city });
 
   dispatch({ type: JOIN_WALL, userId, city });
   socket.emit(sE.WALL_CONNECT, outgoing);
 };
 
-export const joinWallSucces = ({ wallId, city }) => ({
+export const joinWallSucces = (data) => ({
   type: JOIN_WALL_SUCCESS,
-  payload: { wallId, city },
+  payload: data,
 });
 
 export const joinWallFail = ({ message }) => ({
   type: JOIN_WALL_FAIL,
-  payload: new Error(message), // TODO: converError({ code, message });
+  payload: new Error(message), // TODO: convertError({ code, message });
   error: true,
 });
 

@@ -5,9 +5,9 @@ import { joinWallSucces, joinWallFail } from 'state/wall';
 import { toJSON, parseJSON } from 'utils';
 
 export const socketEventHandlers = {
-  [sE.AUTH_ANON_OK]: data => dispatch => dispatch(loginAnonSucces(data)),
+  [sE.AuthAnonOk]: data => dispatch => dispatch(loginAnonSucces(data)),
   [sE.AUTH_ANON_ERR]: data => dispatch => dispatch(loginAnonFail(data)),
-  [sE.WALL_CONNECT_DONE]: data => dispatch => dispatch(joinWallSucces(data)),
+  [sE.JoinWallOk]: data => dispatch => dispatch(joinWallSucces(data)),
   [sE.WALL_CONNECT_ERR]: data => dispatch => dispatch(joinWallFail(data)),
 };
 

@@ -38,7 +38,7 @@ class PublicWall extends React.Component {
   componentDidUpdate() {
     console.log('PUBLIC WALL UPDATE');
     // this.login();
-    this.joinWallConditionally();
+    // this.joinWallConditionally();
   }
 
   componentWillUnmount() {

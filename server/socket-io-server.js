@@ -18,10 +18,11 @@ const handleConnection = (socket, wss) => {
   socket.on('ping', () => {
     const timeNow = new Date().toLocaleTimeString('en-GB', { hour12: false });
     log.info(`ping from client received - ${timeNow}`);
+    // TODO: remove as this event is reserved and should not be used
     socket.emit('pong');
   });
 
-  // IDEA: bund events to handlers with forEach/reduce, then pass to each
+  // IDEA: bind events to handlers with forEach/reduce, then pass to each
   // handler connController as 2nd argument to utilize senBack, broadcast and
   // others
 

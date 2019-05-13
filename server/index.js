@@ -3,8 +3,8 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const loggers = require('./server/loggers')(module);
-const mongoose = require('./server/db/mongoose');
+const loggers = require('./loggers')(module);
+const mongoose = require('./db/mongoose');
 // TODO:
 require('dotenv-safe').config();
 
@@ -13,7 +13,7 @@ const { log, requestLogger, errorLogger } = loggers;
 // const webpackDevMiddleWare = require('webpack-dev-middleware');
 // const config = require('./webpack.config.js');
 // const compiler = webpack(config);
-const websocketServer = require('./server/socket.io-server');
+const socketIOServer = require('./socket-io-server');
 
 // open mongoose connection
 mongoose.connect(); // => mongoose.connection
@@ -21,7 +21,7 @@ mongoose.connect(); // => mongoose.connection
 const app = express();
 const server = http.createServer(app);
 
-websocketServer.start(server);
+socketIOServer.start(server);
 
 const port = process.env.PORT || 8787;
 // can be something like: path.join(__dirname, '..', 'public')

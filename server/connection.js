@@ -15,7 +15,7 @@ const SIGN_IN = 'Sign_In';
 const SIGN_UP = 'Sign_Up';
 
 const AUTH_ANON = 'Auth::Sign-In-Anon';
-const AUTH_ANON_OK = 'Auth::Sign-In-Anon::OK'; // or _OK at the end
+const AuthAnonOk = 'AuthAnonOk'; // or _OK at the end
 const AUTH_ANON_ERR = 'Auth::Sign-In-Anon::Error';
 
 const AUTH_LOGIN = 'Auth::Login';
@@ -31,7 +31,7 @@ const AUTH_SIGN_OUT_DONE = 'Auth::Sign-Out::Done';
 const AUTH_SIGN_OUT_ERR = 'Auth::Sign-Out::Error';
 
 const WALL_CONNECT = 'Wall::Connect';
-const WALL_CONNECT_DONE = 'Wall::Connect::Done';
+const JoinWallOk = 'JoinWallOk';
 const WALL_CONNECT_ERR = 'Wall::Connect::Error';
 const WALL_DISCONNECT = 'Wall::Disconnect';
 
@@ -77,13 +77,13 @@ class WebsocketConnection {
         // if (userId) {
         //   this.userId = userId;
         //   log.debug('Auth anon with existing user id: ', userId);
-        //   this.sendBack(AUTH_ANON_OK, { id: userId });
+        //   this.sendBack(AuthAnonOk, { id: userId });
         //   return;
         // }
         try {
           const newUser = await this.createUser();
           log.debug('New user that will be sent: ', newUser);
-          this.sendBack(AUTH_ANON_OK, newUser);
+          this.sendBack(AuthAnonOk, newUser);
         } catch (e) {
           log.error('Failed to create anon user ', e);
           this.sendBack(AUTH_ANON_ERR, { message: e.message });
@@ -99,14 +99,25 @@ class WebsocketConnection {
       [WALL_CONNECT]: async ({ userId, city }) => {
         // NOTE: can get city-to-wallId lookup table at client boot with
         // separate request
-        const [err, wall] = await WallController.addSubscribers(userId, city);
+        let id = userId;
+
+        if (!id) {
+          const [err, newAnonUser] = await UserController.createAnon();
+
+          if (err) return;
+
+          id = newAnonUser.id;
+          log.debug('New anon user id ', id);
+          this.sendBack(AuthAnonOk, { id });
+        }
+        const [err, wall] = await WallController.addSubscribers(id, city);
 
         if (err) {
           log.error('Cant connect to wall ', err);
           this.sendBack(WALL_CONNECT_ERR, { message: err.message });
         } else {
-          log.debug('Connected to wall with id: ', wall.id);
-          this.sendBack(WALL_CONNECT_DONE, { wall });
+          log.debug('Connected to wall with id and city ', wall.id, city);
+          this.sendBack(JoinWallOk, { wallId: wall.id, city: wall.city });
         }
       },
       // .catch(), /* do something */

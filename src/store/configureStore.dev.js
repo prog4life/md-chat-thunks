@@ -18,7 +18,8 @@ const logger = createLogger({
 
 const watcher = immutabilityWatcher();
 
-const socket = socketIO('http://localhost:3000');
+// const socket = socketIO('http://localhost:3000');
+const socket = socketIO.connect('http://localhost:3000');
 const thunkWithSocket = thunk.withExtraArgument(socket);
 
 const middleware = process.env.NODE_ENV === 'development'

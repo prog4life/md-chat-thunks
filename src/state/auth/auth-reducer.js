@@ -18,12 +18,15 @@ const userId = (state = null, action) => {
     // case aT.SIGN_IN_EMAIL:
     case aT.LOGIN_ANON:
       return null;
+
     case aT.LOGIN_ANON_SUCCESS:
       return action.payload.id;
+
     // case aT.SIGN_IN_ANON_FAIL:
     // case aT.SIGN_IN_EMAIL_FAIL:
     case aT.SIGN_OUT:
       return null;
+
     default:
       return state;
   }
