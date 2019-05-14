@@ -104,9 +104,13 @@ class WebsocketConnection {
         if (!id) {
           const [err, newAnonUser] = await UserController.createAnon();
 
-          if (err) return;
+          if (err) {
+            log.error('Cant connect to wall ', err);
+            this.sendBack(WALL_CONNECT_ERR, { message: err.message });
+            return;
+          }
 
-          id = newAnonUser.id;
+          ({ id } = newAnonUser);
           log.debug('New anon user id ', id);
           this.sendBack(AuthAnonOk, { id });
         }
@@ -121,9 +125,8 @@ class WebsocketConnection {
         }
       },
       // .catch(), /* do something */
-      [LEAVE_WALL]: () => this.getWall().then((wall) => {
-        wall.unsubscribe(this.userId);
-      }),
+      [WALL_DISCONNECT]: ({ userId, wallId }) => this.getWall(wallId)
+        .then(wall => wall.unsubscribe(userId)),
       // [JOIN_WALL]: () => Promise.all([this.getWall(), this.createUser()])
       //   .then(([wall, userId]) => wall.subscribe(userId)),
       // [LEAVE_WALL]: () => this.getWall()

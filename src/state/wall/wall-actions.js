@@ -30,7 +30,7 @@ export const joinWallFail = ({ message }) => ({
 });
 
 export const leaveWall = (userId, wallId) => (dispatch, getState, socket) => {
-  dispatch({ type: JOIN_WALL, payload: { userId, wallId } });
+  dispatch({ type: LEAVE_WALL, payload: { userId, wallId } });
   socket.emit(sE.WALL_DISCONNECT, toJSON({ userId, wallId }));
 };
 

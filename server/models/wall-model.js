@@ -27,12 +27,12 @@ wallSchema.statics.subscribe = async function subscribe(userIds, city) {
   } else {
     exists = subs.includes(userIds);
   }
-  log.debug('wall.model.subscribe exists and subs: ', { exists, subs, userIds });
+  log.debug('wall.model.subscribe exists and subs: ', { exists, subs: subs.length, userIds });
   if (exists) {
     throw new Error('User with such id is present in wall subscribers already');
   }
   wall.subscribers = subs.concat(userIds);
-  log.debug('wall.model.subscribe upd subscribers: ', { subs: wall.subscribers });
+  log.debug('wall.model.subscribe upd subscribers: ', { subs: wall.subscribers.length });
   const updatedWall = await wall.save();
   // TEMP:
   log.debug('Updated subscribers length: ', updatedWall.subscribers.length);
@@ -85,7 +85,7 @@ wallSchema.methods.unsubscribe = function subscribe(clientId) {
     { _id: this.id },
     { $pull: { subscribers: clientId } },
     (err, rawRes) => {
-      if (err) return log.error('Fail to del wall subscriber: ', err);
+      if (err) return log.error('Fail to delete wall subscriber: ', err);
       return log.debug(`Delete subscriber ${clientId}, response: `, rawRes);
     },
   );

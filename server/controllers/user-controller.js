@@ -1,5 +1,5 @@
 const User = require('../models/user-model');
-const AnonymousUser = require('../models/anonymous-user-model');
+const AnonymousUser = require('../models/anon-user-model');
 const Wall = require('../models/wall-model');
 const { log } = require('../loggers')(module);
 

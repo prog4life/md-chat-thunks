@@ -72,6 +72,17 @@ userSchema.statics.deleteAll = function deleteAll(callback = () => {}) {
   });
 };
 
+userSchema.statics.dropIndexes = function deleteAll(callback = () => {}) {
+  this.dropIndexes({}, (err) => {
+    if (err) {
+      log.error(err);
+      callback(err);
+    }
+    log.debug('All USER indexes droped');
+    return callback();
+  });
+};
+
 // userSchema.methods = Object.assign(userSchema.methods, {
 //
 // });

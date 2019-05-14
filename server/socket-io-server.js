@@ -1,6 +1,7 @@
 const socketIO = require('socket.io');
 const Wall = require('./models/wall-model');
 const User = require('./models/user-model');
+const AnonUser = require('./models/anon-user-model');
 const { log } = require('./loggers')(module);
 const WebsocketConnection = require('./connection');
 
@@ -58,6 +59,14 @@ const startServer = (httpServer, pingInterval) => {
   }).catch(e => log.error('Users count error: ', e));
 
   User.deleteAll();
+
+  AnonUser.dropIndexes();
+
+  AnonUser.countDocuments({}).exec().then((count) => {
+    log.debug('Current Anonymous USERS count: ', String(count));
+  }).catch(e => log.error('Users count error: ', e));
+
+  AnonUser.deleteAll();
 
   const makeSingleWall = () => Wall.createOne({
     city: 'Singapore',

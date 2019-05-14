@@ -31,6 +31,8 @@ exports.connect = () => {
     // option { useNewUrlParser: true } to MongoClient.connect.
     useNewUrlParser: true,
     keepAlive: true, // was 1
+    // https://mongoosejs.com/docs/guide.html#indexes
+    autoIndex: false, // TEMP: ?
     // useMongoClient: true, // from boilerplate
   });
   // .then(
